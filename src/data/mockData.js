@@ -7,9 +7,29 @@ export const MOCK_SALES = [
     { username: 'admin', password: 'admin' }
 ];
 
-export const MOCK_CLASSES = [
-    { id: 'c1', name: 'English 1 - Starter', branch: 'Jakarta Selatan', schedule: 'Sabtu, 10:00 - 11:30', maxSeats: 15, currentSeats: 12, price: 1500000 },
-    { id: 'c2', name: 'English 1 - Starter', branch: 'Jakarta Barat', schedule: 'Minggu, 09:00 - 10:30', maxSeats: 15, currentSeats: 5, price: 1500000 },
-    { id: 'c3', name: 'English 1 - Foundation', branch: 'Bandung', schedule: 'Sabtu, 13:00 - 14:30', maxSeats: 10, currentSeats: 9, price: 1200000 },
-    { id: 'c4', name: 'English 1 - Flexible (TBD)', branch: 'Any', schedule: 'To be Discussed', maxSeats: 999, currentSeats: 0, price: 1500000 },
+export const CENTERS = [
+    'Jakarta Selatan',
+    'Jakarta Barat',
+    'Jakarta Utara',
+    'Jakarta Pusat',
+    'Jakarta Timur',
+    'Tangerang',
+    'Bekasi',
+    'Depok',
+    'Bandung'
 ];
+
+export const SCHEDULE_OPTIONS = {
+    weekday: {
+        label: 'Weekday (Senin - Jumat)',
+        days: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'],
+        times: ['14:00 - 15:30', '15:30 - 17:00', '17:00 - 18:30']
+    },
+    weekend: {
+        label: 'Weekend (Sabtu & Minggu)',
+        days: ['Sabtu', 'Minggu'],
+        times: ['09:00 - 10:30', '10:30 - 12:00', '13:00 - 14:30']
+    }
+};
+
+export const PACKAGE_PRICE = 1500000;

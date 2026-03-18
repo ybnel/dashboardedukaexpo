@@ -1,33 +1,20 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store/useStore';
-import { UserPlus, BookOpen, LogOut, Users } from 'lucide-react';
+import { UserPlus, BookOpen } from 'lucide-react';
 
 export default function Dashboard() {
     const salesRep = useStore((state) => state.salesRep);
-    const logout = useStore((state) => state.logout);
-    const leads = useStore((state) => state.leads);
     const navigate = useNavigate();
-
-    const handleLogout = () => {
-        logout();
-        navigate('/login');
-    };
 
     return (
         <div className="min-h-screen p-4 pb-20 animate-fade-in">
             {/* Header */}
             <div className="flex justify-between items-center mb-8 glass-card p-4">
                 <div>
-                    <p className="text-sm text-slate-500">Selamat datang, Sales</p>
+                    <p className="text-sm text-slate-500">Selamat datang</p>
                     <h1 className="text-xl font-bold text-slate-800 capitalize">{salesRep}</h1>
                 </div>
-                <button
-                    onClick={handleLogout}
-                    className="p-2 text-slate-400 hover:text-red-500 transition-colors bg-white rounded-full shadow-sm"
-                >
-                    <LogOut size={20} />
-                </button>
             </div>
 
             {/* Main Actions */}

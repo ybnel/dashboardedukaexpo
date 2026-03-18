@@ -2,7 +2,8 @@ import React, { useEffect } from 'react'
 import {
   createBrowserRouter,
   RouterProvider,
-  Navigate
+  Navigate,
+  Outlet
 } from 'react-router-dom'
 import { useStore } from './store/useStore'
 
@@ -13,14 +14,21 @@ import AddLead from './pages/AddLead'
 import SelectClass from './pages/SelectClass'
 import Checkout from './pages/Checkout'
 import Success from './pages/Success'
+import LeadsList from './pages/LeadsList'
+import Navbar from './components/Navbar'
 
-// Protected Route Wrapper
-const ProtectedRoute = ({ children }) => {
+// Layout for protected pages
+const ProtectedLayout = () => {
   const salesRep = useStore((state) => state.salesRep)
   if (!salesRep) {
     return <Navigate to="/login" replace />
   }
-  return children
+  return (
+    <div className="pb-24 relative min-h-screen">
+      <Outlet />
+      <Navbar />
+    </div>
+  )
 }
 
 const router = createBrowserRouter([
@@ -30,43 +38,15 @@ const router = createBrowserRouter([
   },
   {
     path: '/',
-    element: (
-      <ProtectedRoute>
-        <Dashboard />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/add-lead',
-    element: (
-      <ProtectedRoute>
-        <AddLead />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/select-class',
-    element: (
-      <ProtectedRoute>
-        <SelectClass />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/checkout',
-    element: (
-      <ProtectedRoute>
-        <Checkout />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/success',
-    element: (
-      <ProtectedRoute>
-        <Success />
-      </ProtectedRoute>
-    ),
+    element: <ProtectedLayout />,
+    children: [
+      { path: '/', element: <Dashboard /> },
+      { path: '/add-lead', element: <AddLead /> },
+      { path: '/leads', element: <LeadsList /> },
+      { path: '/select-class', element: <SelectClass /> },
+      { path: '/checkout', element: <Checkout /> },
+      { path: '/success', element: <Success /> },
+    ],
   }
 ])
 

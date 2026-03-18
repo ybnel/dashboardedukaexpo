@@ -9,18 +9,7 @@ export const useStore = create(
             login: (username) => set({ salesRep: username }),
             logout: () => set({ salesRep: null }),
 
-            // Leads state
-            leads: [],
-            addLead: (leadData) => {
-                // Generate simple ID like L-1234
-                const newId = `L-${Math.floor(1000 + Math.random() * 9000)}`;
-                const newLead = { ...leadData, id: newId, timestamp: new Date().toISOString() };
 
-                set((state) => ({
-                    leads: [newLead, ...state.leads]
-                }));
-                return newId; // return id so UI can show success message
-            },
 
             // Checkout State
             currentCheckout: null,
