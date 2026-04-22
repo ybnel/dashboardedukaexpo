@@ -2,8 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store/useStore';
 import { supabase } from '../lib/supabase';
-import { CENTERS, SCHEDULE_OPTIONS } from '../data/mockData';
-import { ArrowLeft, UserCheck, Calendar, MapPin, Loader2, AlertCircle, CheckSquare, Square, Search, ChevronDown, Check } from 'lucide-react';
+import { CENTERS, SCHEDULE_OPTIONS, PACKAGE_PRICE, MOCK_AVAILABLE_CLASSES } from '../data/mockData';
+import { ArrowLeft, UserCheck, Calendar, MapPin, ChevronRight, Loader2, AlertCircle, Clock, CheckSquare, Square, Search, ChevronDown, Check, CheckCircle2 } from 'lucide-react';
 
 export default function SelectClass() {
     // 1. Lead State
@@ -22,6 +22,7 @@ export default function SelectClass() {
     const [isLoadingLeads, setIsLoadingLeads] = useState(true);
     const [error, setError] = useState('');
 
+
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const dropdownRef = useRef(null);
@@ -33,6 +34,7 @@ export default function SelectClass() {
     const salesRep = useStore((state) => state.salesRep);
     const startCheckout = useStore((state) => state.startCheckout);
     const navigate = useNavigate();
+
 
     // Fetch leads based on sales rep
     React.useEffect(() => {
@@ -106,9 +108,10 @@ export default function SelectClass() {
         if (!isFormValid()) return;
 
         // Compile custom class details object to pass to Checkout
+        // The specific class group name will be assigned AFTER checkout.
         const classDetails = {
             id: `custom-${Date.now()}`,
-            name: `English 1 - ${schedulePath === 'weekday' ? 'Weekday' : 'Weekend'}`,
+            name: "Program Reguler (Grup menyusul)",
             branch: selectedCenter,
             schedule: `${selectedDays.join(', ')} | ${selectedTime}`,
             price: PACKAGE_PRICE
@@ -130,7 +133,7 @@ export default function SelectClass() {
                 >
                     <ArrowLeft size={24} />
                 </button>
-                <h1 className="text-xl font-bold text-slate-800">Pilih Kelas</h1>
+                <h1 className="text-xl font-bold text-slate-800">Pilih Jadwal</h1>
             </div>
 
             <div className="space-y-6">
@@ -407,7 +410,7 @@ export default function SelectClass() {
                             <p className="text-xl font-bold text-slate-800 flex items-center">
                                 Rp {PACKAGE_PRICE.toLocaleString('id-ID')}
                             </p>
-                            <p className="text-xs text-slate-400 mt-1 line-clamp-1">{selectedDays.join(', ')} | {selectedTime}</p>
+                            <p className="text-xs text-slate-400 mt-1 line-clamp-1">{selectedCenter} | {selectedDays.join(', ')} | {selectedTime}</p>
                         </div>
                         <button
                             onClick={handleProceed}

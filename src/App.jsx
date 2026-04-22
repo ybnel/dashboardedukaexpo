@@ -3,7 +3,8 @@ import {
   createBrowserRouter,
   RouterProvider,
   Navigate,
-  Outlet
+  Outlet,
+  useLocation
 } from 'react-router-dom'
 import { useStore } from './store/useStore'
 
@@ -15,18 +16,27 @@ import SelectClass from './pages/SelectClass'
 import Checkout from './pages/Checkout'
 import Success from './pages/Success'
 import LeadsList from './pages/LeadsList'
+import GroupAssignment from './pages/GroupAssignment'
+import GroupDetails from './pages/GroupDetails'
 import Navbar from './components/Navbar'
 
 // Layout for protected pages
 const ProtectedLayout = () => {
   const salesRep = useStore((state) => state.salesRep)
+  const location = useLocation()
+
   if (!salesRep) {
     return <Navigate to="/login" replace />
   }
+
+  const hideNavbarPaths = ['/add-lead', '/select-class', '/checkout', '/success']
+  // Also hide navbar for group details which might be deep nested
+  const showNavbar = !hideNavbarPaths.includes(location.pathname) && !location.pathname.startsWith('/assign-group/');
+
   return (
-    <div className="pb-24 relative min-h-screen">
+    <div className={`${showNavbar ? 'pb-24' : 'pb-0'} relative min-h-screen`}>
       <Outlet />
-      <Navbar />
+      {showNavbar && <Navbar />}
     </div>
   )
 }
@@ -46,6 +56,8 @@ const router = createBrowserRouter([
       { path: '/select-class', element: <SelectClass /> },
       { path: '/checkout', element: <Checkout /> },
       { path: '/success', element: <Success /> },
+      { path: '/assign-group', element: <GroupAssignment /> },
+      { path: '/assign-group/:branch/:day/:time', element: <GroupDetails /> },
     ],
   }
 ])

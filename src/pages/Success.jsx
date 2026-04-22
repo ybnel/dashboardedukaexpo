@@ -93,10 +93,17 @@ export default function Success() {
                     </button>
 
                     <button
-                        onClick={() => navigate('/')}
-                        className="btn-primary w-full py-4 text-lg shadow-brand/30"
+                        onClick={() => navigate('/assign-group', { state: { lead, classDetails } })}
+                        className="btn-primary w-full py-4 text-lg shadow-brand/30 mb-2"
                     >
-                        Selesai & Kembali ke Utama <ArrowRight size={20} className="ml-2" />
+                        Lanjut Bagi Grup <ArrowRight size={20} className="ml-2" />
+                    </button>
+
+                    <button
+                        onClick={() => navigate('/')}
+                        className="w-full py-3 rounded-xl border-2 border-transparent text-slate-500 font-semibold hover:text-slate-700 transition-all text-sm"
+                    >
+                        Lewati dan Kembali ke Utama
                     </button>
                 </div>
             </div>

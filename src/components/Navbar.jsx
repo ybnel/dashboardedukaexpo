@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, Users, LogOut, User } from 'lucide-react';
+import { Home, Users, UserPlus, LogOut, User } from 'lucide-react';
 import { useStore } from '../store/useStore';
 
 export default function Navbar() {
@@ -17,7 +17,8 @@ export default function Navbar() {
 
     const navItems = [
         { path: '/', icon: Home, label: 'Home' },
-        { path: '/leads', icon: Users, label: 'Leads' },
+        { path: '/leads', icon: UserPlus, label: 'Leads' },
+        { path: '/assign-group', icon: Users, label: 'Bagi Grup' },
     ];
 
     return (

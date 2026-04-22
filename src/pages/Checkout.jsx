@@ -50,13 +50,38 @@ export default function Checkout() {
 
     const { classDetails } = currentCheckout;
 
-    const handlePayment = () => {
+    const [isPaying, setIsPaying] = useState(false);
+
+    const handlePayment = async () => {
         if (!paymentMethod) return;
 
-        // Process "Mock" Payment
-        // In real app, this would hit an API.
-        completeCheckout();
-        navigate('/success', { state: { lead, classDetails, paymentMethod, salesRep } });
+        setIsPaying(true);
+        setError('');
+
+        try {
+            // Update the lead in Supabase to mark as paid
+            const { error: updateError } = await supabase
+                .from('leads')
+                .update({ is_paid: true })
+                .eq('id', currentCheckout.leadId);
+
+            if (updateError) throw updateError;
+
+            // Save preference locally so it survives navigation/refresh
+            useStore.getState().savePreference(currentCheckout.leadId, classDetails);
+
+            // Complete checkout locally
+            completeCheckout();
+            
+            // Navigate to success page
+            navigate('/success', { state: { lead, classDetails, paymentMethod, salesRep } });
+
+        } catch (err) {
+            console.error('Error processing payment:', err);
+            setError('Gagal memproses pembayaran. Silakan coba lagi.');
+        } finally {
+            setIsPaying(false);
+        }
     };
 
     return (

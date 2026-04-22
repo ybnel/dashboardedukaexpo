@@ -29,11 +29,16 @@ export default function LeadsList() {
         setError('');
 
         try {
-            const { data, error: fetchError } = await supabase
+            let query = supabase
                 .from('leads')
                 .select('*')
-                .eq('sales_rep', salesRep)
                 .order('created_at', { ascending: false });
+
+            if (salesRep !== 'admin') {
+                query = query.eq('sales_rep', salesRep);
+            }
+
+            const { data, error: fetchError } = await query;
 
             if (fetchError) throw fetchError;
 
@@ -78,7 +83,8 @@ export default function LeadsList() {
         return (
             lead.child_name?.toLowerCase().includes(term) ||
             lead.parent_name?.toLowerCase().includes(term) ||
-            lead.parent_phone?.includes(term)
+            lead.parent_phone?.includes(term) ||
+            (salesRep === 'admin' && lead.sales_rep?.toLowerCase().includes(term))
         );
     });
 
@@ -87,7 +93,11 @@ export default function LeadsList() {
             <div className="flex justify-between items-center mb-6 pt-4">
                 <div>
                     <h1 className="text-2xl font-bold text-slate-800">Daftar Leads</h1>
-                    <p className="text-sm text-slate-500">Menampilkan semua leads yang Anda daftarkan</p>
+                    <p className="text-sm text-slate-500">
+                        {salesRep === 'admin' 
+                            ? 'Menampilkan semua leads di dalam sistem' 
+                            : 'Menampilkan semua leads yang Anda daftarkan'}
+                    </p>
                 </div>
                 <button
                     onClick={() => navigate('/add-lead')}
@@ -113,7 +123,7 @@ export default function LeadsList() {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="input-field pl-12 bg-white shadow-sm border-slate-200"
-                    placeholder="Cari nama anak, orang tua, atau no. HP..."
+                    placeholder={salesRep === 'admin' ? "Cari nama, no. HP, atau sales..." : "Cari nama anak, orang tua, atau no. HP..."}
                 />
             </div>
 
@@ -150,6 +160,9 @@ export default function LeadsList() {
                                 <tr className="bg-slate-50/50 border-b border-slate-100">
                                     <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Nama Anak</th>
                                     <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">No. HP (Ortu)</th>
+                                    {salesRep === 'admin' && (
+                                        <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Sales</th>
+                                    )}
                                     <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status Lengkap</th>
                                     <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Pembayaran</th>
                                     <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Aksi</th>
@@ -167,6 +180,13 @@ export default function LeadsList() {
                                             <td className="p-4">
                                                 <span className="text-sm text-slate-700">{lead.parent_phone}</span>
                                             </td>
+                                            {salesRep === 'admin' && (
+                                                <td className="p-4">
+                                                    <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+                                                        {lead.sales_rep}
+                                                    </span>
+                                                </td>
+                                            )}
                                             <td className="p-4">
                                                 {isComplete ? (
                                                     <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-50 text-green-600 border border-green-200">
