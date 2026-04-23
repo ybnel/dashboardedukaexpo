@@ -103,7 +103,6 @@ export default function GroupDetails() {
                 </button>
                 <h1 className="text-xl font-bold text-slate-800">Detail Pembagian Grup</h1>
             </div>
-
             <div className="space-y-6">
                 
                 {/* Schedule Context Card */}

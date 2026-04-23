@@ -23,6 +23,7 @@ export default function Checkout() {
         }
 
         const fetchLeadDetails = async () => {
+            
             setIsLoading(true);
             setError('');
             try {
