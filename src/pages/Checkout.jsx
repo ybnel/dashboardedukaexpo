@@ -2,10 +2,24 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store/useStore';
 import { supabase } from '../lib/supabase';
-import { ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export default function Checkout() {
-    const [paymentMethod, setPaymentMethod] = useState('transfer');
+    const PAYMENT_METHODS = [
+        'Bank Transfer',
+        'Credit Card BCA',
+        'Credit Card BRI',
+        'Credit Card Mandiri',
+        'Cicilan BCA 3 bln',
+        'Cicilan BCA 6 bln',
+        'Cicilan BRI 3 bln',
+        'Cicilan BRI 6 bln',
+        'Cicilan Mandiri 3 bln',
+        'Cicilan Mandiri 6 bln',
+        'Blibli'
+    ];
+
+    const [paymentMethod, setPaymentMethod] = useState('Bank Transfer');
 
     const currentCheckout = useStore((state) => state.currentCheckout);
     const salesRep = useStore((state) => state.salesRep);
@@ -137,6 +151,39 @@ export default function Checkout() {
                         </div>
                     </div>
                     </div>
+                        
+                        {/* Payment Methods */}
+                        <div className="glass-card p-6 mt-6">
+                            <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4 border-b border-slate-100 pb-2">
+                                Metode Pembayaran
+                            </h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                                {PAYMENT_METHODS.map((method) => {
+                                    const isSelected = paymentMethod === method;
+                                    return (
+                                        <label
+                                            key={method}
+                                            className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex items-center justify-between ${
+                                                isSelected ? 'border-brand bg-brand/5' : 'border-slate-100 bg-white hover:border-slate-200'
+                                            }`}
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <input 
+                                                    type="radio" 
+                                                    name="payment_method"
+                                                    value={method}
+                                                    checked={isSelected}
+                                                    onChange={(e) => setPaymentMethod(e.target.value)}
+                                                    className="hidden"
+                                                />
+                                                <span className="font-semibold text-slate-800 text-sm">{method}</span>
+                                            </div>
+                                            {isSelected && <CheckCircle2 size={18} className="text-brand" />}
+                                        </label>
+                                    );
+                                })}
+                            </div>
+                        </div>
                     </>
                 )}
             </div>

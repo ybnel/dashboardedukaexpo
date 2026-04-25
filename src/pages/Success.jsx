@@ -73,6 +73,10 @@ export default function Success() {
                             <span className="text-slate-500">Sales In Charge:</span>
                             <span className="font-semibold text-slate-800 capitalize text-right">{salesRep}</span>
                         </div>
+                        <div className="flex justify-between">
+                            <span className="text-slate-500">Metode Bayar:</span>
+                            <span className="font-semibold text-brand text-right">{paymentMethod}</span>
+                        </div>
                     </div>
 
                     <div className="mt-4 pt-4 border-t border-slate-200 flex justify-between items-center">
