@@ -2,8 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store/useStore';
 import { supabase } from '../lib/supabase';
-import { CENTERS, SCHEDULE_OPTIONS, PACKAGE_PRICE, MOCK_AVAILABLE_CLASSES } from '../data/mockData';
-import { ArrowLeft, UserCheck, Calendar, MapPin, ChevronRight, Loader2, AlertCircle, Clock, CheckSquare, Square, Search, ChevronDown, Check, CheckCircle2 } from 'lucide-react';
+import { CENTERS, SCHEDULE_OPTIONS, PACKAGE_PRICE } from '../data/mockData';
+import { ArrowLeft, UserCheck, Calendar, MapPin, ChevronRight, Loader2, AlertCircle, Clock, CheckSquare, Square, Search, ChevronDown, Check } from 'lucide-react';
 
 export default function SelectClass() {
     // 1. Lead State

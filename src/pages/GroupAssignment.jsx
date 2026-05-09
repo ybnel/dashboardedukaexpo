@@ -209,6 +209,14 @@ export default function GroupAssignment() {
                         <AlertCircle size={18} />
                         {error}
                     </div>
+                ) : !(filterBranch || filterDay || filterTime) ? (
+                    <div className="col-span-1 md:col-span-2 text-center p-12 bg-white rounded-2xl border border-slate-200">
+                        <div className="w-20 h-20 bg-slate-50 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <Filter size={32} />
+                        </div>
+                        <h3 className="text-lg font-bold text-slate-800 mb-2">Mulai Pencarian</h3>
+                        <p className="text-slate-500">Silakan pilih Cabang, Hari, atau Jam di atas untuk menampilkan jadwal kelas.</p>
+                    </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {filteredSchedules.map((sched, idx) => (

@@ -65,12 +65,9 @@ export default function Checkout() {
 
     const { classDetails } = currentCheckout;
 
-    const [isPaying, setIsPaying] = useState(false);
-
     const handlePayment = async () => {
         if (!paymentMethod) return;
 
-        setIsPaying(true);
         setError('');
 
         try {
@@ -94,8 +91,6 @@ export default function Checkout() {
         } catch (err) {
             console.error('Error processing payment:', err);
             setError('Gagal memproses pembayaran. Silakan coba lagi.');
-        } finally {
-            setIsPaying(false);
         }
     };
 

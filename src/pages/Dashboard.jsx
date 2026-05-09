@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store/useStore';
 import { supabase } from '../lib/supabase';
-import { UserPlus, BookOpen, AlertCircle, ChevronRight, Loader2, Info, FileWarning } from 'lucide-react';
+import { UserPlus, BookOpen, ChevronRight, Info, FileWarning } from 'lucide-react';
 
 export default function Dashboard() {
     const salesRep = useStore((state) => state.salesRep);

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useStore } from '../store/useStore';
-import { Loader2, AlertCircle, Edit, UserPlus, FileCheck, Search, CheckSquare, Square } from 'lucide-react';
+import { Loader2, AlertCircle, Edit, UserPlus, Search, CheckSquare, Square } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import EditLeadModal from '../components/EditLeadModal';
 

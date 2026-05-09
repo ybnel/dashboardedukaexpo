@@ -56,22 +56,15 @@ export default function AddLead() {
 
     if (successId) {
         return (
-            <div className="min-h-screen flex items-center justify-center p-4">
-                <div className="glass-card w-full max-w-md p-8 text-center animate-slide-up">
-                    <div className="w-20 h-20 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <CheckCircle size={40} />
+            <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50">
+                <div className="glass-card w-full max-w-md p-8 text-center">
+                    <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <CheckCircle size={48} />
                     </div>
-                    <h2 className="text-2xl font-bold text-slate-800 mb-2">Lead Tersimpan!</h2>
-                    <p className="text-slate-600 mb-6">Siswa bernama {childName} berhasil didaftarkan.</p>
+                    <h2 className="text-2xl font-bold text-slate-900 mb-2">Lead Tersimpan!</h2>
+                    <p className="text-lg text-slate-700 mb-8">Siswa bernama <span className="font-semibold">{childName}</span> berhasil didaftarkan.</p>
 
-
-                    <div className="flex gap-4">
-                        <button
-                            onClick={() => navigate('/')}
-                            className="btn-secondary flex-1"
-                        >
-                            Ke Dashboard
-                        </button>
+                    <div className="flex flex-col gap-3">
                         <button
                             onClick={() => {
                                 setSuccessId('');
@@ -80,9 +73,15 @@ export default function AddLead() {
                                 setPhone('');
                                 setChannel('Booth / Expo');
                             }}
-                            className="btn-primary flex-1"
+                            className="btn-primary w-full"
                         >
-                            Tambah Lagi
+                            Tambah Lead Lagi
+                        </button>
+                        <button
+                            onClick={() => navigate('/')}
+                            className="btn-secondary w-full"
+                        >
+                            Ke Dashboard
                         </button>
                     </div>
                 </div>
@@ -91,33 +90,33 @@ export default function AddLead() {
     }
 
     return (
-        <div className="min-h-screen p-4 pb-20 animate-fade-in relative">
+        <div className="min-h-screen p-4 pb-24 bg-slate-50 relative">
             {/* Header */}
-            <div className="flex items-center gap-4 mb-8 pt-4">
+            <div className="flex items-center gap-4 mb-6 pt-2">
                 <button
                     onClick={() => navigate(-1)}
-                    className="p-2 text-slate-400 hover:text-slate-800 bg-white rounded-full shadow-sm transition-colors"
+                    className="p-3 text-slate-600 hover:text-slate-900 bg-white rounded-xl shadow-sm border border-slate-200"
                 >
                     <ArrowLeft size={24} />
                 </button>
-                <h1 className="text-xl font-bold text-slate-800">Tambah Lead Baru</h1>
+                <h1 className="text-2xl font-bold text-slate-900">Tambah Lead Baru</h1>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="glass-card p-6 space-y-6">
                     {/* Error Message */}
                     {error && (
-                        <div className="bg-red-50 text-red-600 p-4 rounded-xl flex items-center gap-2 text-sm mb-4">
-                            <AlertCircle size={18} />
-                            {error}
+                        <div className="bg-red-50 text-red-700 p-4 rounded-xl flex items-start gap-3 text-base mb-4 border border-red-200">
+                            <AlertCircle size={24} className="mt-0.5 flex-shrink-0" />
+                            <span>{error}</span>
                         </div>
                     )}
                     {/* Child Name */}
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                        <label className="block text-base font-semibold text-slate-800 mb-2">
                             <div className="flex items-center gap-2">
-                                <User size={16} className="text-brand" />
-                                Nama Anak
+                                <User size={20} className="text-brand" />
+                                Nama Lengkap Anak
                             </div>
                         </label>
                         <input
@@ -125,19 +124,19 @@ export default function AddLead() {
                             value={childName}
                             onChange={(e) => setChildName(e.target.value)}
                             className="input-field"
-                            placeholder="Masukkan nama lengkap anak"
+                            placeholder="Contoh: Budi Santoso"
                             required
                         />
                     </div>
 
-                    <hr className="border-slate-100" />
+                    <hr className="border-slate-200" />
 
                     {/* Parent Name */}
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                        <label className="block text-base font-semibold text-slate-800 mb-2">
                             <div className="flex items-center gap-2">
-                                <User size={16} className="text-slate-400" />
-                                Nama Orang Tua
+                                <User size={20} className="text-slate-500" />
+                                Nama Orang Tua / Wali
                             </div>
                         </label>
                         <input
@@ -145,17 +144,17 @@ export default function AddLead() {
                             value={parentName}
                             onChange={(e) => setParentName(e.target.value)}
                             className="input-field"
-                            placeholder="Masukkan nama orang tua"
+                            placeholder="Contoh: Bapak Andi"
                             required
                         />
                     </div>
 
                     {/* WhatsApp */}
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                        <label className="block text-base font-semibold text-slate-800 mb-2">
                             <div className="flex items-center gap-2">
-                                <Phone size={16} className="text-green-500" />
-                                Nomor WhatsApp
+                                <Phone size={20} className="text-green-600" />
+                                Nomor WhatsApp (Aktif)
                             </div>
                         </label>
                         <input
@@ -163,25 +162,25 @@ export default function AddLead() {
                             value={phone}
                             onChange={(e) => setPhone(e.target.value)}
                             className="input-field"
-                            placeholder="08xxxxxxxxxx"
+                            placeholder="Contoh: 081234567890"
                             required
                         />
                     </div>
 
-                    <hr className="border-slate-100" />
+                    <hr className="border-slate-200" />
 
                     {/* Channel */}
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                        <label className="block text-base font-semibold text-slate-800 mb-2">
                             <div className="flex items-center gap-2">
-                                <FileText size={16} className="text-orange-400" />
-                                Sumber Info (Channel)
+                                <FileText size={20} className="text-orange-500" />
+                                Sumber Informasi
                             </div>
                         </label>
                         <select
                             value={channel}
                             onChange={(e) => setChannel(e.target.value)}
-                            className="input-field cursor-pointer"
+                            className="input-field cursor-pointer bg-slate-50"
                         >
                             <option value="Booth / Expo">Booth / Expo</option>
                             <option value="Teman">Teman</option>
@@ -194,19 +193,19 @@ export default function AddLead() {
                 </div>
 
                 {/* Submit Button */}
-                <div className="pt-2">
+                <div className="pt-4">
                     <button 
                         type="submit" 
-                        className={`btn-primary w-full py-3.5 text-lg shadow-lg shadow-brand/20 flex items-center justify-center gap-2 ${isLoading ? 'opacity-75 cursor-not-allowed' : ''}`}
+                        className={`btn-primary w-full py-4 text-xl flex items-center justify-center gap-3 ${isLoading ? 'opacity-75 cursor-not-allowed' : ''}`}
                         disabled={isLoading}
                     >
                         {isLoading ? (
                             <>
-                                <Loader2 className="animate-spin" size={20} />
-                                Menyimpan...
+                                <Loader2 className="animate-spin" size={24} />
+                                Menyimpan Data...
                             </>
                         ) : (
-                            'Simpan Data'
+                            'Simpan Data Lead'
                         )}
                     </button>
                 </div>
