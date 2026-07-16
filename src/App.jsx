@@ -57,7 +57,7 @@ const router = createBrowserRouter([
       { path: '/checkout', element: <Checkout /> },
       { path: '/success', element: <Success /> },
       { path: '/assign-group', element: <GroupAssignment /> },
-      { path: '/assign-group/:branch/:day/:time', element: <GroupDetails /> },
+      { path: '/assign-group/:branch/:program/:day/:time', element: <GroupDetails /> },
     ],
   }
 ])

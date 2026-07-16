@@ -2,8 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store/useStore';
 import { supabase } from '../lib/supabase';
-import { CENTERS, SCHEDULE_OPTIONS, PACKAGE_PRICE } from '../data/mockData';
-import { ArrowLeft, UserCheck, Calendar, MapPin, ChevronRight, Loader2, AlertCircle, Clock, CheckSquare, Square, Search, ChevronDown, Check } from 'lucide-react';
+import { CENTERS, PROGRAMS, MOCK_AVAILABLE_CLASSES, PACKAGE_PRICE } from '../data/mockData';
+import { ArrowLeft, UserCheck, Calendar, MapPin, ChevronRight, Loader2, AlertCircle, Clock, CheckSquare, Square, Search, ChevronDown, Check, BookOpen } from 'lucide-react';
 
 export default function SelectClass() {
     // 1. Lead State
@@ -12,9 +12,11 @@ export default function SelectClass() {
     // 2. Center State
     const [selectedCenter, setSelectedCenter] = useState('');
 
-    // 3. Schedule State
-    const [schedulePath, setSchedulePath] = useState(''); // 'weekday' or 'weekend'
-    const [selectedDays, setSelectedDays] = useState([]);
+    // 3. Program State
+    const [selectedProgram, setSelectedProgram] = useState('');
+
+    // 4. Schedule State
+    const [selectedDay, setSelectedDay] = useState('');
     const [selectedTime, setSelectedTime] = useState('');
     
     // Remote Data State (Leads)
@@ -35,6 +37,46 @@ export default function SelectClass() {
     const startCheckout = useStore((state) => state.startCheckout);
     const navigate = useNavigate();
 
+    // Reset dependent fields when parent fields change
+    useEffect(() => {
+        setSelectedProgram('');
+        setSelectedDay('');
+        setSelectedTime('');
+    }, [selectedCenter]);
+
+    useEffect(() => {
+        setSelectedDay('');
+        setSelectedTime('');
+    }, [selectedProgram]);
+
+    useEffect(() => {
+        setSelectedTime('');
+    }, [selectedDay]);
+
+    // Filter available days based on selected center and program
+    const availableDays = React.useMemo(() => {
+        if (!selectedCenter || !selectedProgram) return [];
+        const matches = MOCK_AVAILABLE_CLASSES.filter(c => 
+            c.school === selectedCenter && c.program === selectedProgram
+        );
+        const uniqueDays = [...new Set(matches.map(c => c.hari))].sort((a, b) => {
+            const order = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+            return order.indexOf(a) - order.indexOf(b);
+        });
+        return uniqueDays;
+    }, [selectedCenter, selectedProgram]);
+
+    // Filter available times based on selected center, program, and day
+    const availableTimes = React.useMemo(() => {
+        if (!selectedCenter || !selectedProgram || !selectedDay) return [];
+        const matches = MOCK_AVAILABLE_CLASSES.filter(c => 
+            c.school === selectedCenter && 
+            c.program === selectedProgram && 
+            c.hari === selectedDay
+        );
+        const uniqueTimes = [...new Set(matches.map(c => c.jam))].sort();
+        return uniqueTimes;
+    }, [selectedCenter, selectedProgram, selectedDay]);
 
     // Fetch leads based on sales rep
     React.useEffect(() => {
@@ -80,48 +122,25 @@ export default function SelectClass() {
         };
     }, []);
 
-    const handleDayToggle = (day) => {
-        setSelectedDays(prev => {
-            if (prev.includes(day)) {
-                return prev.filter(d => d !== day); // Remove if already selected
-            }
-            if (prev.length >= 3) {
-                return prev; // Limit to max 3 days
-            }
-            return [...prev, day]; // Add new day
-        });
-    };
-
-    const handleSchedulePathChange = (path) => {
-        setSchedulePath(path);
-        setSelectedDays([]); // Reset days
-        setSelectedTime(''); // Reset time
-    };
-
     const isFormValid = () => {
-        if (!selectedLead || !selectedCenter || !schedulePath) return false;
-        if (selectedDays.length === 0 || !selectedTime) return false;
+        if (!selectedLead || !selectedCenter || !selectedProgram || !selectedDay || !selectedTime) return false;
         return true;
     };
 
     const handleProceed = () => {
         if (!isFormValid()) return;
 
-        // Compile custom class details object to pass to Checkout
-        // The specific class group name will be assigned AFTER checkout.
         const classDetails = {
             id: `custom-${Date.now()}`,
-            name: "Program Reguler (Grup menyusul)",
+            name: selectedProgram,
             branch: selectedCenter,
-            schedule: `${selectedDays.join(', ')} | ${selectedTime}`,
+            schedule: `${selectedDay} | ${selectedTime}`,
             price: PACKAGE_PRICE
         };
 
         startCheckout(selectedLead, classDetails);
         navigate('/checkout');
     };
-
-    const currentScheduleOptions = schedulePath ? SCHEDULE_OPTIONS[schedulePath] : null;
 
     return (
         <div className="min-h-screen p-4 pb-32 animate-fade-in relative">
@@ -297,105 +316,96 @@ export default function SelectClass() {
                     </div>
                 )}
 
-                {/* Step 3: Select Schedule Path */}
+                {/* Step 3: Select Program */}
                 {selectedCenter && (
                     <div className="glass-card p-6 animate-slide-up">
                         <label className="block text-sm font-medium text-slate-700 mb-4">
                             <div className="flex items-center gap-2">
-                                <Calendar size={18} className="text-orange-500" />
-                                3. Preferensi Jadwal
+                                <BookOpen size={18} className="text-orange-500" />
+                                3. Pilih Program Belajar
                             </div>
                         </label>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <button
-                                onClick={() => handleSchedulePathChange('weekday')}
-                                className={`p-4 rounded-xl border-2 text-left transition-all ${schedulePath === 'weekday' ? 'border-brand bg-brand/5' : 'border-slate-200 hover:border-slate-300'}`}
-                            >
-                                <div className="font-semibold text-slate-800 mb-1">Weekday</div>
-                                <div className="text-sm text-slate-500">Senin - Jumat</div>
-                            </button>
-
-                            <button
-                                onClick={() => handleSchedulePathChange('weekend')}
-                                className={`p-4 rounded-xl border-2 text-left transition-all ${schedulePath === 'weekend' ? 'border-brand bg-brand/5' : 'border-slate-200 hover:border-slate-300'}`}
-                            >
-                                <div className="font-semibold text-slate-800 mb-1">Weekend</div>
-                                <div className="text-sm text-slate-500">Sabtu & Minggu</div>
-                            </button>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {PROGRAMS.map(prog => {
+                                const isAvailable = MOCK_AVAILABLE_CLASSES.some(c => c.school === selectedCenter && c.program === prog);
+                                if (!isAvailable) return null;
+                                
+                                return (
+                                    <button
+                                        key={prog}
+                                        type="button"
+                                        onClick={() => setSelectedProgram(prog)}
+                                        className={`p-4 rounded-xl border-2 text-left transition-all ${selectedProgram === prog ? 'border-brand bg-brand/5 font-semibold text-brand' : 'border-slate-200 hover:border-slate-300 text-slate-700'}`}
+                                    >
+                                        {prog}
+                                    </button>
+                                );
+                            })}
                         </div>
                     </div>
                 )}
 
-                {/* Step 4: Specific Days & Time */}
-                {schedulePath && currentScheduleOptions && (
+                {/* Step 4: Specific Day & Time */}
+                {selectedProgram && (
                     <div className="glass-card p-6 animate-slide-up space-y-6">
                         
-                        {/* Days Checkbox */}
+                        {/* Days Selection */}
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-3">
                                 <div className="flex items-center gap-2">
                                     <CheckSquare size={18} className="text-indigo-500" />
-                                    Pilih Hari (Maksimal 3)
+                                    Pilih Hari Belajar
                                 </div>
                             </label>
-                            <div className="flex flex-wrap gap-3">
-                                {currentScheduleOptions.days.map(day => {
-                                    const isSelected = selectedDays.includes(day);
-                                    const isDisabled = !isSelected && selectedDays.length >= 3;
-                                    
-                                    return (
-                                        <label 
+                            {availableDays.length === 0 ? (
+                                <p className="text-sm text-slate-400">Tidak ada hari belajar yang tersedia untuk program ini.</p>
+                            ) : (
+                                <div className="flex flex-wrap gap-3">
+                                    {availableDays.map(day => (
+                                        <button
                                             key={day}
-                                            className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 cursor-pointer transition-all ${
-                                                isSelected ? 'border-brand bg-brand/5 text-brand' : 
-                                                isDisabled ? 'border-slate-100 bg-slate-50 text-slate-300 cursor-not-allowed' : 
-                                                'border-slate-200 hover:border-slate-300 text-slate-600'
+                                            type="button"
+                                            onClick={() => setSelectedDay(day)}
+                                            className={`px-4 py-2 rounded-lg border-2 font-medium text-sm transition-all ${
+                                                selectedDay === day ? 'border-brand bg-brand/5 text-brand' : 'border-slate-200 hover:border-slate-300 text-slate-600'
                                             }`}
                                         >
-                                            <input 
-                                                type="checkbox" 
-                                                className="hidden"
-                                                checked={isSelected}
-                                                disabled={isDisabled}
-                                                onChange={() => handleDayToggle(day)}
-                                            />
-                                            {isSelected ? <CheckSquare size={16} /> : <Square size={16} />}
-                                            <span className="font-medium text-sm">{day}</span>
-                                        </label>
-                                    );
-                                })}
-                            </div>
+                                            {day}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
                         </div>
 
                         {/* Time Radio */}
-                        <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-3">
-                                <div className="flex items-center gap-2">
-                                    <Clock size={18} className="text-rose-500" />
-                                    Pilih Jam Belajar
-                                </div>
-                            </label>
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                {currentScheduleOptions.times.map(time => (
-                                    <label 
-                                        key={time}
-                                        className={`flex items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all ${
-                                            selectedTime === time ? 'border-brand bg-brand/5 text-brand' : 'border-slate-200 hover:border-slate-300 text-slate-600'
-                                        }`}
-                                    >
-                                        <input 
-                                            type="radio" 
-                                            name="study_time"
-                                            className="hidden"
-                                            value={time}
-                                            checked={selectedTime === time}
-                                            onChange={(e) => setSelectedTime(e.target.value)}
-                                        />
-                                        <span className="font-semibold text-sm">{time}</span>
-                                    </label>
-                                ))}
+                        {selectedDay && (
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-3">
+                                    <div className="flex items-center gap-2">
+                                        <Clock size={18} className="text-rose-500" />
+                                        Pilih Jam Belajar (Sesi)
+                                    </div>
+                                </label>
+                                {availableTimes.length === 0 ? (
+                                    <p className="text-sm text-slate-400">Tidak ada jam belajar yang tersedia untuk hari terpilih.</p>
+                                ) : (
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                        {availableTimes.map(time => (
+                                            <button 
+                                                key={time}
+                                                type="button"
+                                                onClick={() => setSelectedTime(time)}
+                                                className={`p-3 rounded-xl border-2 text-center font-semibold text-sm transition-all ${
+                                                    selectedTime === time ? 'border-brand bg-brand/5 text-brand' : 'border-slate-200 hover:border-slate-300 text-slate-600'
+                                                }`}
+                                            >
+                                                {time}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
-                        </div>
+                        )}
 
                     </div>
                 )}
@@ -410,7 +420,7 @@ export default function SelectClass() {
                             <p className="text-xl font-bold text-slate-800 flex items-center">
                                 Rp {PACKAGE_PRICE.toLocaleString('id-ID')}
                             </p>
-                            <p className="text-xs text-slate-400 mt-1 line-clamp-1">{selectedCenter} | {selectedDays.join(', ')} | {selectedTime}</p>
+                            <p className="text-xs text-slate-400 mt-1 line-clamp-1">{selectedCenter} | {selectedProgram} | {selectedDay} | {selectedTime}</p>
                         </div>
                         <button
                             onClick={handleProceed}

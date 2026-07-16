@@ -163,6 +163,7 @@ export default function LeadsList() {
                                     {salesRep === 'admin' && (
                                         <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Sales</th>
                                     )}
+                                    <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Grup Kelas</th>
                                     <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status Lengkap</th>
                                     <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Pembayaran</th>
                                     <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Aksi</th>
@@ -188,6 +189,15 @@ export default function LeadsList() {
                                                 </td>
                                             )}
                                             <td className="p-4">
+                                                {lead.group_name ? (
+                                                    <span className="inline-flex items-center px-2 py-1 rounded text-xs font-semibold bg-brand/10 text-brand border border-brand/20">
+                                                        {lead.group_name}
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-slate-400 text-xs font-medium">-</span>
+                                                )}
+                                            </td>
+                                            <td className="p-4">
                                                 {isComplete ? (
                                                     <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-50 text-green-600 border border-green-200">
                                                         Lengkap
@@ -195,7 +205,7 @@ export default function LeadsList() {
                                                 ) : (
                                                     <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-yellow-50 text-yellow-600 border border-yellow-200">
                                                         Belum Lengkap
-                                                    </span>
+                                                     </span>
                                                 )}
                                             </td>
                                             <td className="p-4">

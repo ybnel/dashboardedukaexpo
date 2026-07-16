@@ -3,11 +3,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useStore } from '../store/useStore';
 import { supabase } from '../lib/supabase';
 import { MOCK_AVAILABLE_CLASSES } from '../data/mockData';
-import { ArrowLeft, Users, Loader2, AlertCircle, CheckCircle2, CheckSquare, Square, MapPin, Calendar, Clock } from 'lucide-react';
+import { ArrowLeft, Users, Loader2, AlertCircle, CheckSquare, Square, MapPin, Calendar, Clock, BookOpen, CheckCircle2 } from 'lucide-react';
 
 export default function GroupDetails() {
     const navigate = useNavigate();
-    const { branch, day, time } = useParams();
+    const { branch, program, day, time } = useParams();
     
     // Auth & Store
     const salesRep = useStore((state) => state.salesRep);
@@ -51,25 +51,19 @@ export default function GroupDetails() {
     // Available groups for this specific schedule
     const scheduleGroups = MOCK_AVAILABLE_CLASSES.filter(c => 
         c.school === branch && 
+        c.program === program &&
         c.hari === day && 
         c.jam === time
     );
 
     // Eligible leads (Paid, Unassigned, Preferred this schedule)
     const eligibleLeads = paidLeads.filter(lead => {
-        if (assignments[lead.id]) return false; // Already assigned
+        if (lead.group_name || assignments[lead.id]) return false; // Already assigned
         
         const pref = preferences[lead.id];
         if (!pref) return false;
 
-        // Extract days from "Senin, Rabu | 15:30 - 17:00"
-        const parts = pref.schedule.split(' | ');
-        if (parts.length < 2) return false;
-        
-        const days = parts[0].split(', ');
-        const timePart = parts[1];
-
-        return pref.branch === branch && days.includes(day) && timePart === time;
+        return pref.branch === branch && pref.name === program && pref.schedule === `${day} | ${time}`;
     });
 
     const toggleLeadSelection = (leadId) => {
@@ -78,17 +72,39 @@ export default function GroupDetails() {
         );
     };
 
-    const handleAssign = () => {
+    const handleAssign = async () => {
         if (selectedLeads.length === 0 || !targetGroup) return;
         
-        selectedLeads.forEach(leadId => {
-            assignGroupStore(leadId, targetGroup);
-        });
+        setIsLoading(true);
+        setError('');
+        try {
+            // Update Supabase for each selected lead
+            const updatePromises = selectedLeads.map(leadId => 
+                supabase
+                    .from('leads')
+                    .update({ group_name: targetGroup })
+                    .eq('id', leadId)
+            );
+            
+            const results = await Promise.all(updatePromises);
+            const firstErrorResult = results.find(r => r.error);
+            if (firstErrorResult) throw firstErrorResult.error;
 
-        alert(`Berhasil memasukkan ${selectedLeads.length} siswa ke grup ${targetGroup}!`);
-        setSelectedLeads([]);
-        setTargetGroup('');
-        navigate('/assign-group'); // Go back to schedule list
+            // Also update Zustand store locally
+            selectedLeads.forEach(leadId => {
+                assignGroupStore(leadId, targetGroup);
+            });
+
+            alert(`Berhasil memasukkan ${selectedLeads.length} siswa ke grup ${targetGroup}!`);
+            setSelectedLeads([]);
+            setTargetGroup('');
+            navigate('/assign-group'); // Go back to schedule list
+        } catch (err) {
+            console.error('Error assigning group:', err);
+            setError('Gagal menyimpan pembagian grup ke database.');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -111,7 +127,7 @@ export default function GroupDetails() {
                         <Users className="text-brand" size={18}/>
                         Jadwal Terpilih
                     </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div className="flex items-center gap-3">
                             <div className="p-2 bg-emerald-50 rounded-lg text-emerald-600">
                                 <MapPin size={20} />
@@ -119,6 +135,15 @@ export default function GroupDetails() {
                             <div>
                                 <p className="text-xs text-slate-500 font-medium uppercase">Cabang</p>
                                 <p className="font-semibold text-slate-800">{branch}</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-brand/10 rounded-lg text-brand">
+                                <BookOpen size={20} />
+                            </div>
+                            <div>
+                                <p className="text-xs text-slate-500 font-medium uppercase">Program</p>
+                                <p className="font-semibold text-slate-800">{program}</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-3">

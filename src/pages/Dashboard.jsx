@@ -32,7 +32,7 @@ export default function Dashboard() {
                     setIncompleteLeads(incomplete);
 
                     // Leads yang sudah lunas TAPI belum masuk grup
-                    const pending = data.filter(lead => lead.is_paid && !assignments[lead.id]);
+                    const pending = data.filter(lead => lead.is_paid && !lead.group_name && !assignments[lead.id]);
                     setUnassignedLeads(pending);
                 }
             } catch (err) {

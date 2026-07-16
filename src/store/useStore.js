@@ -32,6 +32,15 @@ export const useStore = create(
             savePreference: (leadId, classDetails) => set((state) => ({
                 preferences: { ...state.preferences, [leadId]: classDetails }
             })),
+
+            // Assignment Filters State
+            assignmentFilters: { branch: '', program: '', day: '', time: '' },
+            setAssignmentFilters: (filters) => set((state) => ({
+                assignmentFilters: { ...state.assignmentFilters, ...filters }
+            })),
+            resetAssignmentFilters: () => set({
+                assignmentFilters: { branch: '', program: '', day: '', time: '' }
+            }),
         }),
         {
             name: 'expo-dashboard-storage', // name of the item in the storage (must be unique)

@@ -2,8 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useStore } from '../store/useStore';
-import { MOCK_AVAILABLE_CLASSES } from '../data/mockData';
-import { ArrowLeft, Users, Loader2, AlertCircle, ChevronRight, CalendarClock, Filter, MapPin, Calendar, Clock } from 'lucide-react';
+import { MOCK_AVAILABLE_CLASSES, PROGRAMS } from '../data/mockData';
+import { ArrowLeft, Users, Loader2, AlertCircle, ChevronRight, CalendarClock, Filter, MapPin, Calendar, Clock, BookOpen } from 'lucide-react';
 
 export default function GroupAssignment() {
     const navigate = useNavigate();
@@ -18,10 +18,13 @@ export default function GroupAssignment() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
     
-    // Filters
-    const [filterBranch, setFilterBranch] = useState('');
-    const [filterDay, setFilterDay] = useState('');
-    const [filterTime, setFilterTime] = useState('');
+    // Filters (Read from Zustand store for persistence)
+    const filterBranch = useStore((state) => state.assignmentFilters.branch);
+    const filterProgram = useStore((state) => state.assignmentFilters.program);
+    const filterDay = useStore((state) => state.assignmentFilters.day);
+    const filterTime = useStore((state) => state.assignmentFilters.time);
+    const setAssignmentFilters = useStore((state) => state.setAssignmentFilters);
+    const resetAssignmentFilters = useStore((state) => state.resetAssignmentFilters);
 
     // Fetch Paid Leads
     useEffect(() => {
@@ -49,8 +52,8 @@ export default function GroupAssignment() {
         fetchPaidLeads();
     }, [salesRep]);
 
-    // Derived Data
-    const unassignedLeads = paidLeads.filter(lead => !assignments[lead.id]);
+    // Derived Data (Filter out leads that are already assigned in DB or locally)
+    const unassignedLeads = paidLeads.filter(lead => !lead.group_name && !assignments[lead.id]);
 
     // Compute Schedules
     const schedules = useMemo(() => {
@@ -58,7 +61,7 @@ export default function GroupAssignment() {
         const seen = new Set();
 
         MOCK_AVAILABLE_CLASSES.forEach(c => {
-            const key = `${c.school}|${c.hari}|${c.jam}`;
+            const key = `${c.school}|${c.program}|${c.hari}|${c.jam}`;
             if (!seen.has(key)) {
                 seen.add(key);
 
@@ -67,18 +70,20 @@ export default function GroupAssignment() {
                     const pref = preferences[lead.id];
                     if (!pref) return false;
 
-                    const parts = pref.schedule.split(' | ');
-                    if (parts.length < 2) return false;
-                    const days = parts[0].split(', ');
-
-                    return pref.branch === c.school && days.includes(c.hari) && parts[1] === c.jam;
+                    return pref.branch === c.school && pref.name === c.program && pref.schedule === `${c.hari} | ${c.jam}`;
                 }).length;
 
                 unique.push({
                     branch: c.school,
+                    program: c.program,
                     day: c.hari,
                     time: c.jam,
-                    groupCount: MOCK_AVAILABLE_CLASSES.filter(x => x.school === c.school && x.hari === c.hari && x.jam === c.jam).length,
+                    groupCount: MOCK_AVAILABLE_CLASSES.filter(x => 
+                        x.school === c.school && 
+                        x.program === c.program && 
+                        x.hari === c.hari && 
+                        x.jam === c.jam
+                    ).length,
                     waitingCount
                 });
             }
@@ -96,17 +101,19 @@ export default function GroupAssignment() {
     // Get unique options for filters
     const filterOptions = useMemo(() => {
         const branches = [...new Set(schedules.map(s => s.branch))].sort();
+        const programs = [...new Set(schedules.map(s => s.program))].sort();
         const days = [...new Set(schedules.map(s => s.day))].sort((a,b) => {
             const order = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
             return order.indexOf(a) - order.indexOf(b);
         });
         const times = [...new Set(schedules.map(s => s.time))].sort();
-        return { branches, days, times };
+        return { branches, programs, days, times };
     }, [schedules]);
 
     // Filter schedules locally based on dropdowns
     const filteredSchedules = schedules.filter(s => {
         if (filterBranch && s.branch !== filterBranch) return false;
+        if (filterProgram && s.program !== filterProgram) return false;
         if (filterDay && s.day !== filterDay) return false;
         if (filterTime && s.time !== filterTime) return false;
         return true;
@@ -141,18 +148,19 @@ export default function GroupAssignment() {
                 </div>
 
                 {/* Filters */}
-                <div className="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm flex flex-col sm:flex-row gap-3">
-                    <div className="flex items-center gap-2 mb-1 sm:hidden">
+                <div className="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm flex flex-col md:flex-row gap-3">
+                    <div className="flex items-center gap-2 mb-1 md:hidden">
                         <Filter size={16} className="text-slate-400" />
                         <span className="text-xs font-semibold text-slate-500 uppercase">Filter</span>
                     </div>
 
+                    {/* Cabang */}
                     <div className="flex-1 relative">
                         <MapPin size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-500" />
                         <select 
-                            className="w-full pl-9 pr-8 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand focus:ring-1 focus:ring-brand transition-colors text-sm text-slate-700 appearance-none cursor-pointer"
+                             className="w-full pl-9 pr-8 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand focus:ring-1 focus:ring-brand transition-colors text-sm text-slate-700 appearance-none cursor-pointer"
                             value={filterBranch}
-                            onChange={(e) => setFilterBranch(e.target.value)}
+                            onChange={(e) => setAssignmentFilters({ branch: e.target.value })}
                         >
                             <option value="">Semua Cabang</option>
                             {filterOptions.branches.map(b => (
@@ -161,12 +169,28 @@ export default function GroupAssignment() {
                         </select>
                     </div>
 
+                    {/* Program */}
+                    <div className="flex-1 relative">
+                        <BookOpen size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-brand" />
+                        <select 
+                            className="w-full pl-9 pr-8 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand focus:ring-1 focus:ring-brand transition-colors text-sm text-slate-700 appearance-none cursor-pointer"
+                            value={filterProgram}
+                            onChange={(e) => setAssignmentFilters({ program: e.target.value })}
+                        >
+                            <option value="">Semua Program</option>
+                            {filterOptions.programs.map(p => (
+                                <option key={p} value={p}>{p}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {/* Hari */}
                     <div className="flex-1 relative">
                         <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-orange-500" />
                         <select 
                             className="w-full pl-9 pr-8 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand focus:ring-1 focus:ring-brand transition-colors text-sm text-slate-700 appearance-none cursor-pointer"
                             value={filterDay}
-                            onChange={(e) => setFilterDay(e.target.value)}
+                            onChange={(e) => setAssignmentFilters({ day: e.target.value })}
                         >
                             <option value="">Semua Hari</option>
                             {filterOptions.days.map(d => (
@@ -175,12 +199,13 @@ export default function GroupAssignment() {
                         </select>
                     </div>
 
+                    {/* Jam */}
                     <div className="flex-1 relative">
                         <Clock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-rose-500" />
                         <select 
                             className="w-full pl-9 pr-8 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand focus:ring-1 focus:ring-brand transition-colors text-sm text-slate-700 appearance-none cursor-pointer"
                             value={filterTime}
-                            onChange={(e) => setFilterTime(e.target.value)}
+                            onChange={(e) => setAssignmentFilters({ time: e.target.value })}
                         >
                             <option value="">Semua Jam</option>
                             {filterOptions.times.map(t => (
@@ -189,9 +214,9 @@ export default function GroupAssignment() {
                         </select>
                     </div>
                     
-                    {(filterBranch || filterDay || filterTime) && (
+                    {(filterBranch || filterProgram || filterDay || filterTime) && (
                         <button 
-                            onClick={() => { setFilterBranch(''); setFilterDay(''); setFilterTime(''); }}
+                            onClick={resetAssignmentFilters}
                             className="px-4 py-2 text-xs font-semibold text-slate-500 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors shrink-0"
                         >
                             Reset
@@ -214,32 +239,35 @@ export default function GroupAssignment() {
                         {filteredSchedules.map((sched, idx) => (
                             <div
                                 key={idx}
-                                onClick={() => navigate(`/assign-group/${encodeURIComponent(sched.branch)}/${encodeURIComponent(sched.day)}/${encodeURIComponent(sched.time)}`)}
+                                onClick={() => navigate(`/assign-group/${encodeURIComponent(sched.branch)}/${encodeURIComponent(sched.program)}/${encodeURIComponent(sched.day)}/${encodeURIComponent(sched.time)}`)}
                                 className="group bg-white border border-slate-200 rounded-2xl p-5 hover:border-brand hover:shadow-md transition-all cursor-pointer flex justify-between items-center relative overflow-hidden"
                             >
                                 {sched.waitingCount > 0 && (
                                     <div className="absolute top-0 right-0 w-24 h-24 bg-brand/5 rounded-bl-[100px] -z-0"></div>
                                 )}
                                 <div className="z-10 relative">
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <span className="text-xs font-bold uppercase tracking-wider text-slate-500 bg-slate-100 px-2 py-1 rounded">
+                                    <div className="flex items-center gap-2 mb-2 flex-wrap">
+                                        <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">
                                             {sched.branch}
                                         </span>
+                                        <span className="text-xs font-bold uppercase tracking-wider text-brand bg-brand/5 px-2 py-0.5 rounded border border-brand/10">
+                                            {sched.program}
+                                        </span>
                                         {sched.waitingCount > 0 && (
-                                            <span className="text-xs font-bold bg-amber-100 text-amber-700 px-2 py-1 rounded flex items-center gap-1">
+                                            <span className="text-xs font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded flex items-center gap-1">
                                                 <Users size={12} />
                                                 {sched.waitingCount} Menunggu
                                             </span>
                                         )}
                                     </div>
-                                    <h3 className="font-bold text-slate-800 text-lg group-hover:text-brand transition-colors">
+                                    <h3 className="font-bold text-slate-800 text-lg group-hover:text-brand transition-colors mt-2">
                                         {sched.day}, {sched.time}
                                     </h3>
                                     <p className="text-sm text-slate-500 mt-1">
                                         {sched.groupCount} Grup Tersedia
                                     </p>
                                 </div>
-                                <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-brand group-hover:text-white transition-colors z-10 text-slate-400">
+                                <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-brand group-hover:text-white transition-colors z-10 text-slate-400 shrink-0">
                                     <ChevronRight size={20} />
                                 </div>
                             </div>
