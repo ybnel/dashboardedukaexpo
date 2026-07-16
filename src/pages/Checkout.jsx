@@ -137,7 +137,7 @@ export default function Checkout() {
 
                         <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
                             <p className="font-semibold text-brand text-lg">{classDetails.name}</p>
-                            <p className="text-sm text-slate-600 mt-1">{classDetails.branch} - {classDetails.schedule}</p>
+                            <p className="text-sm text-slate-600 mt-1">{classDetails.branch} - Level {classDetails.level} - {classDetails.schedule}</p>
                         </div>
 
                         <div className="flex justify-between items-center pt-4 border-t border-slate-100">

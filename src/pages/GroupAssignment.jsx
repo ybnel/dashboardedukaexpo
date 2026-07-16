@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useStore } from '../store/useStore';
 import { MOCK_AVAILABLE_CLASSES, PROGRAMS } from '../data/mockData';
-import { ArrowLeft, Users, Loader2, AlertCircle, ChevronRight, CalendarClock, Filter, MapPin, Calendar, Clock, BookOpen } from 'lucide-react';
+import { ArrowLeft, Users, Loader2, AlertCircle, ChevronRight, CalendarClock, Filter, MapPin, Calendar, Clock, BookOpen, Award } from 'lucide-react';
 
 export default function GroupAssignment() {
     const navigate = useNavigate();
@@ -21,6 +21,7 @@ export default function GroupAssignment() {
     // Filters (Read from Zustand store for persistence)
     const filterBranch = useStore((state) => state.assignmentFilters.branch);
     const filterProgram = useStore((state) => state.assignmentFilters.program);
+    const filterLevel = useStore((state) => state.assignmentFilters.level);
     const filterDay = useStore((state) => state.assignmentFilters.day);
     const filterTime = useStore((state) => state.assignmentFilters.time);
     const setAssignmentFilters = useStore((state) => state.setAssignmentFilters);
@@ -61,7 +62,7 @@ export default function GroupAssignment() {
         const seen = new Set();
 
         MOCK_AVAILABLE_CLASSES.forEach(c => {
-            const key = `${c.school}|${c.program}|${c.hari}|${c.jam}`;
+            const key = `${c.school}|${c.program}|${c.level}|${c.hari}|${c.jam}`;
             if (!seen.has(key)) {
                 seen.add(key);
 
@@ -70,17 +71,19 @@ export default function GroupAssignment() {
                     const pref = preferences[lead.id];
                     if (!pref) return false;
 
-                    return pref.branch === c.school && pref.name === c.program && pref.schedule === `${c.hari} | ${c.jam}`;
+                    return pref.branch === c.school && pref.name === c.program && (!pref.level || pref.level === c.level) && pref.schedule === `${c.hari} | ${c.jam}`;
                 }).length;
 
                 unique.push({
                     branch: c.school,
                     program: c.program,
+                    level: c.level,
                     day: c.hari,
                     time: c.jam,
                     groupCount: MOCK_AVAILABLE_CLASSES.filter(x => 
                         x.school === c.school && 
                         x.program === c.program && 
+                        x.level === c.level && 
                         x.hari === c.hari && 
                         x.jam === c.jam
                     ).length,
@@ -102,18 +105,28 @@ export default function GroupAssignment() {
     const filterOptions = useMemo(() => {
         const branches = [...new Set(schedules.map(s => s.branch))].sort();
         const programs = [...new Set(schedules.map(s => s.program))].sort();
+        const levels = [...new Set(schedules.map(s => s.level))].sort((a, b) => {
+            // Sort levels: numeric values first, then alphabetical
+            const aNum = parseInt(a, 10);
+            const bNum = parseInt(b, 10);
+            if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
+            if (!isNaN(aNum)) return -1;
+            if (!isNaN(bNum)) return 1;
+            return a.localeCompare(b);
+        });
         const days = [...new Set(schedules.map(s => s.day))].sort((a,b) => {
             const order = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
             return order.indexOf(a) - order.indexOf(b);
         });
         const times = [...new Set(schedules.map(s => s.time))].sort();
-        return { branches, programs, days, times };
+        return { branches, programs, levels, days, times };
     }, [schedules]);
 
     // Filter schedules locally based on dropdowns
     const filteredSchedules = schedules.filter(s => {
         if (filterBranch && s.branch !== filterBranch) return false;
         if (filterProgram && s.program !== filterProgram) return false;
+        if (filterLevel && s.level !== filterLevel) return false;
         if (filterDay && s.day !== filterDay) return false;
         if (filterTime && s.time !== filterTime) return false;
         return true;
@@ -184,6 +197,21 @@ export default function GroupAssignment() {
                         </select>
                     </div>
 
+                    {/* Level */}
+                    <div className="flex-1 relative">
+                        <Award size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-500" />
+                        <select 
+                            className="w-full pl-9 pr-8 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand focus:ring-1 focus:ring-brand transition-colors text-sm text-slate-700 appearance-none cursor-pointer"
+                            value={filterLevel}
+                            onChange={(e) => setAssignmentFilters({ level: e.target.value })}
+                        >
+                            <option value="">Semua Level</option>
+                            {filterOptions.levels.map(lvl => (
+                                <option key={lvl} value={lvl}>Level {lvl}</option>
+                            ))}
+                        </select>
+                    </div>
+
                     {/* Hari */}
                     <div className="flex-1 relative">
                         <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-orange-500" />
@@ -214,7 +242,7 @@ export default function GroupAssignment() {
                         </select>
                     </div>
                     
-                    {(filterBranch || filterProgram || filterDay || filterTime) && (
+                    {(filterBranch || filterProgram || filterLevel || filterDay || filterTime) && (
                         <button 
                             onClick={resetAssignmentFilters}
                             className="px-4 py-2 text-xs font-semibold text-slate-500 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors shrink-0"
@@ -239,7 +267,7 @@ export default function GroupAssignment() {
                         {filteredSchedules.map((sched, idx) => (
                             <div
                                 key={idx}
-                                onClick={() => navigate(`/assign-group/${encodeURIComponent(sched.branch)}/${encodeURIComponent(sched.program)}/${encodeURIComponent(sched.day)}/${encodeURIComponent(sched.time)}`)}
+                                onClick={() => navigate(`/assign-group/${encodeURIComponent(sched.branch)}/${encodeURIComponent(sched.program)}/${encodeURIComponent(sched.level)}/${encodeURIComponent(sched.day)}/${encodeURIComponent(sched.time)}`)}
                                 className="group bg-white border border-slate-200 rounded-2xl p-5 hover:border-brand hover:shadow-md transition-all cursor-pointer flex justify-between items-center relative overflow-hidden"
                             >
                                 {sched.waitingCount > 0 && (
@@ -252,6 +280,9 @@ export default function GroupAssignment() {
                                         </span>
                                         <span className="text-xs font-bold uppercase tracking-wider text-brand bg-brand/5 px-2 py-0.5 rounded border border-brand/10">
                                             {sched.program}
+                                        </span>
+                                        <span className="text-xs font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
+                                            Level {sched.level}
                                         </span>
                                         {sched.waitingCount > 0 && (
                                             <span className="text-xs font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded flex items-center gap-1">

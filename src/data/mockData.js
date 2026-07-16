@@ -36,6 +36,27 @@ function getDayOfWeek(dateStr) {
     return daysIndonesian[date.getDay()];
 }
 
+function normalizeProgram(rawProgram) {
+    if (!rawProgram) return 'Other';
+    const lower = rawProgram.toLowerCase();
+    if (lower.includes('small stars')) return 'Small Stars';
+    if (lower.includes('high flyers')) return 'High Flyers';
+    if (lower.includes('trailblazer')) return 'Trailblazers';
+    if (lower.includes('frontrunner')) return 'Frontrunner';
+    return 'Other';
+}
+
+function getLevelFromGroupCode(groupCode) {
+    if (!groupCode) return '';
+    const part0 = groupCode.split('-')[0];
+    if (part0.length < 5) return '';
+    const remaining = part0.substring(2);
+    if (remaining.toUpperCase().startsWith('V')) {
+        return remaining.substring(2);
+    }
+    return '';
+}
+
 function parseCSV(csvText) {
     const lines = csvText.split(/\r?\n/);
     if (lines.length === 0) return [];
@@ -55,7 +76,8 @@ function parseCSV(csvText) {
         });
         
         const center = row['Center'] ? row['Center'].trim() : '';
-        const program = row['Program'] ? row['Program'].trim() : '';
+        const rawProgram = row['Program'] ? row['Program'].trim() : '';
+        const program = normalizeProgram(rawProgram);
         const timeSession = row['Time Session'] ? row['Time Session'].trim() : '';
         const groupName = row['Group: Group Name'] ? row['Group: Group Name'].trim() : '';
         const groupCode = row['Group Code'] ? row['Group Code'].trim() : '';
@@ -87,6 +109,7 @@ function parseCSV(csvText) {
         }
         
         if (center && program && timeSession) {
+            const level = getLevelFromGroupCode(groupCode);
             classes.push({
                 school: center,
                 program: program,
@@ -96,7 +119,8 @@ function parseCSV(csvText) {
                 groupCode: groupCode,
                 status: status,
                 kapasitas: 15,
-                member: activeStudents
+                member: activeStudents,
+                level: level
             });
         }
     }

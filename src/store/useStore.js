@@ -34,12 +34,12 @@ export const useStore = create(
             })),
 
             // Assignment Filters State
-            assignmentFilters: { branch: '', program: '', day: '', time: '' },
+            assignmentFilters: { branch: '', program: '', level: '', day: '', time: '' },
             setAssignmentFilters: (filters) => set((state) => ({
                 assignmentFilters: { ...state.assignmentFilters, ...filters }
             })),
             resetAssignmentFilters: () => set({
-                assignmentFilters: { branch: '', program: '', day: '', time: '' }
+                assignmentFilters: { branch: '', program: '', level: '', day: '', time: '' }
             }),
         }),
         {

@@ -66,7 +66,7 @@ export default function Success() {
                             <span className="text-slate-500">Program:</span>
                             <span className="font-semibold text-slate-800 text-right">
                                 {classDetails.name}<br/>
-                                <span className="text-xs text-slate-500 font-normal">{classDetails.branch} - {classDetails.schedule}</span>
+                                <span className="text-xs text-slate-500 font-normal">{classDetails.branch} - Level {classDetails.level} - {classDetails.schedule}</span>
                             </span>
                         </div>
                         <div className="flex justify-between">

@@ -3,11 +3,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useStore } from '../store/useStore';
 import { supabase } from '../lib/supabase';
 import { MOCK_AVAILABLE_CLASSES } from '../data/mockData';
-import { ArrowLeft, Users, Loader2, AlertCircle, CheckSquare, Square, MapPin, Calendar, Clock, BookOpen, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Users, Loader2, AlertCircle, CheckSquare, Square, MapPin, Calendar, Clock, BookOpen, CheckCircle2, Award } from 'lucide-react';
 
 export default function GroupDetails() {
     const navigate = useNavigate();
-    const { branch, program, day, time } = useParams();
+    const { branch, program, level, day, time } = useParams();
     
     // Auth & Store
     const salesRep = useStore((state) => state.salesRep);
@@ -52,6 +52,7 @@ export default function GroupDetails() {
     const scheduleGroups = MOCK_AVAILABLE_CLASSES.filter(c => 
         c.school === branch && 
         c.program === program &&
+        c.level === level &&
         c.hari === day && 
         c.jam === time
     );
@@ -63,7 +64,7 @@ export default function GroupDetails() {
         const pref = preferences[lead.id];
         if (!pref) return false;
 
-        return pref.branch === branch && pref.name === program && pref.schedule === `${day} | ${time}`;
+        return pref.branch === branch && pref.name === program && (!pref.level || pref.level === level) && pref.schedule === `${day} | ${time}`;
     });
 
     const toggleLeadSelection = (leadId) => {
@@ -127,7 +128,7 @@ export default function GroupDetails() {
                         <Users className="text-brand" size={18}/>
                         Jadwal Terpilih
                     </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                         <div className="flex items-center gap-3">
                             <div className="p-2 bg-emerald-50 rounded-lg text-emerald-600">
                                 <MapPin size={20} />
@@ -144,6 +145,15 @@ export default function GroupDetails() {
                             <div>
                                 <p className="text-xs text-slate-500 font-medium uppercase">Program</p>
                                 <p className="font-semibold text-slate-800">{program}</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-blue-100/50 rounded-lg text-blue-600">
+                                <Award size={20} />
+                            </div>
+                            <div>
+                                <p className="text-xs text-slate-500 font-medium uppercase">Level</p>
+                                <p className="font-semibold text-slate-800">Level {level}</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-3">
@@ -195,6 +205,7 @@ export default function GroupDetails() {
                                 <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                                     {eligibleLeads.map(lead => {
                                         const isSelected = selectedLeads.includes(lead.id);
+                                        const pref = preferences[lead.id];
                                         return (
                                             <div 
                                                 key={lead.id}
@@ -205,7 +216,9 @@ export default function GroupDetails() {
                                             >
                                                 <div>
                                                     <p className="font-semibold text-slate-800">{lead.child_name}</p>
-                                                    <p className="text-xs text-slate-500 mt-1">Status: Lunas</p>
+                                                    <p className="text-xs text-slate-500 mt-1">
+                                                        Status: Lunas {pref?.level && `| Level ${pref.level}`}
+                                                    </p>
                                                 </div>
                                                 <div className={`text-xl ${isSelected ? 'text-brand' : 'text-slate-300'}`}>
                                                     {isSelected ? <CheckSquare size={20} /> : <Square size={20} />}

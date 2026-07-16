@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store/useStore';
 import { supabase } from '../lib/supabase';
 import { CENTERS, PROGRAMS, MOCK_AVAILABLE_CLASSES, PACKAGE_PRICE } from '../data/mockData';
-import { ArrowLeft, UserCheck, Calendar, MapPin, ChevronRight, Loader2, AlertCircle, Clock, CheckSquare, Square, Search, ChevronDown, Check, BookOpen } from 'lucide-react';
+import { ArrowLeft, UserCheck, Calendar, MapPin, ChevronRight, Loader2, AlertCircle, Clock, CheckSquare, Square, Search, ChevronDown, Check, BookOpen, Award } from 'lucide-react';
 
 export default function SelectClass() {
     // 1. Lead State
@@ -15,7 +15,10 @@ export default function SelectClass() {
     // 3. Program State
     const [selectedProgram, setSelectedProgram] = useState('');
 
-    // 4. Schedule State
+    // 4. Level State
+    const [selectedLevel, setSelectedLevel] = useState('');
+
+    // 5. Schedule State
     const [selectedDay, setSelectedDay] = useState('');
     const [selectedTime, setSelectedTime] = useState('');
     
@@ -40,43 +43,68 @@ export default function SelectClass() {
     // Reset dependent fields when parent fields change
     useEffect(() => {
         setSelectedProgram('');
+        setSelectedLevel('');
         setSelectedDay('');
         setSelectedTime('');
     }, [selectedCenter]);
 
     useEffect(() => {
+        setSelectedLevel('');
         setSelectedDay('');
         setSelectedTime('');
     }, [selectedProgram]);
 
     useEffect(() => {
+        setSelectedDay('');
+        setSelectedTime('');
+    }, [selectedLevel]);
+
+    useEffect(() => {
         setSelectedTime('');
     }, [selectedDay]);
 
-    // Filter available days based on selected center and program
-    const availableDays = React.useMemo(() => {
+    // Filter available levels based on selected center and program
+    const availableLevels = React.useMemo(() => {
         if (!selectedCenter || !selectedProgram) return [];
         const matches = MOCK_AVAILABLE_CLASSES.filter(c => 
             c.school === selectedCenter && c.program === selectedProgram
+        );
+        const uniqueLevels = [...new Set(matches.map(c => c.level))].sort((a, b) => {
+            const aNum = parseInt(a, 10);
+            const bNum = parseInt(b, 10);
+            if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
+            if (!isNaN(aNum)) return -1;
+            if (!isNaN(bNum)) return 1;
+            return a.localeCompare(b);
+        });
+        return uniqueLevels;
+    }, [selectedCenter, selectedProgram]);
+
+    // Filter available days based on selected center, program, and level
+    const availableDays = React.useMemo(() => {
+        if (!selectedCenter || !selectedProgram || !selectedLevel) return [];
+        const matches = MOCK_AVAILABLE_CLASSES.filter(c => 
+            c.school === selectedCenter && c.program === selectedProgram && c.level === selectedLevel
         );
         const uniqueDays = [...new Set(matches.map(c => c.hari))].sort((a, b) => {
             const order = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
             return order.indexOf(a) - order.indexOf(b);
         });
         return uniqueDays;
-    }, [selectedCenter, selectedProgram]);
+    }, [selectedCenter, selectedProgram, selectedLevel]);
 
-    // Filter available times based on selected center, program, and day
+    // Filter available times based on selected center, program, level, and day
     const availableTimes = React.useMemo(() => {
-        if (!selectedCenter || !selectedProgram || !selectedDay) return [];
+        if (!selectedCenter || !selectedProgram || !selectedLevel || !selectedDay) return [];
         const matches = MOCK_AVAILABLE_CLASSES.filter(c => 
             c.school === selectedCenter && 
             c.program === selectedProgram && 
+            c.level === selectedLevel &&
             c.hari === selectedDay
         );
         const uniqueTimes = [...new Set(matches.map(c => c.jam))].sort();
         return uniqueTimes;
-    }, [selectedCenter, selectedProgram, selectedDay]);
+    }, [selectedCenter, selectedProgram, selectedLevel, selectedDay]);
 
     // Fetch leads based on sales rep
     React.useEffect(() => {
@@ -123,7 +151,7 @@ export default function SelectClass() {
     }, []);
 
     const isFormValid = () => {
-        if (!selectedLead || !selectedCenter || !selectedProgram || !selectedDay || !selectedTime) return false;
+        if (!selectedLead || !selectedCenter || !selectedProgram || !selectedLevel || !selectedDay || !selectedTime) return false;
         return true;
     };
 
@@ -134,6 +162,7 @@ export default function SelectClass() {
             id: `custom-${Date.now()}`,
             name: selectedProgram,
             branch: selectedCenter,
+            level: selectedLevel,
             schedule: `${selectedDay} | ${selectedTime}`,
             price: PACKAGE_PRICE
         };
@@ -345,8 +374,34 @@ export default function SelectClass() {
                     </div>
                 )}
 
-                {/* Step 4: Specific Day & Time */}
+                {/* Step 4: Select Level */}
                 {selectedProgram && (
+                    <div className="glass-card p-6 animate-slide-up">
+                        <label className="block text-sm font-medium text-slate-700 mb-4">
+                            <div className="flex items-center gap-2">
+                                <Award size={18} className="text-blue-500" />
+                                4. Pilih Level Belajar
+                            </div>
+                        </label>
+                        <div className="flex flex-wrap gap-3">
+                            {availableLevels.map(lvl => (
+                                <button
+                                    key={lvl}
+                                    type="button"
+                                    onClick={() => setSelectedLevel(lvl)}
+                                    className={`px-4 py-2 rounded-lg border-2 font-medium text-sm transition-all ${
+                                        selectedLevel === lvl ? 'border-brand bg-brand/5 text-brand' : 'border-slate-200 hover:border-slate-300 text-slate-600'
+                                    }`}
+                                >
+                                    Level {lvl}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Step 5: Specific Day & Time */}
+                {selectedLevel && (
                     <div className="glass-card p-6 animate-slide-up space-y-6">
                         
                         {/* Days Selection */}
@@ -354,11 +409,11 @@ export default function SelectClass() {
                             <label className="block text-sm font-medium text-slate-700 mb-3">
                                 <div className="flex items-center gap-2">
                                     <CheckSquare size={18} className="text-indigo-500" />
-                                    Pilih Hari Belajar
+                                    5. Pilih Hari Belajar
                                 </div>
                             </label>
                             {availableDays.length === 0 ? (
-                                <p className="text-sm text-slate-400">Tidak ada hari belajar yang tersedia untuk program ini.</p>
+                                <p className="text-sm text-slate-400">Tidak ada hari belajar yang tersedia untuk level ini.</p>
                             ) : (
                                 <div className="flex flex-wrap gap-3">
                                     {availableDays.map(day => (
@@ -420,7 +475,7 @@ export default function SelectClass() {
                             <p className="text-xl font-bold text-slate-800 flex items-center">
                                 Rp {PACKAGE_PRICE.toLocaleString('id-ID')}
                             </p>
-                            <p className="text-xs text-slate-400 mt-1 line-clamp-1">{selectedCenter} | {selectedProgram} | {selectedDay} | {selectedTime}</p>
+                            <p className="text-xs text-slate-400 mt-1 line-clamp-1">{selectedCenter} | {selectedProgram} | Level {selectedLevel} | {selectedDay} | {selectedTime}</p>
                         </div>
                         <button
                             onClick={handleProceed}
