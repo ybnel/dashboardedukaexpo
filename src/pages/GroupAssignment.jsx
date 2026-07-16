@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useStore } from '../store/useStore';
 import { MOCK_AVAILABLE_CLASSES, PROGRAMS } from '../data/mockData';
-import { ArrowLeft, Users, Loader2, AlertCircle, ChevronRight, CalendarClock, Filter, MapPin, Calendar, Clock, BookOpen, Award } from 'lucide-react';
+import { ArrowLeft, Users, Loader2, AlertCircle, ChevronRight, ChevronDown, CalendarClock, Filter, MapPin, Calendar, Clock, BookOpen, Award } from 'lucide-react';
 
 export default function GroupAssignment() {
     const navigate = useNavigate();
@@ -19,13 +19,40 @@ export default function GroupAssignment() {
     const [error, setError] = useState('');
     
     // Filters (Read from Zustand store for persistence)
-    const filterBranch = useStore((state) => state.assignmentFilters.branch);
+    const filterBranchRaw = useStore((state) => state.assignmentFilters.branch);
     const filterProgram = useStore((state) => state.assignmentFilters.program);
     const filterLevel = useStore((state) => state.assignmentFilters.level);
-    const filterDay = useStore((state) => state.assignmentFilters.day);
-    const filterTime = useStore((state) => state.assignmentFilters.time);
+    const filterDayRaw = useStore((state) => state.assignmentFilters.day);
+    const filterTimeRaw = useStore((state) => state.assignmentFilters.time);
     const setAssignmentFilters = useStore((state) => state.setAssignmentFilters);
     const resetAssignmentFilters = useStore((state) => state.resetAssignmentFilters);
+
+    // Normalize values to arrays (with safety checks for legacy string values)
+    const filterBranch = useMemo(() => Array.isArray(filterBranchRaw) ? filterBranchRaw : (filterBranchRaw ? [filterBranchRaw] : []), [filterBranchRaw]);
+    const filterDay = useMemo(() => Array.isArray(filterDayRaw) ? filterDayRaw : (filterDayRaw ? [filterDayRaw] : []), [filterDayRaw]);
+    const filterTime = useMemo(() => Array.isArray(filterTimeRaw) ? filterTimeRaw : (filterTimeRaw ? [filterTimeRaw] : []), [filterTimeRaw]);
+
+    // Active custom dropdown tracking
+    const [activeDropdown, setActiveDropdown] = useState(null); // 'branch' | 'day' | 'time' | null
+    const branchDropdownRef = React.useRef(null);
+    const dayDropdownRef = React.useRef(null);
+    const timeDropdownRef = React.useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (activeDropdown === 'branch' && branchDropdownRef.current && !branchDropdownRef.current.contains(event.target)) {
+                setActiveDropdown(null);
+            }
+            if (activeDropdown === 'day' && dayDropdownRef.current && !dayDropdownRef.current.contains(event.target)) {
+                setActiveDropdown(null);
+            }
+            if (activeDropdown === 'time' && timeDropdownRef.current && !timeDropdownRef.current.contains(event.target)) {
+                setActiveDropdown(null);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [activeDropdown]);
 
     // Fetch Paid Leads
     useEffect(() => {
@@ -124,11 +151,11 @@ export default function GroupAssignment() {
 
     // Filter schedules locally based on dropdowns
     const filteredSchedules = schedules.filter(s => {
-        if (filterBranch && s.branch !== filterBranch) return false;
+        if (filterBranch && filterBranch.length > 0 && !filterBranch.includes(s.branch)) return false;
         if (filterProgram && s.program !== filterProgram) return false;
         if (filterLevel && s.level !== filterLevel) return false;
-        if (filterDay && s.day !== filterDay) return false;
-        if (filterTime && s.time !== filterTime) return false;
+        if (filterDay && filterDay.length > 0 && !filterDay.includes(s.day)) return false;
+        if (filterTime && filterTime.length > 0 && !filterTime.includes(s.time)) return false;
         return true;
     });
 
@@ -161,32 +188,65 @@ export default function GroupAssignment() {
                 </div>
 
                 {/* Filters */}
-                <div className="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm flex flex-col md:flex-row gap-3">
-                    <div className="flex items-center gap-2 mb-1 md:hidden">
+                <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    <div className="col-span-full flex items-center gap-2 mb-1">
                         <Filter size={16} className="text-slate-400" />
                         <span className="text-xs font-semibold text-slate-500 uppercase">Filter</span>
                     </div>
 
                     {/* Cabang */}
-                    <div className="flex-1 relative">
-                        <MapPin size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-500" />
-                        <select 
-                             className="w-full pl-9 pr-8 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand focus:ring-1 focus:ring-brand transition-colors text-sm text-slate-700 appearance-none cursor-pointer"
-                            value={filterBranch}
-                            onChange={(e) => setAssignmentFilters({ branch: e.target.value })}
+                    <div className="relative w-full" ref={branchDropdownRef}>
+                        <button
+                            type="button"
+                            onClick={() => setActiveDropdown(activeDropdown === 'branch' ? null : 'branch')}
+                            className="w-full pl-9 pr-8 py-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100/70 focus:bg-white transition-colors text-sm text-slate-700 text-left flex justify-between items-center cursor-pointer shadow-sm"
                         >
-                            <option value="">Semua Cabang</option>
-                            {filterOptions.branches.map(b => (
-                                <option key={b} value={b}>{b}</option>
-                            ))}
-                        </select>
+                            <div className="flex items-center gap-2 truncate">
+                                <MapPin size={16} className="text-emerald-500 shrink-0" />
+                                <span className="truncate">
+                                    {filterBranch.length === 0 
+                                        ? 'Semua Cabang' 
+                                        : filterBranch.length === 1 
+                                            ? filterBranch[0] 
+                                            : `${filterBranch[0]} (+${filterBranch.length - 1})`
+                                    }
+                                </span>
+                            </div>
+                            <ChevronDown size={16} className="text-slate-400 shrink-0 transition-transform duration-200" style={{ transform: activeDropdown === 'branch' ? 'rotate(180deg)' : 'none' }} />
+                        </button>
+                        {activeDropdown === 'branch' && (
+                            <div className="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg z-50 py-2 max-h-60 overflow-y-auto">
+                                {filterOptions.branches.map(b => {
+                                    const isChecked = filterBranch.includes(b);
+                                    return (
+                                        <label 
+                                            key={b} 
+                                            className="flex items-center gap-3 px-3 py-2 hover:bg-slate-50 cursor-pointer text-sm text-slate-700"
+                                        >
+                                            <input 
+                                                type="checkbox"
+                                                checked={isChecked}
+                                                onChange={() => {
+                                                    const newBranch = isChecked 
+                                                        ? filterBranch.filter(x => x !== b)
+                                                        : [...filterBranch, b];
+                                                    setAssignmentFilters({ branch: newBranch });
+                                                }}
+                                                className="rounded border-slate-300 text-brand focus:ring-brand cursor-pointer"
+                                            />
+                                            <span className="truncate">{b}</span>
+                                        </label>
+                                    );
+                                })}
+                            </div>
+                        )}
                     </div>
 
                     {/* Program */}
-                    <div className="flex-1 relative">
+                    <div className="relative w-full">
                         <BookOpen size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-brand" />
                         <select 
-                            className="w-full pl-9 pr-8 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand focus:ring-1 focus:ring-brand transition-colors text-sm text-slate-700 appearance-none cursor-pointer"
+                            className="w-full pl-9 pr-8 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand focus:ring-1 focus:ring-brand transition-colors text-sm text-slate-700 appearance-none cursor-pointer shadow-sm"
                             value={filterProgram}
                             onChange={(e) => setAssignmentFilters({ program: e.target.value })}
                         >
@@ -198,10 +258,10 @@ export default function GroupAssignment() {
                     </div>
 
                     {/* Level */}
-                    <div className="flex-1 relative">
+                    <div className="relative w-full">
                         <Award size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-500" />
                         <select 
-                            className="w-full pl-9 pr-8 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand focus:ring-1 focus:ring-brand transition-colors text-sm text-slate-700 appearance-none cursor-pointer"
+                            className="w-full pl-9 pr-8 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand focus:ring-1 focus:ring-brand transition-colors text-sm text-slate-700 appearance-none cursor-pointer shadow-sm"
                             value={filterLevel}
                             onChange={(e) => setAssignmentFilters({ level: e.target.value })}
                         >
@@ -213,41 +273,107 @@ export default function GroupAssignment() {
                     </div>
 
                     {/* Hari */}
-                    <div className="flex-1 relative">
-                        <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-orange-500" />
-                        <select 
-                            className="w-full pl-9 pr-8 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand focus:ring-1 focus:ring-brand transition-colors text-sm text-slate-700 appearance-none cursor-pointer"
-                            value={filterDay}
-                            onChange={(e) => setAssignmentFilters({ day: e.target.value })}
+                    <div className="relative w-full" ref={dayDropdownRef}>
+                        <button
+                            type="button"
+                            onClick={() => setActiveDropdown(activeDropdown === 'day' ? null : 'day')}
+                            className="w-full pl-9 pr-8 py-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100/70 focus:bg-white transition-colors text-sm text-slate-700 text-left flex justify-between items-center cursor-pointer shadow-sm"
                         >
-                            <option value="">Semua Hari</option>
-                            {filterOptions.days.map(d => (
-                                <option key={d} value={d}>{d}</option>
-                            ))}
-                        </select>
+                            <div className="flex items-center gap-2 truncate">
+                                <Calendar size={16} className="text-orange-500 shrink-0" />
+                                <span className="truncate">
+                                    {filterDay.length === 0 
+                                        ? 'Semua Hari' 
+                                        : filterDay.length === 1 
+                                            ? filterDay[0] 
+                                            : `${filterDay[0]} (+${filterDay.length - 1})`
+                                    }
+                                </span>
+                            </div>
+                            <ChevronDown size={16} className="text-slate-400 shrink-0 transition-transform duration-200" style={{ transform: activeDropdown === 'day' ? 'rotate(180deg)' : 'none' }} />
+                        </button>
+                        {activeDropdown === 'day' && (
+                            <div className="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg z-50 py-2 max-h-60 overflow-y-auto">
+                                {filterOptions.days.map(d => {
+                                    const isChecked = filterDay.includes(d);
+                                    return (
+                                        <label 
+                                            key={d} 
+                                            className="flex items-center gap-3 px-3 py-2 hover:bg-slate-50 cursor-pointer text-sm text-slate-700"
+                                        >
+                                            <input 
+                                                type="checkbox"
+                                                checked={isChecked}
+                                                onChange={() => {
+                                                    const newDay = isChecked 
+                                                        ? filterDay.filter(x => x !== d)
+                                                        : [...filterDay, d];
+                                                    setAssignmentFilters({ day: newDay });
+                                                }}
+                                                className="rounded border-slate-300 text-brand focus:ring-brand cursor-pointer"
+                                            />
+                                            <span>{d}</span>
+                                        </label>
+                                    );
+                                })}
+                            </div>
+                        )}
                     </div>
 
                     {/* Jam */}
-                    <div className="flex-1 relative">
-                        <Clock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-rose-500" />
-                        <select 
-                            className="w-full pl-9 pr-8 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand focus:ring-1 focus:ring-brand transition-colors text-sm text-slate-700 appearance-none cursor-pointer"
-                            value={filterTime}
-                            onChange={(e) => setAssignmentFilters({ time: e.target.value })}
+                    <div className="relative w-full" ref={timeDropdownRef}>
+                        <button
+                            type="button"
+                            onClick={() => setActiveDropdown(activeDropdown === 'time' ? null : 'time')}
+                            className="w-full pl-9 pr-8 py-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100/70 focus:bg-white transition-colors text-sm text-slate-700 text-left flex justify-between items-center cursor-pointer shadow-sm"
                         >
-                            <option value="">Semua Jam</option>
-                            {filterOptions.times.map(t => (
-                                <option key={t} value={t}>{t}</option>
-                            ))}
-                        </select>
+                            <div className="flex items-center gap-2 truncate">
+                                <Clock size={16} className="text-rose-500 shrink-0" />
+                                <span className="truncate">
+                                    {filterTime.length === 0 
+                                        ? 'Semua Jam' 
+                                        : filterTime.length === 1 
+                                            ? filterTime[0] 
+                                            : `${filterTime[0]} (+${filterTime.length - 1})`
+                                    }
+                                </span>
+                            </div>
+                            <ChevronDown size={16} className="text-slate-400 shrink-0 transition-transform duration-200" style={{ transform: activeDropdown === 'time' ? 'rotate(180deg)' : 'none' }} />
+                        </button>
+                        {activeDropdown === 'time' && (
+                            <div className="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg z-50 py-2 max-h-60 overflow-y-auto">
+                                {filterOptions.times.map(t => {
+                                    const isChecked = filterTime.includes(t);
+                                    return (
+                                        <label 
+                                            key={t} 
+                                            className="flex items-center gap-3 px-3 py-2 hover:bg-slate-50 cursor-pointer text-sm text-slate-700"
+                                        >
+                                            <input 
+                                                type="checkbox"
+                                                checked={isChecked}
+                                                onChange={() => {
+                                                    const newTime = isChecked 
+                                                        ? filterTime.filter(x => x !== t)
+                                                        : [...filterTime, t];
+                                                    setAssignmentFilters({ time: newTime });
+                                                }}
+                                                className="rounded border-slate-300 text-brand focus:ring-brand cursor-pointer"
+                                            />
+                                            <span className="truncate">{t}</span>
+                                        </label>
+                                    );
+                                })}
+                            </div>
+                        )}
                     </div>
                     
-                    {(filterBranch || filterProgram || filterLevel || filterDay || filterTime) && (
+                    {(filterBranch.length > 0 || filterProgram || filterLevel || filterDay.length > 0 || filterTime.length > 0) && (
                         <button 
                             onClick={resetAssignmentFilters}
-                            className="px-4 py-2 text-xs font-semibold text-slate-500 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors shrink-0"
+                            className="w-full py-2.5 text-sm font-semibold text-slate-500 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors text-center shadow-sm"
                         >
-                            Reset
+                            Reset Filter
                         </button>
                     )}
                 </div>
