@@ -8,16 +8,19 @@ import { ArrowLeft, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 export default function Checkout() {
     const PAYMENT_METHODS = [
         'Bank Transfer',
-        'Credit Card BCA',
-        'Credit Card BRI',
-        'Credit Card Mandiri',
-        'Cicilan BCA 3 bln',
-        'Cicilan BCA 6 bln',
-        'Cicilan BRI 3 bln',
-        'Cicilan BRI 6 bln',
-        'Cicilan Mandiri 3 bln',
-        'Cicilan Mandiri 6 bln',
-        'Blibli'
+        'CC BCA',
+        'CC BRI',
+        'CC Mandiri',
+        'Debit BCA',
+        'Debit BRI',
+        'Debit Mandiri',
+        'Cicilan BCA',
+        'Cicilan BRI',
+        'Cicilan Mandiri',
+        'Blibli',
+        'BCA E-commerce',
+        'Cash',
+        'Other'
     ];
 
     const [paymentMethod, setPaymentMethod] = useState('Bank Transfer');
