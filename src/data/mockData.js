@@ -51,23 +51,38 @@ function getLevelFromGroupCode(groupCode) {
     const part0 = groupCode.split('-')[0];
     if (part0.length < 5) return '';
     const remaining = part0.substring(2);
+    let rawLevel = '';
     if (remaining.toUpperCase().startsWith('V')) {
-        return remaining.substring(2);
+        rawLevel = remaining.substring(2);
+    } else {
+        return '';
     }
-    return '';
+
+    const prefix = groupCode.substring(0, 2).toUpperCase();
+    if (prefix === 'HF') {
+        // High Flyers: keep only letters (A, B, C, etc.)
+        return rawLevel.replace(/[^A-Za-z]/g, '').toUpperCase();
+    } else {
+        // Others: keep only numbers (1, 2, 3, etc.)
+        return rawLevel.replace(/[^0-9]/g, '');
+    }
 }
 
 function parseCSV(csvText) {
     const lines = csvText.split(/\r?\n/);
     if (lines.length === 0) return [];
     
-    const headers = lines[0].split(';');
+    let delimiter = ';';
+    if (lines[0] && lines[0].includes(',')) {
+        delimiter = ',';
+    }
+    const headers = lines[0].split(delimiter);
     const classes = [];
     
     for (let i = 1; i < lines.length; i++) {
         const line = lines[i].trim();
         if (!line) continue;
-        const cols = line.split(';');
+        const cols = line.split(delimiter);
         if (cols.length < headers.length) continue;
         
         const row = {};
@@ -109,7 +124,17 @@ function parseCSV(csvText) {
         }
         
         if (center && program && timeSession) {
-            const level = getLevelFromGroupCode(groupCode);
+            let level = row['Level Program'] ? row['Level Program'].trim() : '';
+            if (!level) {
+                level = getLevelFromGroupCode(groupCode);
+            } else {
+                const prefix = groupCode.substring(0, 2).toUpperCase();
+                if (prefix === 'HF') {
+                    level = level.replace(/[^A-Za-z]/g, '').toUpperCase();
+                } else {
+                    level = level.replace(/[^0-9]/g, '');
+                }
+            }
             classes.push({
                 school: center,
                 program: program,

@@ -21,7 +21,7 @@ export default function GroupAssignment() {
     // Filters (Read from Zustand store for persistence)
     const filterBranchRaw = useStore((state) => state.assignmentFilters.branch);
     const filterProgram = useStore((state) => state.assignmentFilters.program);
-    const filterLevel = useStore((state) => state.assignmentFilters.level);
+    const filterLevelRaw = useStore((state) => state.assignmentFilters.level);
     const filterDayRaw = useStore((state) => state.assignmentFilters.day);
     const filterTimeRaw = useStore((state) => state.assignmentFilters.time);
     const setAssignmentFilters = useStore((state) => state.setAssignmentFilters);
@@ -29,18 +29,23 @@ export default function GroupAssignment() {
 
     // Normalize values to arrays (with safety checks for legacy string values)
     const filterBranch = useMemo(() => Array.isArray(filterBranchRaw) ? filterBranchRaw : (filterBranchRaw ? [filterBranchRaw] : []), [filterBranchRaw]);
+    const filterLevel = useMemo(() => Array.isArray(filterLevelRaw) ? filterLevelRaw : (filterLevelRaw ? [filterLevelRaw] : []), [filterLevelRaw]);
     const filterDay = useMemo(() => Array.isArray(filterDayRaw) ? filterDayRaw : (filterDayRaw ? [filterDayRaw] : []), [filterDayRaw]);
     const filterTime = useMemo(() => Array.isArray(filterTimeRaw) ? filterTimeRaw : (filterTimeRaw ? [filterTimeRaw] : []), [filterTimeRaw]);
 
     // Active custom dropdown tracking
-    const [activeDropdown, setActiveDropdown] = useState(null); // 'branch' | 'day' | 'time' | null
+    const [activeDropdown, setActiveDropdown] = useState(null); // 'branch' | 'level' | 'day' | 'time' | null
     const branchDropdownRef = React.useRef(null);
+    const levelDropdownRef = React.useRef(null);
     const dayDropdownRef = React.useRef(null);
     const timeDropdownRef = React.useRef(null);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (activeDropdown === 'branch' && branchDropdownRef.current && !branchDropdownRef.current.contains(event.target)) {
+                setActiveDropdown(null);
+            }
+            if (activeDropdown === 'level' && levelDropdownRef.current && !levelDropdownRef.current.contains(event.target)) {
                 setActiveDropdown(null);
             }
             if (activeDropdown === 'day' && dayDropdownRef.current && !dayDropdownRef.current.contains(event.target)) {
@@ -132,7 +137,13 @@ export default function GroupAssignment() {
     const filterOptions = useMemo(() => {
         const branches = [...new Set(schedules.map(s => s.branch))].sort();
         const programs = [...new Set(schedules.map(s => s.program))].sort();
-        const levels = [...new Set(schedules.map(s => s.level))].sort((a, b) => {
+        
+        // Filter levels based on selected program
+        const schedulesForLevels = filterProgram 
+            ? schedules.filter(s => s.program === filterProgram)
+            : schedules;
+
+        const levels = [...new Set(schedulesForLevels.map(s => s.level))].sort((a, b) => {
             // Sort levels: numeric values first, then alphabetical
             const aNum = parseInt(a, 10);
             const bNum = parseInt(b, 10);
@@ -147,13 +158,13 @@ export default function GroupAssignment() {
         });
         const times = [...new Set(schedules.map(s => s.time))].sort();
         return { branches, programs, levels, days, times };
-    }, [schedules]);
+    }, [schedules, filterProgram]);
 
     // Filter schedules locally based on dropdowns
     const filteredSchedules = schedules.filter(s => {
         if (filterBranch && filterBranch.length > 0 && !filterBranch.includes(s.branch)) return false;
         if (filterProgram && s.program !== filterProgram) return false;
-        if (filterLevel && s.level !== filterLevel) return false;
+        if (filterLevel && filterLevel.length > 0 && !filterLevel.includes(s.level)) return false;
         if (filterDay && filterDay.length > 0 && !filterDay.includes(s.day)) return false;
         if (filterTime && filterTime.length > 0 && !filterTime.includes(s.time)) return false;
         return true;
@@ -248,7 +259,7 @@ export default function GroupAssignment() {
                         <select 
                             className="w-full pl-9 pr-8 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand focus:ring-1 focus:ring-brand transition-colors text-sm text-slate-700 appearance-none cursor-pointer shadow-sm"
                             value={filterProgram}
-                            onChange={(e) => setAssignmentFilters({ program: e.target.value })}
+                            onChange={(e) => setAssignmentFilters({ program: e.target.value, level: [] })}
                         >
                             <option value="">Semua Program</option>
                             {filterOptions.programs.map(p => (
@@ -258,18 +269,51 @@ export default function GroupAssignment() {
                     </div>
 
                     {/* Level */}
-                    <div className="relative w-full">
-                        <Award size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-500" />
-                        <select 
-                            className="w-full pl-9 pr-8 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand focus:ring-1 focus:ring-brand transition-colors text-sm text-slate-700 appearance-none cursor-pointer shadow-sm"
-                            value={filterLevel}
-                            onChange={(e) => setAssignmentFilters({ level: e.target.value })}
+                    <div className="relative w-full" ref={levelDropdownRef}>
+                        <button
+                            type="button"
+                            onClick={() => setActiveDropdown(activeDropdown === 'level' ? null : 'level')}
+                            className="w-full pl-9 pr-8 py-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100/70 focus:bg-white transition-colors text-sm text-slate-700 text-left flex justify-between items-center cursor-pointer shadow-sm"
                         >
-                            <option value="">Semua Level</option>
-                            {filterOptions.levels.map(lvl => (
-                                <option key={lvl} value={lvl}>Level {lvl}</option>
-                            ))}
-                        </select>
+                            <div className="flex items-center gap-2 truncate">
+                                <Award size={16} className="text-blue-500 shrink-0" />
+                                <span className="truncate">
+                                    {filterLevel.length === 0 
+                                        ? 'Semua Level' 
+                                        : filterLevel.length === 1 
+                                            ? `Level ${filterLevel[0]}` 
+                                            : `Level ${filterLevel[0]} (+${filterLevel.length - 1})`
+                                    }
+                                </span>
+                            </div>
+                            <ChevronDown size={16} className="text-slate-400 shrink-0 transition-transform duration-200" style={{ transform: activeDropdown === 'level' ? 'rotate(180deg)' : 'none' }} />
+                        </button>
+                        {activeDropdown === 'level' && (
+                            <div className="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg z-50 py-2 max-h-60 overflow-y-auto">
+                                {filterOptions.levels.map(lvl => {
+                                    const isChecked = filterLevel.includes(lvl);
+                                    return (
+                                        <label 
+                                            key={lvl} 
+                                            className="flex items-center gap-3 px-3 py-2 hover:bg-slate-50 cursor-pointer text-sm text-slate-700"
+                                        >
+                                            <input 
+                                                type="checkbox"
+                                                checked={isChecked}
+                                                onChange={() => {
+                                                    const newLevel = isChecked 
+                                                        ? filterLevel.filter(x => x !== lvl)
+                                                        : [...filterLevel, lvl];
+                                                    setAssignmentFilters({ level: newLevel });
+                                                }}
+                                                className="rounded border-slate-300 text-brand focus:ring-brand cursor-pointer"
+                                            />
+                                            <span>Level {lvl}</span>
+                                        </label>
+                                    );
+                                })}
+                            </div>
+                        )}
                     </div>
 
                     {/* Hari */}
@@ -404,12 +448,6 @@ export default function GroupAssignment() {
                                         <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">
                                             {sched.branch}
                                         </span>
-                                        <span className="text-xs font-bold uppercase tracking-wider text-brand bg-brand/5 px-2 py-0.5 rounded border border-brand/10">
-                                            {sched.program}
-                                        </span>
-                                        <span className="text-xs font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
-                                            Level {sched.level}
-                                        </span>
                                         {sched.waitingCount > 0 && (
                                             <span className="text-xs font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded flex items-center gap-1">
                                                 <Users size={12} />
@@ -417,11 +455,22 @@ export default function GroupAssignment() {
                                             </span>
                                         )}
                                     </div>
-                                    <h3 className="font-bold text-slate-800 text-lg group-hover:text-brand transition-colors mt-2">
-                                        {sched.day}, {sched.time}
+                                    <h3 className="font-extrabold text-slate-800 text-xl group-hover:text-brand transition-colors mt-2 uppercase tracking-wide">
+                                        {sched.program}
                                     </h3>
-                                    <p className="text-sm text-slate-500 mt-1">
-                                        {sched.groupCount} Grup Tersedia
+                                    <p className="text-sm text-slate-600 mt-2 flex items-center gap-2 flex-wrap font-medium">
+                                        <span className="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
+                                            Level {sched.level}
+                                        </span>
+                                        <span className="text-slate-300">•</span>
+                                        <span className="flex items-center gap-1 text-slate-500">
+                                            <Clock size={14} className="text-slate-400" />
+                                            {sched.day}, {sched.time}
+                                        </span>
+                                        <span className="text-slate-300">•</span>
+                                        <span className="text-slate-500">
+                                            {sched.groupCount} Sesi Grup
+                                        </span>
                                     </p>
                                 </div>
                                 <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-brand group-hover:text-white transition-colors z-10 text-slate-400 shrink-0">
