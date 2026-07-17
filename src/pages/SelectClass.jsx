@@ -6,6 +6,29 @@ import { collection, query, where, getDocs } from 'firebase/firestore';
 import { CENTERS, PROGRAMS, MOCK_AVAILABLE_CLASSES, PACKAGE_PRICE } from '../data/mockData';
 import { ArrowLeft, UserCheck, Calendar, MapPin, ChevronRight, Loader2, AlertCircle, Clock, CheckSquare, Square, Search, ChevronDown, Check, BookOpen, Award } from 'lucide-react';
 
+const PRICING_TABLE = {
+    'HF_TB_FR_Standard': {
+        1: { original: 6800000, discount: 680000, net: 6120000 },
+        2: { original: 13600000, discount: 1972000, net: 11628000 },
+        3: { original: 20400000, discount: 3325200, net: 17074800 }
+    },
+    'SS_Standard': {
+        1: { original: 10900000, discount: 990000, net: 9910000 },
+        2: { original: 21800000, discount: 2871000, net: 18929000 },
+        3: { original: 32700000, discount: 4841100, net: 27858900 }
+    },
+    'HF_TB_FR_Peak': {
+        1: { original: 7400000, discount: 740000, net: 6660000 },
+        2: { original: 14800000, discount: 2146000, net: 12654000 },
+        3: { original: 22200000, discount: 3618600, net: 18581400 }
+    },
+    'SS_Peak': {
+        1: { original: 11400000, discount: 1070000, net: 10330000 },
+        2: { original: 22800000, discount: 3103000, net: 19697000 },
+        3: { original: 34200000, discount: 5232300, net: 28967700 }
+    }
+};
+
 export default function SelectClass() {
     // 1. Lead State
     const [selectedLead, setSelectedLead] = useState('');
@@ -19,9 +42,9 @@ export default function SelectClass() {
     // 4. Level State
     const [selectedLevel, setSelectedLevel] = useState('');
 
-    // 5. Schedule State
-    const [selectedDay, setSelectedDay] = useState('');
-    const [selectedTime, setSelectedTime] = useState('');
+    // 5. Course Package State
+    const [selectedCourseType, setSelectedCourseType] = useState('Standard');
+    const [selectedCourseLength, setSelectedCourseLength] = useState(1);
     
     // Remote Data State (Leads)
     const [leads, setLeads] = useState([]);
@@ -45,67 +68,40 @@ export default function SelectClass() {
     useEffect(() => {
         setSelectedProgram('');
         setSelectedLevel('');
-        setSelectedDay('');
-        setSelectedTime('');
+        setSelectedCourseType('Standard');
+        setSelectedCourseLength(1);
     }, [selectedCenter]);
 
     useEffect(() => {
         setSelectedLevel('');
-        setSelectedDay('');
-        setSelectedTime('');
+        setSelectedCourseType('Standard');
+        setSelectedCourseLength(1);
     }, [selectedProgram]);
 
     useEffect(() => {
-        setSelectedDay('');
-        setSelectedTime('');
+        setSelectedCourseType('Standard');
+        setSelectedCourseLength(1);
     }, [selectedLevel]);
 
-    useEffect(() => {
-        setSelectedTime('');
-    }, [selectedDay]);
-
-    // Filter available levels based on selected center and program
+    // Use static levels based on program (per client request)
     const availableLevels = React.useMemo(() => {
-        if (!selectedCenter || !selectedProgram) return [];
-        const matches = MOCK_AVAILABLE_CLASSES.filter(c => 
-            c.school === selectedCenter && c.program === selectedProgram
-        );
-        const uniqueLevels = [...new Set(matches.map(c => c.level))].sort((a, b) => {
-            const aNum = parseInt(a, 10);
-            const bNum = parseInt(b, 10);
-            if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
-            if (!isNaN(aNum)) return -1;
-            if (!isNaN(bNum)) return 1;
-            return a.localeCompare(b);
-        });
-        return uniqueLevels;
-    }, [selectedCenter, selectedProgram]);
-
-    // Filter available days based on selected center, program, and level
-    const availableDays = React.useMemo(() => {
-        if (!selectedCenter || !selectedProgram || !selectedLevel) return [];
-        const matches = MOCK_AVAILABLE_CLASSES.filter(c => 
-            c.school === selectedCenter && c.program === selectedProgram && c.level === selectedLevel
-        );
-        const uniqueDays = [...new Set(matches.map(c => c.hari))].sort((a, b) => {
-            const order = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
-            return order.indexOf(a) - order.indexOf(b);
-        });
-        return uniqueDays;
-    }, [selectedCenter, selectedProgram, selectedLevel]);
-
-    // Filter available times based on selected center, program, level, and day
-    const availableTimes = React.useMemo(() => {
-        if (!selectedCenter || !selectedProgram || !selectedLevel || !selectedDay) return [];
-        const matches = MOCK_AVAILABLE_CLASSES.filter(c => 
-            c.school === selectedCenter && 
-            c.program === selectedProgram && 
-            c.level === selectedLevel &&
-            c.hari === selectedDay
-        );
-        const uniqueTimes = [...new Set(matches.map(c => c.jam))].sort();
-        return uniqueTimes;
-    }, [selectedCenter, selectedProgram, selectedLevel, selectedDay]);
+        if (!selectedProgram) return [];
+        const lower = selectedProgram.toLowerCase();
+        if (lower.includes('small stars')) {
+            return ['1', '2', '3', '4'];
+        }
+        if (lower.includes('high flyers')) {
+            return ['0', '1A', '1B', '2A', '2B', '3A', '3B', '4A', '4B', 'G', 'H', 'I', 'J'];
+        }
+        if (lower.includes('trailblazer')) {
+            return ['1', '2', '3', '4', '5', '6', '7', '8'];
+        }
+        if (lower.includes('frontrunner')) {
+            return ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16'];
+        }
+        // Fallback for Other
+        return ['1', '2', '3', '4', '5', '6', '7', '8'];
+    }, [selectedProgram]);
 
     // Fetch leads based on sales rep
     React.useEffect(() => {
@@ -154,20 +150,27 @@ export default function SelectClass() {
     }, []);
 
     const isFormValid = () => {
-        if (!selectedLead || !selectedCenter || !selectedProgram || !selectedLevel || !selectedDay || !selectedTime) return false;
+        if (!selectedLead || !selectedCenter || !selectedProgram || !selectedLevel || !selectedCourseType || !selectedCourseLength) return false;
         return true;
     };
 
     const handleProceed = () => {
         if (!isFormValid()) return;
 
+        const isSS = selectedProgram.toLowerCase().includes('small stars');
+        const pricingKey = `${isSS ? 'SS' : 'HF_TB_FR'}_${selectedCourseType}`;
+        const pricing = PRICING_TABLE[pricingKey][selectedCourseLength];
+
         const classDetails = {
             id: `custom-${Date.now()}`,
             name: selectedProgram,
             branch: selectedCenter,
             level: selectedLevel,
-            schedule: `${selectedDay} | ${selectedTime}`,
-            price: PACKAGE_PRICE
+            courseType: selectedCourseType,
+            courseLength: `${selectedCourseLength} Course${selectedCourseLength > 1 ? 's' : ''}`,
+            price: pricing.net,
+            originalPrice: pricing.original,
+            discount: pricing.discount
         };
 
         startCheckout(selectedLead, classDetails);
@@ -184,7 +187,7 @@ export default function SelectClass() {
                 >
                     <ArrowLeft size={24} />
                 </button>
-                <h1 className="text-xl font-bold text-slate-800">Pilih Jadwal</h1>
+                <h1 className="text-xl font-bold text-slate-800">Pilih Paket Belajar</h1>
             </div>
 
             <div className="space-y-6">
@@ -403,92 +406,115 @@ export default function SelectClass() {
                     </div>
                 )}
 
-                {/* Step 5: Specific Day & Time */}
+                {/* Step 5 & 6: Course Type & Package Selection */}
                 {selectedLevel && (
                     <div className="glass-card p-6 animate-slide-up space-y-6">
-                        
-                        {/* Days Selection */}
+                        {/* Course Type (Standard vs Peak) */}
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-3">
                                 <div className="flex items-center gap-2">
-                                    <CheckSquare size={18} className="text-indigo-500" />
-                                    5. Pilih Hari Belajar
+                                    <Clock size={18} className="text-indigo-500" />
+                                    5. Pilih Tipe Jam Kursus
                                 </div>
                             </label>
-                            {availableDays.length === 0 ? (
-                                <p className="text-sm text-slate-400">Tidak ada hari belajar yang tersedia untuk level ini.</p>
-                            ) : (
-                                <div className="flex flex-wrap gap-3">
-                                    {availableDays.map(day => (
-                                        <button
-                                            key={day}
-                                            type="button"
-                                            onClick={() => setSelectedDay(day)}
-                                            className={`px-4 py-2 rounded-lg border-2 font-medium text-sm transition-all ${
-                                                selectedDay === day ? 'border-brand bg-brand/5 text-brand' : 'border-slate-200 hover:border-slate-300 text-slate-600'
-                                            }`}
-                                        >
-                                            {day}
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {[
+                                    { id: 'Standard', label: 'Standard', desc: 'Weekday / Jam Biasa' },
+                                    { id: 'Peak', label: 'Peak', desc: 'Saturday / Jam Sibuk (Weekend)' }
+                                ].map(type => (
+                                    <button
+                                        key={type.id}
+                                        type="button"
+                                        onClick={() => setSelectedCourseType(type.id)}
+                                        className={`p-4 rounded-xl border-2 text-left transition-all flex flex-col justify-between ${
+                                            selectedCourseType === type.id 
+                                            ? 'border-brand bg-brand/5 font-semibold text-brand' 
+                                            : 'border-slate-200 hover:border-slate-300 text-slate-700'
+                                        }`}
+                                    >
+                                        <span className="font-bold text-base">{type.label}</span>
+                                        <span className="text-xs text-slate-500 mt-1">{type.desc}</span>
+                                    </button>
+                                ))}
+                            </div>
                         </div>
 
-                        {/* Time Radio */}
-                        {selectedDay && (
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-3">
-                                    <div className="flex items-center gap-2">
-                                        <Clock size={18} className="text-rose-500" />
-                                        Pilih Jam Belajar (Sesi)
-                                    </div>
-                                </label>
-                                {availableTimes.length === 0 ? (
-                                    <p className="text-sm text-slate-400">Tidak ada jam belajar yang tersedia untuk hari terpilih.</p>
-                                ) : (
-                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                        {availableTimes.map(time => (
-                                            <button 
-                                                key={time}
-                                                type="button"
-                                                onClick={() => setSelectedTime(time)}
-                                                className={`p-3 rounded-xl border-2 text-center font-semibold text-sm transition-all ${
-                                                    selectedTime === time ? 'border-brand bg-brand/5 text-brand' : 'border-slate-200 hover:border-slate-300 text-slate-600'
-                                                }`}
-                                            >
-                                                {time}
-                                            </button>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        )}
+                        {/* Course Length / Packages */}
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-3">
+                                <div className="flex items-center gap-2">
+                                    <CheckSquare size={18} className="text-emerald-500" />
+                                    6. Pilih Paket Kursus (Course Length)
+                                </div>
+                            </label>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                {[1, 2, 3].map(length => {
+                                    const isSS = selectedProgram.toLowerCase().includes('small stars');
+                                    const pricingKey = `${isSS ? 'SS' : 'HF_TB_FR'}_${selectedCourseType}`;
+                                    const pricing = PRICING_TABLE[pricingKey][length];
 
+                                    return (
+                                        <button
+                                            key={length}
+                                            type="button"
+                                            onClick={() => setSelectedCourseLength(length)}
+                                            className={`p-4 rounded-xl border-2 text-left transition-all flex flex-col justify-between h-full ${
+                                                selectedCourseLength === length 
+                                                ? 'border-brand bg-brand/5 text-brand' 
+                                                : 'border-slate-200 hover:border-slate-300 text-slate-700'
+                                            }`}
+                                        >
+                                            <div>
+                                                <span className="font-bold text-lg block">{length} Course{length > 1 ? 's' : ''}</span>
+                                                <span className="text-xs line-through text-slate-400 block mt-1">
+                                                    Rp {pricing.original.toLocaleString('id-ID')}
+                                                </span>
+                                                <span className="text-xs text-emerald-600 font-medium block">
+                                                    Hemat Rp {pricing.discount.toLocaleString('id-ID')}
+                                                </span>
+                                            </div>
+                                            <div className="mt-4 pt-2 border-t border-slate-100 w-full">
+                                                <span className="text-xs text-slate-500 block">Harga Setelah Diskon:</span>
+                                                <span className="font-extrabold text-lg text-slate-800">
+                                                    Rp {pricing.net.toLocaleString('id-ID')}
+                                                </span>
+                                            </div>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>
 
             {/* Action Button */}
-            {isFormValid() && (
-                <div className="pt-2 animate-slide-up pb-8 mt-6">
-                    <div className="glass-card p-4 flex flex-col sm:flex-row gap-4 items-center justify-between border-brand/20 bg-brand/5">
-                        <div className="w-full sm:w-auto text-left">
-                            <p className="text-xs text-slate-500">Total Tagihan Sementara:</p>
-                            <p className="text-xl font-bold text-slate-800 flex items-center">
-                                Rp {PACKAGE_PRICE.toLocaleString('id-ID')}
-                            </p>
-                            <p className="text-xs text-slate-400 mt-1 line-clamp-1">{selectedCenter} | {selectedProgram} | Level {selectedLevel} | {selectedDay} | {selectedTime}</p>
+            {isFormValid() && (() => {
+                const isSS = selectedProgram.toLowerCase().includes('small stars');
+                const pricingKey = `${isSS ? 'SS' : 'HF_TB_FR'}_${selectedCourseType}`;
+                const pricing = PRICING_TABLE[pricingKey][selectedCourseLength];
+                return (
+                    <div className="pt-2 animate-slide-up pb-8 mt-6">
+                        <div className="glass-card p-4 flex flex-col sm:flex-row gap-4 items-center justify-between border-brand/20 bg-brand/5">
+                            <div className="w-full sm:w-auto text-left">
+                                <p className="text-xs text-slate-500">Total Tagihan Sementara:</p>
+                                <p className="text-xl font-bold text-slate-800 flex items-center">
+                                    Rp {pricing.net.toLocaleString('id-ID')}
+                                </p>
+                                <p className="text-xs text-slate-400 mt-1 line-clamp-1">
+                                    {selectedCenter} | {selectedProgram} | Level {selectedLevel} | {selectedCourseType} ({selectedCourseLength} Course{selectedCourseLength > 1 ? 's' : ''})
+                                </p>
+                            </div>
+                            <button
+                                onClick={handleProceed}
+                                className="btn-primary w-full sm:w-auto px-8"
+                            >
+                                Konfirmasi Bayar <ChevronRight size={20} className="ml-2 -mr-1" />
+                            </button>
                         </div>
-                        <button
-                            onClick={handleProceed}
-                            className="btn-primary w-full sm:w-auto px-8"
-                        >
-                            Konfirmasi Bayar <ChevronRight size={20} className="ml-2 -mr-1" />
-                        </button>
                     </div>
-                </div>
-            )}
+                );
+            })()}
         </div>
     );
 }

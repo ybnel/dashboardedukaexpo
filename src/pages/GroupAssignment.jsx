@@ -103,7 +103,7 @@ export default function GroupAssignment() {
                     const pref = preferences[lead.id];
                     if (!pref) return false;
 
-                    return pref.branch === c.school && pref.name === c.program && (!pref.level || pref.level === c.level) && pref.schedule === `${c.hari} | ${c.jam}`;
+                    return pref.branch === c.school && pref.name === c.program && (!pref.level || pref.level === c.level);
                 }).length;
 
                 unique.push({

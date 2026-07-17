@@ -66,14 +66,14 @@ export default function GroupDetails() {
         c.jam === time
     );
 
-    // Eligible leads (Paid, Unassigned, Preferred this schedule)
+    // Eligible leads (Paid, Unassigned, Preferred this program and level)
     const eligibleLeads = paidLeads.filter(lead => {
         if (lead.group_name || assignments[lead.id]) return false; // Already assigned
         
         const pref = preferences[lead.id];
         if (!pref) return false;
 
-        return pref.branch === branch && pref.name === program && (!pref.level || pref.level === level) && pref.schedule === `${day} | ${time}`;
+        return pref.branch === branch && pref.name === program && (!pref.level || pref.level === level);
     });
 
     const toggleLeadSelection = (leadId) => {
@@ -221,7 +221,7 @@ export default function GroupDetails() {
                                                 <div>
                                                     <p className="font-semibold text-slate-800">{lead.child_name}</p>
                                                     <p className="text-xs text-slate-500 mt-1">
-                                                        Status: Lunas {pref?.level && `| Level ${pref.level}`}
+                                                        Status: Lunas {pref?.level && `| Level ${pref.level}`} {pref?.courseType && `| ${pref.courseType} (${pref.courseLength})`}
                                                     </p>
                                                 </div>
                                                 <div className={`text-xl ${isSelected ? 'text-brand' : 'text-slate-300'}`}>

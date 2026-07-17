@@ -38,7 +38,7 @@ export default function Success() {
                 </div>
 
                 <h2 className="text-3xl font-extrabold text-slate-800 mb-2">Pembayaran Sukses!</h2>
-                <p className="text-slate-600 mb-8">Pendaftaran {lead.childName} berhasil diproses.</p>
+                <p className="text-slate-600 mb-8">Pendaftaran {lead.child_name} berhasil diproses.</p>
 
                 {/* Receipt Mockup */}
                 <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl p-6 mb-8 text-left relative">
@@ -60,13 +60,16 @@ export default function Success() {
                     <div className="space-y-3 text-sm">
                         <div className="flex justify-between">
                             <span className="text-slate-500">Siswa:</span>
-                            <span className="font-semibold text-slate-800 text-right">{lead.childName}</span>
+                            <span className="font-semibold text-slate-800 text-right">{lead.child_name}</span>
                         </div>
                         <div className="flex justify-between">
                             <span className="text-slate-500">Program:</span>
                             <span className="font-semibold text-slate-800 text-right">
                                 {classDetails.name}<br/>
-                                <span className="text-xs text-slate-500 font-normal">{classDetails.branch} - Level {classDetails.level} - {classDetails.schedule}</span>
+                                <span className="text-xs text-slate-500 font-normal">
+                                    {classDetails.branch} - Level {classDetails.level}
+                                    {classDetails.courseType ? ` - ${classDetails.courseType} (${classDetails.courseLength})` : ` - ${classDetails.schedule}`}
+                                </span>
                             </span>
                         </div>
                         <div className="flex justify-between">

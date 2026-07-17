@@ -131,8 +131,24 @@ export default function Checkout() {
 
                         <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
                             <p className="font-semibold text-brand text-lg">{classDetails.name}</p>
-                            <p className="text-sm text-slate-600 mt-1">{classDetails.branch} - Level {classDetails.level} - {classDetails.schedule}</p>
+                            <p className="text-sm text-slate-600 mt-1">
+                                {classDetails.branch} - Level {classDetails.level}
+                                {classDetails.courseType ? ` - ${classDetails.courseType} (${classDetails.courseLength})` : ` - ${classDetails.schedule}`}
+                            </p>
                         </div>
+
+                        {classDetails.originalPrice && (
+                            <div className="space-y-2 text-sm text-slate-600 border-t border-slate-100 pt-3">
+                                <div className="flex justify-between">
+                                    <span>Harga Normal:</span>
+                                    <span className="line-through text-slate-400">Rp {classDetails.originalPrice.toLocaleString('id-ID')}</span>
+                                </div>
+                                <div className="flex justify-between text-emerald-600 font-medium">
+                                    <span>Diskon Progressive + BTS:</span>
+                                    <span>- Rp {classDetails.discount.toLocaleString('id-ID')}</span>
+                                </div>
+                            </div>
+                        )}
 
                         <div className="flex justify-between items-center pt-4 border-t border-slate-100">
                             <span className="text-slate-600 font-medium">Sales Bertugas</span>
