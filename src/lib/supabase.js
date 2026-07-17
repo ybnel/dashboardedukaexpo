@@ -1,7 +1,3 @@
-import { createClient } from '@supabase/supabase-js'
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
-
-// Initialize the Supabase client
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// Supabase client is no longer used in the project.
+// We have migrated to Firebase Firestore to prevent auto-pausing.
+export const supabase = null;

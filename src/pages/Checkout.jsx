@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store/useStore';
-import { supabase } from '../lib/supabase';
+import { db } from '../lib/firebase';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { ArrowLeft, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export default function Checkout() {
@@ -41,14 +42,12 @@ export default function Checkout() {
             setIsLoading(true);
             setError('');
             try {
-                const { data, error: fetchError } = await supabase
-                    .from('leads')
-                    .select('*')
-                    .eq('id', currentCheckout.leadId)
-                    .single();
-
-                if (fetchError) throw fetchError;
-                setLead(data);
+                const docSnap = await getDoc(doc(db, 'leads', currentCheckout.leadId));
+                if (docSnap.exists()) {
+                    setLead({ id: docSnap.id, ...docSnap.data() });
+                } else {
+                    throw new Error("Lead tidak ditemukan");
+                }
             } catch (err) {
                 console.error('Error fetching lead details for checkout:', err);
                 setError('Gagal memuat data pendaftar.');
@@ -71,13 +70,8 @@ export default function Checkout() {
         setError('');
 
         try {
-            // Update the lead in Supabase to mark as paid
-            const { error: updateError } = await supabase
-                .from('leads')
-                .update({ is_paid: true })
-                .eq('id', currentCheckout.leadId);
-
-            if (updateError) throw updateError;
+            // Update the lead in Firestore to mark as paid
+            await updateDoc(doc(db, 'leads', currentCheckout.leadId), { is_paid: true });
 
             // Save preference locally so it survives navigation/refresh
             useStore.getState().savePreference(currentCheckout.leadId, classDetails);

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useStore } from '../store/useStore';
-import { supabase } from '../lib/supabase';
+import { db } from '../lib/firebase';
+import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { MOCK_AVAILABLE_CLASSES } from '../data/mockData';
 import { ArrowLeft, Users, Loader2, AlertCircle, CheckSquare, Square, MapPin, Calendar, Clock, BookOpen, CheckCircle2, Award } from 'lucide-react';
 
@@ -24,29 +25,37 @@ export default function GroupDetails() {
     const [targetGroup, setTargetGroup] = useState('');
 
     useEffect(() => {
-        const fetchPaidLeads = async () => {
-            if (!salesRep) return;
-            setIsLoading(true);
-            try {
-                const { data, error: fetchError } = await supabase
-                    .from('leads')
-                    .select('*')
-                    .eq('sales_rep', salesRep)
-                    .eq('is_paid', true)
-                    .order('created_at', { ascending: false });
-
-                if (fetchError) throw fetchError;
-                setPaidLeads(data || []);
-            } catch (err) {
-                console.error("Error fetching paid leads", err);
-                setError('Gagal memuat data pendaftar.');
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
         fetchPaidLeads();
     }, [salesRep]);
+
+    const fetchPaidLeads = async () => {
+        if (!salesRep) return;
+        setIsLoading(true);
+        try {
+            // Fetch paid leads matching current sales_rep
+            const q = query(
+                collection(db, 'leads'), 
+                where('sales_rep', '==', salesRep),
+                where('is_paid', '==', true)
+            );
+            
+            const querySnapshot = await getDocs(q);
+            const data = [];
+            querySnapshot.forEach((doc) => {
+                data.push({ id: doc.id, ...doc.data() });
+            });
+
+            // Sort in memory by created_at desc
+            data.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+
+            setPaidLeads(data);
+        } catch (err) {
+            console.error("Error fetching paid leads", err);
+            setError('Gagal memuat data pendaftar.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     // Available groups for this specific schedule
     const scheduleGroups = MOCK_AVAILABLE_CLASSES.filter(c => 
@@ -79,17 +88,12 @@ export default function GroupDetails() {
         setIsLoading(true);
         setError('');
         try {
-            // Update Supabase for each selected lead
+            // Update Firestore for each selected lead doc
             const updatePromises = selectedLeads.map(leadId => 
-                supabase
-                    .from('leads')
-                    .update({ group_name: targetGroup })
-                    .eq('id', leadId)
+                updateDoc(doc(db, 'leads', leadId), { group_name: targetGroup })
             );
             
-            const results = await Promise.all(updatePromises);
-            const firstErrorResult = results.find(r => r.error);
-            if (firstErrorResult) throw firstErrorResult.error;
+            await Promise.all(updatePromises);
 
             // Also update Zustand store locally
             selectedLeads.forEach(leadId => {
@@ -99,10 +103,10 @@ export default function GroupDetails() {
             alert(`Berhasil memasukkan ${selectedLeads.length} siswa ke grup ${targetGroup}!`);
             setSelectedLeads([]);
             setTargetGroup('');
-            navigate('/assign-group'); // Go back to schedule list
+            fetchPaidLeads(); // Refresh leads status
         } catch (err) {
-            console.error('Error assigning group:', err);
-            setError('Gagal menyimpan pembagian grup ke database.');
+            console.error('Error assigning leads to group', err);
+            setError('Gagal mengalokasikan siswa ke grup kelas.');
         } finally {
             setIsLoading(false);
         }

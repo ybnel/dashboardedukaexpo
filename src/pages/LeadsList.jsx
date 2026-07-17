@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { db } from '../lib/firebase';
+import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { useStore } from '../store/useStore';
-import { Loader2, AlertCircle, Edit, UserPlus, Search, CheckSquare, Square } from 'lucide-react';
+import { Loader2, AlertCircle, Edit, UserPlus, Search, CheckSquare, Square, Users, CalendarClock, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import EditLeadModal from '../components/EditLeadModal';
 
@@ -29,20 +30,23 @@ export default function LeadsList() {
         setError('');
 
         try {
-            let query = supabase
-                .from('leads')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            if (salesRep !== 'admin') {
-                query = query.eq('sales_rep', salesRep);
+            let q;
+            if (salesRep === 'admin') {
+                q = query(collection(db, 'leads'));
+            } else {
+                q = query(collection(db, 'leads'), where('sales_rep', '==', salesRep));
             }
 
-            const { data, error: fetchError } = await query;
+            const querySnapshot = await getDocs(q);
+            const data = [];
+            querySnapshot.forEach((doc) => {
+                data.push({ id: doc.id, ...doc.data() });
+            });
 
-            if (fetchError) throw fetchError;
+            // Sort by created_at descending in memory
+            data.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
 
-            setLeads(data || []);
+            setLeads(data);
         } catch (err) {
             console.error('Error fetching leads:', err);
             setError('Gagal memuat data leads.');
@@ -63,12 +67,7 @@ export default function LeadsList() {
     const handlePaymentToggle = async (lead) => {
         const newStatus = !lead.is_paid;
         try {
-            const { error: updateError } = await supabase
-                .from('leads')
-                .update({ is_paid: newStatus })
-                .eq('id', lead.id);
-
-            if (updateError) throw updateError;
+            await updateDoc(doc(db, 'leads', lead.id), { is_paid: newStatus });
             
             // Update local state immediately for better UX
             setLeads(leads.map(l => l.id === lead.id ? { ...l, is_paid: newStatus } : l));
@@ -76,6 +75,51 @@ export default function LeadsList() {
             console.error('Error updating payment status:', err);
             setError('Gagal mengubah status pembayaran.');
         }
+    };
+
+    const handleExportCSV = () => {
+        if (leads.length === 0) return;
+        
+        // Define CSV headers
+        const headers = [
+            'Nama Anak', 'Nama Orang Tua', 'No. HP', 'Tanggal Lahir', 
+            'Kelas Sekolah', 'Alamat', 'Program Pilihan', 'Cabang', 
+            'Hari Sesi', 'Jam Sesi', 'Level', 'Grup Kelas', 
+            'Status Pembayaran', 'Sales Rep', 'Tanggal Registrasi'
+        ];
+        
+        // Map data rows
+        const rows = leads.map(lead => [
+            `"${(lead.child_name || '').replace(/"/g, '""')}"`,
+            `"${(lead.parent_name || '').replace(/"/g, '""')}"`,
+            `"${(lead.parent_phone || '')}"`,
+            `"${(lead.dob || '')}"`,
+            `"${(lead.class_grade || '')}"`,
+            `"${(lead.address || '').replace(/"/g, '""')}"`,
+            `"${(lead.program_preference || '')}"`,
+            `"${(lead.branch_preference || '')}"`,
+            `"${(lead.day_preference || '')}"`,
+            `"${(lead.time_preference || '')}"`,
+            `"${(lead.level || '')}"`,
+            `"${(lead.group_name || '')}"`,
+            lead.is_paid ? 'Lunas' : 'Belum Bayar',
+            `"${(lead.sales_rep || '')}"`,
+            new Date(lead.created_at).toLocaleDateString('id-ID')
+        ]);
+        
+        // Combine into CSV text (with UTF-8 BOM so Excel displays accents correctly)
+        const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+        
+        // Trigger download
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `rekap_leads_expo_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     const filteredLeads = leads.filter(lead => {
@@ -99,13 +143,90 @@ export default function LeadsList() {
                             : 'Menampilkan semua leads yang Anda daftarkan'}
                     </p>
                 </div>
-                <button
-                    onClick={() => navigate('/add-lead')}
-                    className="p-3 bg-brand text-white rounded-full shadow-md hover:bg-brand/90 transition-colors flex items-center justify-center"
-                >
-                    <UserPlus size={24} />
-                </button>
+                <div className="flex gap-2">
+                    {salesRep === 'admin' && leads.length > 0 && (
+                        <button
+                            onClick={handleExportCSV}
+                            className="p-3 bg-slate-100 text-slate-700 rounded-full shadow-md hover:bg-slate-200 transition-colors flex items-center justify-center hover:text-slate-900 border border-slate-200/50"
+                            title="Unduh Rekap CSV"
+                        >
+                            <Download size={24} />
+                        </button>
+                    )}
+                    <button
+                        onClick={() => navigate('/add-lead')}
+                        className="p-3 bg-brand text-white rounded-full shadow-md hover:bg-brand/90 transition-colors flex items-center justify-center"
+                    >
+                        <UserPlus size={24} />
+                    </button>
+                </div>
             </div>
+
+            {salesRep === 'admin' && leads.length > 0 && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    {/* Card 1: Total Leads */}
+                    <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p className="text-sm font-medium text-slate-400">Total Leads</p>
+                            <h3 className="text-3xl font-extrabold text-slate-800 mt-1">{leads.length}</h3>
+                            <p className="text-xs text-slate-500 mt-2">Semua Pendaftar</p>
+                        </div>
+                        <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                            <Users size={24} />
+                        </div>
+                    </div>
+
+                    {/* Card 2: Lunas */}
+                    <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p className="text-sm font-medium text-slate-400">Sudah Lunas</p>
+                            <h3 className="text-3xl font-extrabold text-emerald-600 mt-1">
+                                {leads.filter(l => l.is_paid).length}
+                            </h3>
+                            <p className="text-xs text-slate-500 mt-2">
+                                {leads.length > 0 
+                                    ? `${Math.round((leads.filter(l => l.is_paid).length / leads.length) * 100)}% Rasio Pembayaran`
+                                    : '0% Rasio Pembayaran'}
+                            </p>
+                        </div>
+                        <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                            <CheckSquare size={24} />
+                        </div>
+                    </div>
+
+                    {/* Card 3: Sudah Masuk Grup */}
+                    <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p className="text-sm font-medium text-slate-400">Alokasi Kelas</p>
+                            <h3 className="text-3xl font-extrabold text-brand mt-1">
+                                {leads.filter(l => l.group_name).length}
+                            </h3>
+                            <p className="text-xs text-slate-500 mt-2">
+                                {leads.length > 0 
+                                    ? `${Math.round((leads.filter(l => l.group_name).length / leads.length) * 100)}% Terdistribusi`
+                                    : '0% Terdistribusi'}
+                            </p>
+                        </div>
+                        <div className="w-12 h-12 rounded-xl bg-brand/10 text-brand flex items-center justify-center">
+                            <CalendarClock size={24} />
+                        </div>
+                    </div>
+
+                    {/* Card 4: Belum Lunas */}
+                    <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p className="text-sm font-medium text-slate-400">Belum Lunas</p>
+                            <h3 className="text-3xl font-extrabold text-amber-600 mt-1">
+                                {leads.filter(l => !l.is_paid).length}
+                            </h3>
+                            <p className="text-xs text-slate-500 mt-2">Tunggakan Administrasi</p>
+                        </div>
+                        <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                            <AlertCircle size={24} />
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {error && (
                 <div className="bg-red-50 text-red-600 p-4 rounded-xl flex items-center gap-2 text-sm mb-6">

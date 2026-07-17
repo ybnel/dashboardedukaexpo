@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store/useStore';
-import { supabase } from '../lib/supabase';
+import { db } from '../lib/firebase';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { UserPlus, BookOpen, ChevronRight, Info, FileWarning } from 'lucide-react';
 
 export default function Dashboard() {
@@ -18,23 +19,21 @@ export default function Dashboard() {
             if (!salesRep) return;
             setIsLoading(true);
             try {
-                // Ambil SEMUA data lead
-                const { data, error } = await supabase
-                    .from('leads')
-                    .select('id, created_at, child_name, is_paid')
-                    .eq('sales_rep', salesRep);
+                // Fetch all lead details for this sales rep from Firestore
+                const q = query(collection(db, 'leads'), where('sales_rep', '==', salesRep));
+                const querySnapshot = await getDocs(q);
+                const data = [];
+                querySnapshot.forEach((doc) => {
+                    data.push({ id: doc.id, ...doc.data() });
+                });
 
-                if (error) throw error;
-                
-                if (data) {
-                    // Leads yang belum lunas (Data belum lengkap)
-                    const incomplete = data.filter(lead => !lead.is_paid);
-                    setIncompleteLeads(incomplete);
+                // Leads yang belum lunas (Data belum lengkap)
+                const incomplete = data.filter(lead => !lead.is_paid);
+                setIncompleteLeads(incomplete);
 
-                    // Leads yang sudah lunas TAPI belum masuk grup
-                    const pending = data.filter(lead => lead.is_paid && !lead.group_name && !assignments[lead.id]);
-                    setUnassignedLeads(pending);
-                }
+                // Leads yang sudah lunas TAPI belum masuk grup
+                const pending = data.filter(lead => lead.is_paid && !lead.group_name && !assignments[lead.id]);
+                setUnassignedLeads(pending);
             } catch (err) {
                 console.error("Error fetching pending assignments:", err);
             } finally {

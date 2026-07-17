@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store/useStore';
-import { supabase } from '../lib/supabase';
+import { db } from '../lib/firebase';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { CENTERS, PROGRAMS, MOCK_AVAILABLE_CLASSES, PACKAGE_PRICE } from '../data/mockData';
 import { ArrowLeft, UserCheck, Calendar, MapPin, ChevronRight, Loader2, AlertCircle, Clock, CheckSquare, Square, Search, ChevronDown, Check, BookOpen, Award } from 'lucide-react';
 
@@ -115,15 +116,17 @@ export default function SelectClass() {
             setError('');
             
             try {
-                const { data, error: fetchError } = await supabase
-                    .from('leads')
-                    .select('id, child_name, is_paid')
-                    .eq('sales_rep', salesRep)
-                    .order('created_at', { ascending: false });
+                const q = query(collection(db, 'leads'), where('sales_rep', '==', salesRep));
+                const querySnapshot = await getDocs(q);
+                const data = [];
+                querySnapshot.forEach((doc) => {
+                    data.push({ id: doc.id, ...doc.data() });
+                });
 
-                if (fetchError) throw fetchError;
+                // Sort in memory by created_at desc
+                data.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
                 
-                setLeads(data || []);
+                setLeads(data);
             } catch (err) {
                 console.error('Error fetching leads:', err);
                 setError('Gagal memuat data leads. Pastikan koneksi internet stabil.');

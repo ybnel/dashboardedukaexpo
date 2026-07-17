@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Loader2, AlertCircle } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { db } from '../lib/firebase';
+import { doc, updateDoc } from 'firebase/firestore';
 
 export default function EditLeadModal({ isOpen, onClose, lead, onSaveSuccess }) {
     const [formData, setFormData] = useState({
@@ -62,12 +63,7 @@ export default function EditLeadModal({ isOpen, onClose, lead, onSaveSuccess }) 
         setError('');
 
         try {
-            const { error: updateError } = await supabase
-                .from('leads')
-                .update(formData)
-                .eq('id', lead.id);
-
-            if (updateError) throw updateError;
+            await updateDoc(doc(db, 'leads', lead.id), formData);
             
             onSaveSuccess();
             onClose();

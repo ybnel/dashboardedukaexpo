@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store/useStore';
 import { ArrowLeft, User, Phone, FileText, CheckCircle, Loader2, AlertCircle } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { db } from '../lib/firebase';
+import { collection, addDoc } from 'firebase/firestore';
 
 export default function AddLead() {
     const [childName, setChildName] = useState('');
@@ -23,31 +24,22 @@ export default function AddLead() {
         setIsLoading(true);
 
         try {
-            const { data, error: insertError } = await supabase
-                .from('leads')
-                .insert([
-                    {
-                        sales_rep: salesRep,
-                        child_name: childName,
-                        parent_name: parentName,
-                        parent_phone: phone,
-                        channel: channel
-                    }
-                ])
-                .select();
-
-            if (insertError) throw insertError;
+            const docRef = await addDoc(collection(db, 'leads'), {
+                sales_rep: salesRep,
+                child_name: childName,
+                parent_name: parentName,
+                parent_phone: phone,
+                channel: channel,
+                is_paid: false,
+                group_name: null,
+                created_at: new Date().toISOString()
+            });
 
             // Success
-            if (data && data.length > 0) {
-                setSuccessId(data[0].id);
-            } else {
-                setSuccessId('success-no-id');
-            }
+            setSuccessId(docRef.id);
         } catch (err) {
             console.error('Error adding lead:', err);
-            // Tambahkan pesan error yang lebih detail dari Supabase jika ada
-            const errMessage = err?.message || err?.details || err?.hint || 'Gagal menyimpan data ke database. Silakan coba lagi.';
+            const errMessage = err?.message || 'Gagal menyimpan data ke database. Silakan coba lagi.';
             setError(`Error: ${errMessage}`);
         } finally {
             setIsLoading(false);
