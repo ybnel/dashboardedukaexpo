@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import { initializeFirestore } from 'firebase/firestore';
 
 // Firebase configuration using environment variables with safe fallback defaults
 const firebaseConfig = {
@@ -12,6 +12,11 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
+
+// Force Firestore to use HTTP Long Polling instead of WebSockets.
+// This resolves issues where corporate/educational firewalls block WebSocket connections.
+export const db = initializeFirestore(app, {
+    experimentalForceLongPolling: true
+});
 
 console.log("Firebase initialized successfully with Project ID:", firebaseConfig.projectId);
