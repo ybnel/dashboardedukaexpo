@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
+import { db } from '../lib/firebase';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { useStore } from '../store/useStore';
 import { MOCK_AVAILABLE_CLASSES, PROGRAMS } from '../data/mockData';
 import { ArrowLeft, Users, Loader2, AlertCircle, ChevronRight, ChevronDown, CalendarClock, Filter, MapPin, Calendar, Clock, BookOpen, Award } from 'lucide-react';
@@ -66,14 +67,21 @@ export default function GroupAssignment() {
             setIsLoading(true);
             try {
                 // Fetch all leads for this sales rep that are paid
-                const { data, fetchError } = await supabase
-                    .from('leads')
-                    .select('*')
-                    .eq('sales_rep', salesRep)
-                    .eq('is_paid', true);
+                const q = query(
+                    collection(db, 'leads'),
+                    where('sales_rep', '==', salesRep),
+                    where('is_paid', '==', true)
+                );
+                const querySnapshot = await getDocs(q);
+                const data = [];
+                querySnapshot.forEach((doc) => {
+                    data.push({ id: doc.id, ...doc.data() });
+                });
 
-                if (fetchError) throw fetchError;
-                setPaidLeads(data || []);
+                // Sort in memory by created_at desc
+                data.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+
+                setPaidLeads(data);
             } catch (err) {
                 console.error("Error fetching paid leads", err);
                 setError('Gagal memuat data pendaftar.');
@@ -227,6 +235,21 @@ export default function GroupAssignment() {
                         </button>
                         {activeDropdown === 'branch' && (
                             <div className="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg z-50 py-2 max-h-60 overflow-y-auto">
+                                <label className="flex items-center gap-3 px-3 py-2 hover:bg-slate-50 border-b border-slate-100 cursor-pointer text-sm font-semibold text-slate-700">
+                                    <input 
+                                        type="checkbox"
+                                        checked={filterBranch.length === filterOptions.branches.length && filterOptions.branches.length > 0}
+                                        onChange={() => {
+                                            if (filterBranch.length === filterOptions.branches.length) {
+                                                setAssignmentFilters({ branch: [] });
+                                            } else {
+                                                setAssignmentFilters({ branch: [...filterOptions.branches] });
+                                            }
+                                        }}
+                                        className="rounded border-slate-300 text-brand focus:ring-brand cursor-pointer"
+                                    />
+                                    <span>Pilih Semua ({filterOptions.branches.length})</span>
+                                </label>
                                 {filterOptions.branches.map(b => {
                                     const isChecked = filterBranch.includes(b);
                                     return (
@@ -290,6 +313,21 @@ export default function GroupAssignment() {
                         </button>
                         {activeDropdown === 'level' && (
                             <div className="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg z-50 py-2 max-h-60 overflow-y-auto">
+                                <label className="flex items-center gap-3 px-3 py-2 hover:bg-slate-50 border-b border-slate-100 cursor-pointer text-sm font-semibold text-slate-700">
+                                    <input 
+                                        type="checkbox"
+                                        checked={filterLevel.length === filterOptions.levels.length && filterOptions.levels.length > 0}
+                                        onChange={() => {
+                                            if (filterLevel.length === filterOptions.levels.length) {
+                                                setAssignmentFilters({ level: [] });
+                                            } else {
+                                                setAssignmentFilters({ level: [...filterOptions.levels] });
+                                            }
+                                        }}
+                                        className="rounded border-slate-300 text-brand focus:ring-brand cursor-pointer"
+                                    />
+                                    <span>Pilih Semua ({filterOptions.levels.length})</span>
+                                </label>
                                 {filterOptions.levels.map(lvl => {
                                     const isChecked = filterLevel.includes(lvl);
                                     return (
@@ -338,6 +376,21 @@ export default function GroupAssignment() {
                         </button>
                         {activeDropdown === 'day' && (
                             <div className="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg z-50 py-2 max-h-60 overflow-y-auto">
+                                <label className="flex items-center gap-3 px-3 py-2 hover:bg-slate-50 border-b border-slate-100 cursor-pointer text-sm font-semibold text-slate-700">
+                                    <input 
+                                        type="checkbox"
+                                        checked={filterDay.length === filterOptions.days.length && filterOptions.days.length > 0}
+                                        onChange={() => {
+                                            if (filterDay.length === filterOptions.days.length) {
+                                                setAssignmentFilters({ day: [] });
+                                            } else {
+                                                setAssignmentFilters({ day: [...filterOptions.days] });
+                                            }
+                                        }}
+                                        className="rounded border-slate-300 text-brand focus:ring-brand cursor-pointer"
+                                    />
+                                    <span>Pilih Semua ({filterOptions.days.length})</span>
+                                </label>
                                 {filterOptions.days.map(d => {
                                     const isChecked = filterDay.includes(d);
                                     return (
@@ -386,6 +439,21 @@ export default function GroupAssignment() {
                         </button>
                         {activeDropdown === 'time' && (
                             <div className="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg z-50 py-2 max-h-60 overflow-y-auto">
+                                <label className="flex items-center gap-3 px-3 py-2 hover:bg-slate-50 border-b border-slate-100 cursor-pointer text-sm font-semibold text-slate-700">
+                                    <input 
+                                        type="checkbox"
+                                        checked={filterTime.length === filterOptions.times.length && filterOptions.times.length > 0}
+                                        onChange={() => {
+                                            if (filterTime.length === filterOptions.times.length) {
+                                                setAssignmentFilters({ time: [] });
+                                            } else {
+                                                setAssignmentFilters({ time: [...filterOptions.times] });
+                                            }
+                                        }}
+                                        className="rounded border-slate-300 text-brand focus:ring-brand cursor-pointer"
+                                    />
+                                    <span>Pilih Semua ({filterOptions.times.length})</span>
+                                </label>
                                 {filterOptions.times.map(t => {
                                     const isChecked = filterTime.includes(t);
                                     return (
