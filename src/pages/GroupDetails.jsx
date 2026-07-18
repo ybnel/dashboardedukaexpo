@@ -72,7 +72,7 @@ export default function GroupDetails() {
     const eligibleLeads = paidLeads.filter(lead => {
         if (lead.group_name || assignments[lead.id]) return false; // Already assigned
         
-        const pref = preferences[lead.id];
+        const pref = lead.class_details || preferences[lead.id];
         if (!pref) return false;
 
         return pref.branch === branch && pref.name === program && (!pref.level || pref.level === level);
@@ -222,7 +222,7 @@ export default function GroupDetails() {
                                 <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                                     {eligibleLeads.map(lead => {
                                         const isSelected = selectedLeads.includes(lead.id);
-                                        const pref = preferences[lead.id];
+                                        const pref = lead.class_details || preferences[lead.id];
                                         return (
                                             <div 
                                                 key={lead.id}

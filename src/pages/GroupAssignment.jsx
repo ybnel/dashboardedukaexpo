@@ -108,7 +108,7 @@ export default function GroupAssignment() {
 
                 // Count how many leads are waiting for this schedule
                 const waitingCount = unassignedLeads.filter(lead => {
-                    const pref = preferences[lead.id];
+                    const pref = lead.class_details || preferences[lead.id];
                     if (!pref) return false;
 
                     return pref.branch === c.school && pref.name === c.program && (!pref.level || pref.level === c.level);

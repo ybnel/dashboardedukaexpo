@@ -73,8 +73,11 @@ export default function Checkout() {
         setError('');
 
         try {
-            // Update the lead in Firestore to mark as paid
-            await updateDoc(doc(db, 'leads', currentCheckout.leadId), { is_paid: true });
+            // Update the lead in Firestore to mark as paid and save preferences
+            await updateDoc(doc(db, 'leads', currentCheckout.leadId), { 
+                is_paid: true,
+                class_details: classDetails
+            });
 
             // Save preference locally so it survives navigation/refresh
             useStore.getState().savePreference(currentCheckout.leadId, classDetails);
