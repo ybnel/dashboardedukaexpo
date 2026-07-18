@@ -1,9 +1,29 @@
 export const MOCK_SALES = [
-    { username: 'sales1', password: '123' },
-    { username: 'sales2', password: '123' },
-    { username: 'sales3', password: '123' },
-    { username: 'sales4', password: '123' },
-    { username: 'sales5', password: '123' },
+    { username: 'Puri', password: '123' },
+    { username: 'Nissya', password: '123' },
+    { username: 'Ivan', password: '123' },
+    { username: 'Alib', password: '123' },
+    { username: 'Dio', password: '123' },
+    { username: 'Alif', password: '123' },
+    { username: 'Mayon', password: '123' },
+    { username: 'Fika', password: '123' },
+    { username: 'Zela', password: '123' },
+    { username: 'Deva', password: '123' },
+    { username: 'Yoga', password: '123' },
+    { username: 'Marina', password: '123' },
+    { username: 'Arlin', password: '123' },
+    { username: 'Gitta', password: '123' },
+    { username: 'Rizky', password: '123' },
+    { username: 'Laras', password: '123' },
+    { username: 'Ayak', password: '123' },
+    { username: 'Farhan', password: '123' },
+    { username: 'Audrey', password: '123' },
+    { username: 'Dimas', password: '123' },
+    { username: 'Nafil', password: '123' },
+    { username: 'Belinda', password: '123' },
+    { username: 'Ayustine', password: '123' },
+    { username: 'Dea', password: '123' },
+    { username: 'Jessica', password: '123' },
     { username: 'admin', password: 'admin' }
 ];
 
@@ -55,17 +75,81 @@ function getLevelFromGroupCode(groupCode) {
     if (remaining.toUpperCase().startsWith('V')) {
         rawLevel = remaining.substring(2);
     } else {
-        return '';
+        rawLevel = remaining;
+    }
+    return rawLevel.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+}
+
+function normalizeCenter(rawCenter) {
+    if (!rawCenter) return '';
+    let c = rawCenter.trim();
+    if (c.toLowerCase().startsWith('sby ')) {
+        c = c.substring(4).trim();
+    }
+    return c;
+}
+
+function translateDays(rawDays) {
+    if (!rawDays) return '';
+    const mapping = {
+        'mon': 'Senin',
+        'tue': 'Selasa',
+        'wed': 'Rabu',
+        'thu': 'Kamis',
+        'fri': 'Jumat',
+        'sat': 'Sabtu',
+        'sun': 'Minggu'
+    };
+    const tokens = rawDays.toLowerCase().split(/[\s,&]+/);
+    const translated = tokens.map(t => mapping[t.trim()] || t).filter(Boolean);
+    if (translated.length === 2) {
+        return `${translated[0]} & ${translated[1]}`;
+    }
+    return translated.join(' ');
+}
+
+function getLevelFromGroupName(groupName, program) {
+    if (!groupName) return '';
+    const nameUpper = groupName.toUpperCase().trim();
+    const progLower = program.toLowerCase();
+
+    if (progLower.includes('small stars')) {
+        const match = nameUpper.match(/SS\s*([1-4])/);
+        if (match) return match[1];
+        const standalone = nameUpper.match(/\b([1-4])\b/);
+        if (standalone) return standalone[1];
+        const firstDigit = nameUpper.match(/([1-4])/);
+        if (firstDigit) return firstDigit[1];
     }
 
-    const prefix = groupCode.substring(0, 2).toUpperCase();
-    if (prefix === 'HF') {
-        // High Flyers: keep only letters (A, B, C, etc.)
-        return rawLevel.replace(/[^A-Za-z]/g, '').toUpperCase();
-    } else {
-        // Others: keep only numbers (1, 2, 3, etc.)
-        return rawLevel.replace(/[^0-9]/g, '');
+    if (progLower.includes('high flyers')) {
+        if (nameUpper.includes('FOUNDATION') || nameUpper.includes('FOUND') || nameUpper.includes('FND')) {
+            return '0';
+        }
+        const levelPattern = /(?:1A|1B|2A|2B|3A|3B|4A|4B|G|H|I|J)\b/i;
+        const match = nameUpper.match(levelPattern);
+        if (match) return match[0].toUpperCase();
     }
+
+    if (progLower.includes('trailblazer')) {
+        const match = nameUpper.match(/TB\s*([1-8])/);
+        if (match) return match[1];
+        const standalone = nameUpper.match(/\b([1-8])\b/);
+        if (standalone) return standalone[1];
+        const firstDigit = nameUpper.match(/([1-8])/);
+        if (firstDigit) return firstDigit[1];
+    }
+
+    if (progLower.includes('frontrunner')) {
+        const match = nameUpper.match(/FR\s*([1-9]|1[0-6])/);
+        if (match) return match[1];
+        const standalone = nameUpper.match(/\b([1-9]|1[0-6])\b/);
+        if (standalone) return standalone[1];
+        const firstDigit = nameUpper.match(/([1-9]|1[0-6])/);
+        if (firstDigit) return firstDigit[1];
+    }
+
+    return '';
 }
 
 function parseCSV(csvText) {
@@ -90,10 +174,27 @@ function parseCSV(csvText) {
             row[h] = cols[idx];
         });
         
-        const center = row['Center'] ? row['Center'].trim() : '';
+        const center = normalizeCenter(row['Center']);
         const rawProgram = row['Program'] ? row['Program'].trim() : '';
         const program = normalizeProgram(rawProgram);
-        const timeSession = row['Time Session'] ? row['Time Session'].trim() : '';
+        let timeSession = row['Time Session'] ? row['Time Session'].trim() : '';
+        if (!timeSession) {
+            timeSession = row['Time'] ? row['Time'].trim() : '';
+        }
+        if (timeSession) {
+            const isPM = timeSession.toLowerCase().includes('pm');
+            const isAM = timeSession.toLowerCase().includes('am');
+            let cleanTime = timeSession.replace(/\s*[aApP][mM]\s*/g, '').trim();
+            const timeParts = cleanTime.split(':');
+            if (timeParts.length >= 2) {
+                let hour = parseInt(timeParts[0], 10);
+                const minute = timeParts[1].padStart(2, '0');
+                if (isPM && hour < 12) hour += 12;
+                if (isAM && hour === 12) hour = 0;
+                timeSession = `${String(hour).padStart(2, '0')}:${minute}`;
+            }
+        }
+        
         const groupName = row['Group: Group Name'] ? row['Group: Group Name'].trim() : '';
         const groupCode = row['Group Code'] ? row['Group Code'].trim() : '';
         const status = row['Status'] ? row['Status'].trim() : '';
@@ -104,7 +205,13 @@ function parseCSV(csvText) {
             startDate = row['First Session Start Date'] ? row['First Session Start Date'].trim() : '';
         }
         
-        let dayOfWeek = getDayOfWeek(startDate);
+        let dayOfWeek = '';
+        if (row['Session Days']) {
+            dayOfWeek = translateDays(row['Session Days']);
+        }
+        if (!dayOfWeek) {
+            dayOfWeek = getDayOfWeek(startDate);
+        }
         if (!dayOfWeek) {
             const nameUpper = groupName.toUpperCase();
             if (nameUpper.includes('SAT') || nameUpper.includes('SABTU')) dayOfWeek = 'Sabtu';
@@ -127,12 +234,14 @@ function parseCSV(csvText) {
             let level = row['Level Program'] ? row['Level Program'].trim() : '';
             if (!level) {
                 level = getLevelFromGroupCode(groupCode);
-            } else {
-                const prefix = groupCode.substring(0, 2).toUpperCase();
-                if (prefix === 'HF') {
-                    level = level.replace(/[^A-Za-z]/g, '').toUpperCase();
-                } else {
-                    level = level.replace(/[^0-9]/g, '');
+            }
+            if (!level) {
+                level = getLevelFromGroupName(groupName, program);
+            }
+            if (level) {
+                level = level.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+                if (level === 'FOUNDATION' || level === 'FOUND') {
+                    level = '0';
                 }
             }
             classes.push({
@@ -145,7 +254,8 @@ function parseCSV(csvText) {
                 status: status,
                 kapasitas: 15,
                 member: activeStudents,
-                level: level
+                level: level,
+                startDate: startDate
             });
         }
     }

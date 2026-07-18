@@ -120,6 +120,7 @@ export default function GroupAssignment() {
                     level: c.level,
                     day: c.hari,
                     time: c.jam,
+                    startDate: c.startDate,
                     groupCount: MOCK_AVAILABLE_CLASSES.filter(x => 
                         x.school === c.school && 
                         x.program === c.program && 
@@ -162,7 +163,9 @@ export default function GroupAssignment() {
         });
         const days = [...new Set(schedules.map(s => s.day))].sort((a,b) => {
             const order = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
-            return order.indexOf(a) - order.indexOf(b);
+            const firstA = a.split('&')[0].trim();
+            const firstB = b.split('&')[0].trim();
+            return order.indexOf(firstA) - order.indexOf(firstB);
         });
         const times = [...new Set(schedules.map(s => s.time))].sort();
         return { branches, programs, levels, days, times };
@@ -539,6 +542,14 @@ export default function GroupAssignment() {
                                         <span className="text-slate-500">
                                             {sched.groupCount} Sesi Grup
                                         </span>
+                                        {sched.startDate && (
+                                            <>
+                                                <span className="text-slate-300">•</span>
+                                                <span className="text-xs font-semibold text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-100">
+                                                    Mulai: {sched.startDate}
+                                                </span>
+                                            </>
+                                        )}
                                     </p>
                                 </div>
                                 <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-brand group-hover:text-white transition-colors z-10 text-slate-400 shrink-0">

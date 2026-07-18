@@ -21,7 +21,9 @@ export default function Login() {
 
         // Simulasi network delay agar terlihat natural dan menghindari multi-klik
         setTimeout(() => {
-            const user = MOCK_SALES.find(u => u.username === username && u.password === password);
+            const user = MOCK_SALES.find(
+                u => u.username.toLowerCase() === username.trim().toLowerCase() && u.password === password
+            );
 
             if (user) {
                 login(user.username);

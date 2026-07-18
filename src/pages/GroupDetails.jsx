@@ -66,6 +66,8 @@ export default function GroupDetails() {
         c.jam === time
     );
 
+    const groupStartDate = scheduleGroups[0]?.startDate || '';
+
     // Eligible leads (Paid, Unassigned, Preferred this program and level)
     const eligibleLeads = paidLeads.filter(lead => {
         if (lead.group_name || assignments[lead.id]) return false; // Already assigned
@@ -99,14 +101,14 @@ export default function GroupDetails() {
             selectedLeads.forEach(leadId => {
                 assignGroupStore(leadId, targetGroup);
             });
-
-            alert(`Berhasil memasukkan ${selectedLeads.length} siswa ke grup ${targetGroup}!`);
+            
             setSelectedLeads([]);
             setTargetGroup('');
-            fetchPaidLeads(); // Refresh leads status
+            alert('Siswa berhasil dialokasikan ke grup kelas!');
+            fetchPaidLeads(); // Refresh list from Firestore
         } catch (err) {
-            console.error('Error assigning leads to group', err);
-            setError('Gagal mengalokasikan siswa ke grup kelas.');
+            console.error("Error saving assignments", err);
+            setError('Gagal menyimpan alokasi grup kelas.');
         } finally {
             setIsLoading(false);
         }
@@ -132,7 +134,7 @@ export default function GroupDetails() {
                         <Users className="text-brand" size={18}/>
                         Jadwal Terpilih
                     </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-4">
                         <div className="flex items-center gap-3">
                             <div className="p-2 bg-emerald-50 rounded-lg text-emerald-600">
                                 <MapPin size={20} />
@@ -178,6 +180,17 @@ export default function GroupDetails() {
                                 <p className="font-semibold text-slate-800">{time}</p>
                             </div>
                         </div>
+                        {groupStartDate && (
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-amber-50 rounded-lg text-amber-600">
+                                    <Calendar size={20} />
+                                </div>
+                                <div>
+                                    <p className="text-xs text-slate-500 font-medium uppercase">Tanggal Mulai</p>
+                                    <p className="font-semibold text-slate-800">{groupStartDate}</p>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 

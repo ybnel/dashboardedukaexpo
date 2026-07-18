@@ -331,11 +331,14 @@ export default function LeadsList() {
                                             </td>
                                             <td className="p-4">
                                                 <button
-                                                    onClick={() => handlePaymentToggle(lead)}
+                                                    onClick={() => lead.is_paid 
+                                                        ? handlePaymentToggle(lead) 
+                                                        : navigate('/select-class', { state: { preSelectedLeadId: lead.id } })
+                                                    }
                                                     className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
                                                         lead.is_paid 
                                                         ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100' 
-                                                        : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100'
+                                                        : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100 cursor-pointer'
                                                     }`}
                                                 >
                                                     {lead.is_paid ? <CheckSquare size={16} /> : <Square size={16} />}

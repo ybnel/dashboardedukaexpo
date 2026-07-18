@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useStore } from '../store/useStore';
 import { db } from '../lib/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
@@ -30,8 +30,12 @@ const PRICING_TABLE = {
 };
 
 export default function SelectClass() {
-    // 1. Lead State
-    const [selectedLead, setSelectedLead] = useState('');
+    const location = useLocation();
+    
+    // 1. Lead State (Pre-selected if redirected from leads list)
+    const [selectedLead, setSelectedLead] = useState(() => {
+        return location.state?.preSelectedLeadId || '';
+    });
     
     // 2. Center State
     const [selectedCenter, setSelectedCenter] = useState('');
@@ -102,6 +106,16 @@ export default function SelectClass() {
         // Fallback for Other
         return ['1', '2', '3', '4', '5', '6', '7', '8'];
     }, [selectedProgram]);
+
+    // Filter matching actual schedules from CSV for reference display
+    const matchingSchedules = React.useMemo(() => {
+        if (!selectedCenter || !selectedProgram || !selectedLevel) return [];
+        return MOCK_AVAILABLE_CLASSES.filter(c => {
+            return c.school.toLowerCase() === selectedCenter.toLowerCase() &&
+                   c.program.toLowerCase() === selectedProgram.toLowerCase() &&
+                   String(c.level) === String(selectedLevel);
+        });
+    }, [selectedCenter, selectedProgram, selectedLevel]);
 
     // Fetch leads based on sales rep
     React.useEffect(() => {
@@ -403,6 +417,44 @@ export default function SelectClass() {
                                 </button>
                             ))}
                         </div>
+                    </div>
+                )}
+
+                {/* Schedule Reference Info Card */}
+                {selectedLevel && (
+                    <div className="glass-card p-6 animate-slide-up bg-slate-50/50 border border-slate-200/60">
+                        <label className="block text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                            <Calendar size={18} className="text-brand shrink-0" />
+                            Informasi Jadwal Kelas & Tanggal Mulai (Referensi Sales)
+                        </label>
+                        {matchingSchedules.length === 0 ? (
+                            <p className="text-sm text-slate-500 italic bg-white p-4 rounded-xl border border-slate-100">
+                                Tidak ada jadwal kelas aktif di database untuk Cabang {selectedCenter}, Program {selectedProgram}, Level {selectedLevel}.
+                            </p>
+                        ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                {matchingSchedules.map((c, i) => (
+                                    <div key={i} className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex flex-col justify-between">
+                                        <div>
+                                            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Grup: {c.groupCode}</p>
+                                            <p className="font-bold text-slate-800 text-sm mt-1">{c.groupName}</p>
+                                            <p className="text-xs text-slate-600 mt-2 flex items-center gap-1.5 font-medium">
+                                                <Clock size={13} className="text-slate-400 shrink-0" />
+                                                {c.hari}, {c.jam}
+                                            </p>
+                                        </div>
+                                        {c.startDate && (
+                                            <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between">
+                                                <span className="text-xs text-slate-400 font-medium">Mulai Kelas:</span>
+                                                <span className="text-xs font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-100">
+                                                    {c.startDate}
+                                                </span>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 )}
 
