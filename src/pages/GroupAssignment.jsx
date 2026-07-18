@@ -114,6 +114,16 @@ export default function GroupAssignment() {
                     return pref.branch === c.school && pref.name === c.program && (!pref.level || pref.level === c.level);
                 }).length;
 
+                const matchingClasses = MOCK_AVAILABLE_CLASSES.filter(x => 
+                    x.school === c.school && 
+                    x.program === c.program && 
+                    x.level === c.level && 
+                    x.hari === c.hari && 
+                    x.jam === c.jam
+                );
+                const totalMember = matchingClasses.reduce((sum, x) => sum + (x.member || 0), 0);
+                const totalCapacity = matchingClasses.reduce((sum, x) => sum + (x.kapasitas || 15), 0);
+
                 unique.push({
                     branch: c.school,
                     program: c.program,
@@ -121,13 +131,9 @@ export default function GroupAssignment() {
                     day: c.hari,
                     time: c.jam,
                     startDate: c.startDate,
-                    groupCount: MOCK_AVAILABLE_CLASSES.filter(x => 
-                        x.school === c.school && 
-                        x.program === c.program && 
-                        x.level === c.level && 
-                        x.hari === c.hari && 
-                        x.jam === c.jam
-                    ).length,
+                    groupCount: matchingClasses.length,
+                    totalMember,
+                    totalCapacity,
                     waitingCount
                 });
             }
@@ -540,7 +546,7 @@ export default function GroupAssignment() {
                                         </span>
                                         <span className="text-slate-300">•</span>
                                         <span className="text-slate-500">
-                                            {sched.groupCount} Sesi Grup
+                                            Kapasitas: {sched.totalMember}/{sched.totalCapacity}
                                         </span>
                                         {sched.startDate && (
                                             <>

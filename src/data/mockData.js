@@ -49,7 +49,8 @@ export const SCHEDULE_OPTIONS = {
 
 function getDayOfWeek(dateStr) {
     if (!dateStr) return null;
-    const parts = dateStr.split('/');
+    const clean = dateStr.replace(/-/g, '/').trim();
+    const parts = clean.split('/');
     if (parts.length !== 3) return null;
     const day = parseInt(parts[0], 10);
     const month = parseInt(parts[1], 10) - 1; // 0-indexed
@@ -57,6 +58,61 @@ function getDayOfWeek(dateStr) {
     const date = new Date(year, month, day);
     const daysIndonesian = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
     return daysIndonesian[date.getDay()];
+}
+
+function resolveDate(rawDate, sessionDays) {
+    if (!rawDate) return '';
+    const clean = rawDate.replace(/-/g, '/').trim();
+    const parts = clean.split('/');
+    if (parts.length !== 3) return rawDate;
+
+    let A = parseInt(parts[0], 10);
+    let B = parseInt(parts[1], 10);
+    let yearPart = parts[2].trim();
+    let year = yearPart.length === 2 ? '20' + yearPart : yearPart;
+
+    let day = A;
+    let month = B;
+
+    if (A > 12) {
+        day = A;
+        month = B;
+    } else if (B > 12) {
+        day = B;
+        month = A;
+    } else {
+        if (sessionDays) {
+            const tokens = sessionDays.toLowerCase().split(/[\s,&]+/);
+            const activeDays = tokens.map(t => {
+                if (t.includes('mon') || t.includes('senin')) return 1;
+                if (t.includes('tue') || t.includes('selasa')) return 2;
+                if (t.includes('wed') || t.includes('rabu')) return 3;
+                if (t.includes('thu') || t.includes('kamis')) return 4;
+                if (t.includes('fri') || t.includes('jumat')) return 5;
+                if (t.includes('sat') || t.includes('sabtu')) return 6;
+                if (t.includes('sun') || t.includes('minggu')) return 0;
+                return null;
+            }).filter(x => x !== null);
+
+            if (activeDays.length > 0) {
+                const date1 = new Date(parseInt(year, 10), B - 1, A);
+                const match1 = activeDays.includes(date1.getDay());
+
+                const date2 = new Date(parseInt(year, 10), A - 1, B);
+                const match2 = activeDays.includes(date2.getDay());
+
+                if (match1 && !match2) {
+                    day = A;
+                    month = B;
+                } else if (match2 && !match1) {
+                    day = B;
+                    month = A;
+                }
+            }
+        }
+    }
+
+    return `${String(day).padStart(2, '0')}-${String(month).padStart(2, '0')}-${year}`;
 }
 
 function normalizeProgram(rawProgram) {
@@ -207,6 +263,7 @@ function parseCSV(csvText) {
         if (!startDate) {
             startDate = row['First Session Start Date'] ? row['First Session Start Date'].trim() : '';
         }
+        startDate = resolveDate(startDate, row['Session Days']);
         
         let dayOfWeek = '';
         if (row['Session Days']) {
