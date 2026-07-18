@@ -1,11 +1,46 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { CheckCircle, Download, ArrowRight } from 'lucide-react';
+import { CheckCircle, Printer, ArrowRight } from 'lucide-react';
+
+const printStyles = `
+@media print {
+    /* Hide everything on screen */
+    body * {
+        visibility: hidden;
+    }
+    /* Show only the printable receipt */
+    #printable-receipt, #printable-receipt * {
+        visibility: visible;
+    }
+    /* Position the printable receipt at the top left of the printed page */
+    #printable-receipt {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 76mm !important;
+        margin: 0 !important;
+        padding: 10px !important;
+        display: block !important;
+        background: white !important;
+        color: black !important;
+        box-shadow: none !important;
+        border: none !important;
+    }
+    /* Hide margins/headers/footers from standard browser printer */
+    @page {
+        size: auto;
+        margin: 0mm;
+    }
+}
+`;
 
 export default function Success() {
     const location = useLocation();
     const navigate = useNavigate();
     const [showConfetti, setShowConfetti] = useState(true);
+
+    const [receiptNo] = useState(() => `EXP-${Math.floor(Math.random() * 90000) + 10000}`);
+    const [currentDate] = useState(() => new Date().toLocaleDateString('id-ID'));
 
     // Fallback if accessed directly
     const state = location.state;
@@ -22,8 +57,13 @@ export default function Success() {
         return () => clearTimeout(timer);
     }, []);
 
+    const handlePrint = () => {
+        window.print();
+    };
+
     return (
         <div className="min-h-screen bg-brand flex flex-col items-center justify-center p-4 relative overflow-hidden">
+            <style dangerouslySetInnerHTML={{ __html: printStyles }} />
 
             {/* Confetti Background Simulation */}
             {showConfetti && (
@@ -40,7 +80,7 @@ export default function Success() {
                 <h2 className="text-3xl font-extrabold text-slate-800 mb-2">Pembayaran Sukses!</h2>
                 <p className="text-slate-600 mb-8">Pendaftaran {lead.child_name} berhasil diproses.</p>
 
-                {/* Receipt Mockup */}
+                {/* Receipt Mockup (On Screen) */}
                 <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl p-6 mb-8 text-left relative">
                     <div className="absolute -top-3 -right-3 w-8 h-8 bg-brand text-white rounded-full flex items-center justify-center shadow-md">
                         <CheckCircle size={16} />
@@ -49,11 +89,11 @@ export default function Success() {
                     <div className="flex justify-between items-center mb-4 pb-4 border-b border-slate-200">
                         <div>
                             <p className="text-xs text-slate-500 uppercase">No. Referensi</p>
-                            <p className="font-mono font-bold text-slate-800">EXP-{Math.floor(Math.random() * 90000) + 10000}</p>
+                            <p className="font-mono font-bold text-slate-800">{receiptNo}</p>
                         </div>
                         <div className="text-right">
                             <p className="text-xs text-slate-500 uppercase">Tanggal</p>
-                            <p className="font-semibold text-slate-800">{new Date().toLocaleDateString('id-ID')}</p>
+                            <p className="font-semibold text-slate-800">{currentDate}</p>
                         </div>
                     </div>
 
@@ -92,11 +132,11 @@ export default function Success() {
 
                 <div className="space-y-4">
                     <button
-                        className="w-full py-4 rounded-xl border-2 border-slate-200 text-slate-700 font-semibold flex items-center justify-center gap-2 hover:bg-slate-50 active:scale-95 transition-all"
-                        onClick={() => alert("Fitur Screenshot/Download Resi (Mockup)")}
+                        className="w-full py-4 rounded-xl border-2 border-slate-200 text-slate-700 font-semibold flex items-center justify-center gap-2 hover:bg-slate-50 active:scale-95 transition-all cursor-pointer"
+                        onClick={handlePrint}
                     >
-                        <Download size={20} />
-                        Simpan Bukti Pembayaran
+                        <Printer size={20} />
+                        Cetak Struk Pembayaran
                     </button>
 
                     <button
@@ -108,11 +148,66 @@ export default function Success() {
 
                     <button
                         onClick={() => navigate('/')}
-                        className="w-full py-3 rounded-xl border-2 border-transparent text-slate-500 font-semibold hover:text-slate-700 transition-all text-sm"
+                        className="w-full py-3 rounded-xl border-2 border-transparent text-slate-500 font-semibold hover:text-slate-700 transition-all text-sm cursor-pointer"
                     >
                         Lewati dan Kembali ke Utama
                     </button>
                 </div>
+            </div>
+
+            {/* Hidden Thermal Printer Receipt Template (Print-only, Simplified) */}
+            <div id="printable-receipt" className="hidden text-black p-4 w-[76mm] mx-auto bg-white font-mono text-xs leading-normal">
+                <div className="text-center font-bold text-sm mb-0.5">ENGLISH1</div>
+                <div className="text-center text-xs mb-3 uppercase font-semibold">EXPO 2026</div>
+                
+                <div className="border-t border-dashed border-black my-2"></div>
+                
+                <div className="space-y-1">
+                    <div className="flex justify-between">
+                        <span>No. Ref:</span>
+                        <span className="font-bold">{receiptNo}</span>
+                    </div>
+                    <div className="flex justify-between">
+                        <span>Tanggal:</span>
+                        <span>{currentDate}</span>
+                    </div>
+                </div>
+                
+                <div className="border-t border-dashed border-black my-2"></div>
+                
+                <div className="space-y-1">
+                    <div className="flex justify-between font-bold">
+                        <span>Siswa:</span>
+                        <span>{lead.child_name}</span>
+                    </div>
+                    <div className="flex justify-between">
+                        <span>Program:</span>
+                        <span className="font-bold text-right">
+                            {classDetails.name} ({classDetails.level})
+                        </span>
+                    </div>
+                    <div className="flex justify-between font-bold text-sm pt-1">
+                        <span>TOTAL BAYAR:</span>
+                        <span>Rp {classDetails.price.toLocaleString('id-ID')}</span>
+                    </div>
+                </div>
+                
+                <div className="border-t border-dashed border-black my-2"></div>
+                
+                <div className="space-y-1">
+                    <div className="flex justify-between">
+                        <span>Metode Bayar:</span>
+                        <span className="font-bold">{paymentMethod}</span>
+                    </div>
+                    <div className="flex justify-between">
+                        <span>Sales:</span>
+                        <span className="capitalize">{salesRep}</span>
+                    </div>
+                </div>
+                
+                <div className="border-t border-dashed border-black my-2 mt-4"></div>
+                <div className="text-center font-bold mt-2">TERIMA KASIH</div>
+                <div className="text-center text-[10px] mt-1 text-slate-500">Bukti Pembayaran</div>
             </div>
         </div>
     );
