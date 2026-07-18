@@ -27,6 +27,7 @@ export const MOCK_SALES = [
     { username: 'Anna', password: '123' },
     { username: 'Wulan', password: '123' },
     { username: 'Ria', password: '123' },
+    { username: 'sales1', password: '123' },
     { username: 'admin', password: 'admin' }
 ];
 
