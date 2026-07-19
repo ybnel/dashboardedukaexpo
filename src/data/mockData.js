@@ -31,7 +31,7 @@ export const MOCK_SALES = [
     { username: 'admin', password: 'admin' }
 ];
 
-import csvContent from '../../Data Kelas untuk upload di Program EXPO - New - Expo Sby 20-26 Jul 2026.csv?raw';
+import csvContent from '../../Data Kelas Expo 2026.csv?raw';
 
 export const PACKAGE_PRICE = 1500000;
 
