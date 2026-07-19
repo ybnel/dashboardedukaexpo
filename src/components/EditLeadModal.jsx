@@ -191,7 +191,7 @@ export default function EditLeadModal({ isOpen, onClose, lead, onSaveSuccess }) 
                                     </select>
                                 </div>
                                 <div> 
-                                    <label className="block text-xs font-medium text-slate-600 mb-1">Guru English 1</label>
+                                    <label className="block text-xs font-medium text-slate-600 mb-1">Guru ENGLISH1</label>
                                     <input type="text" name="teacher_name" value={formData.teacher_name} onChange={handleChange} className="input-field py-2 text-sm" />
                                 </div>
                                 <div>

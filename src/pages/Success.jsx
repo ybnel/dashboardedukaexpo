@@ -112,21 +112,37 @@ export default function Success() {
                                 </span>
                             </span>
                         </div>
+                        {classDetails.originalPrice && (
+                            <>
+                                <div className="flex justify-between text-xs text-slate-500">
+                                    <span>Harga Normal:</span>
+                                    <span className="line-through">Rp {classDetails.originalPrice.toLocaleString('id-ID')}</span>
+                                </div>
+                                <div className="flex justify-between text-xs text-emerald-600 font-medium">
+                                    <span>Diskon Expo:</span>
+                                    <span>-Rp {classDetails.discount.toLocaleString('id-ID')}</span>
+                                </div>
+                            </>
+                        )}
+                        <div className="flex justify-between border-t border-slate-200 pt-2">
+                            <span className="text-slate-500 font-semibold">Total Dibayar:</span>
+                            <span className="font-bold text-brand text-lg">Rp {classDetails.price.toLocaleString('id-ID')}</span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span className="text-slate-500">Metode Bayar:</span>
+                            <span className="font-semibold text-slate-800 text-right">{paymentMethod}</span>
+                        </div>
                         <div className="flex justify-between">
                             <span className="text-slate-500">Sales In Charge:</span>
                             <span className="font-semibold text-slate-800 capitalize text-right">{salesRep}</span>
                         </div>
-                        <div className="flex justify-between">
-                            <span className="text-slate-500">Metode Bayar:</span>
-                            <span className="font-semibold text-brand text-right">{paymentMethod}</span>
-                        </div>
                     </div>
 
-                    <div className="mt-4 pt-4 border-t border-slate-200 flex justify-between items-center">
-                        <span className="text-slate-500">Total Dibayar</span>
-                        <span className="text-xl text-brand font-bold">
-                            Rp {classDetails.price.toLocaleString('id-ID')}
-                        </span>
+                    <div className="mt-4 pt-4 border-t border-dashed border-slate-200 text-[10px] text-slate-500 space-y-1 leading-normal">
+                        <p className="font-bold text-slate-700">Keterangan / Note:</p>
+                        <p>1. Receipt ini adalah receipt sementara yang harus ditunjukkan ke center utk ditukar dengan receipt asli.</p>
+                        <p>2. Payment tidak bisa di refund ato dikembalikan.</p>
+                        <p>3. Payment tidak dapat dipindahtangankan.</p>
                     </div>
                 </div>
 
@@ -186,7 +202,25 @@ export default function Success() {
                             {classDetails.name} ({classDetails.level})
                         </span>
                     </div>
-                    <div className="flex justify-between font-bold text-sm pt-1">
+                    {classDetails.courseType && (
+                        <div className="flex justify-between text-[11px] text-slate-700">
+                            <span>Paket:</span>
+                            <span>{classDetails.courseType} ({classDetails.courseLength})</span>
+                        </div>
+                    )}
+                    {classDetails.originalPrice && (
+                        <>
+                            <div className="flex justify-between text-[11px] text-slate-700">
+                                <span>Harga Normal:</span>
+                                <span>Rp {classDetails.originalPrice.toLocaleString('id-ID')}</span>
+                            </div>
+                            <div className="flex justify-between text-[11px] text-slate-700">
+                                <span>Diskon:</span>
+                                <span>-Rp {classDetails.discount.toLocaleString('id-ID')}</span>
+                            </div>
+                        </>
+                    )}
+                    <div className="flex justify-between font-bold text-sm pt-1 border-t border-dashed border-black mt-1">
                         <span>TOTAL BAYAR:</span>
                         <span>Rp {classDetails.price.toLocaleString('id-ID')}</span>
                     </div>
@@ -206,8 +240,16 @@ export default function Success() {
                 </div>
                 
                 <div className="border-t border-dashed border-black my-2 mt-4"></div>
+                
+                <div className="text-[10px] text-left space-y-1 leading-normal text-slate-800">
+                    <span className="font-bold block mb-1">Keterangan / Note:</span>
+                    <div>1. Receipt ini adalah receipt sementara yang harus ditunjukkan ke center utk ditukar dengan receipt asli.</div>
+                    <div>2. Payment tidak bisa di refund ato dikembalikan.</div>
+                    <div>3. Payment tidak dapat dipindahtangankan.</div>
+                </div>
+                
+                <div className="border-t border-dashed border-black my-2 mt-4"></div>
                 <div className="text-center font-bold mt-2">TERIMA KASIH</div>
-                <div className="text-center text-[10px] mt-1 text-slate-500">Bukti Pembayaran</div>
             </div>
         </div>
     );
