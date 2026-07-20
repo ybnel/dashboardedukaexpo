@@ -137,6 +137,7 @@ export default function GroupAssignment() {
                     day: c.hari,
                     time: c.jam,
                     startDate: c.startDate,
+                    startWeek: c.startWeek,
                     groupCount: matchingClasses.length,
                     totalMember,
                     totalCapacity,
@@ -558,7 +559,7 @@ export default function GroupAssignment() {
                                             <>
                                                 <span className="text-slate-300">•</span>
                                                 <span className="text-xs font-semibold text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-100">
-                                                    Start: {sched.startDate}
+                                                    Start: {sched.startDate} {sched.startWeek && `(W${sched.startWeek})`}
                                                 </span>
                                             </>
                                         )}

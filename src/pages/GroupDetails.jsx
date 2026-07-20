@@ -85,6 +85,7 @@ export default function GroupDetails() {
     );
 
     const groupStartDate = scheduleGroups[0]?.startDate || '';
+    const groupStartWeek = scheduleGroups[0]?.startWeek || '';
 
     // Eligible leads (Paid, Unassigned, Preferred this program, level, day, and time)
     const eligibleLeads = paidLeads.filter(lead => {
@@ -225,7 +226,9 @@ export default function GroupDetails() {
                                 </div>
                                 <div>
                                     <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Start Date</p>
-                                    <p className="text-sm font-bold text-slate-700">{groupStartDate}</p>
+                                    <p className="text-sm font-bold text-slate-700">
+                                        {groupStartDate} {groupStartWeek && `(W${groupStartWeek})`}
+                                    </p>
                                 </div>
                             </div>
                         )}

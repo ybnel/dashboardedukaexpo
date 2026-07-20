@@ -271,6 +271,7 @@ function parseCSV(csvText) {
         const groupCode = row['Group Code'] ? row['Group Code'].trim() : '';
         const status = row['Status'] ? row['Status'].trim() : '';
         const activeStudents = parseInt(row['Active Students'], 10) || 0;
+        const startWeek = row['Start Week'] ? row['Start Week'].trim() : '';
         
         let startDate = row['Start Date'] ? row['Start Date'].trim() : '';
         if (!startDate) {
@@ -329,7 +330,8 @@ function parseCSV(csvText) {
                 kapasitas: 15,
                 member: activeStudents,
                 level: level,
-                startDate: startDate
+                startDate: startDate,
+                startWeek: startWeek
             });
         }
     }
