@@ -111,7 +111,12 @@ export default function GroupAssignment() {
                     const pref = lead.class_details || preferences[lead.id];
                     if (!pref) return false;
 
-                    return pref.branch === c.school && pref.name === c.program && (!pref.level || pref.level === c.level);
+                    const matchesBasic = pref.branch === c.school && pref.name === c.program && (!pref.level || pref.level === c.level);
+                    if (!matchesBasic) return false;
+
+                    const dayMatch = !pref.day || pref.day === c.hari;
+                    const timeMatch = !pref.time || pref.time === c.jam;
+                    return dayMatch && timeMatch;
                 }).length;
 
                 const matchingClasses = MOCK_AVAILABLE_CLASSES.filter(x => 
@@ -211,7 +216,7 @@ export default function GroupAssignment() {
                         </div>
                         <div>
                             <h3 className="font-semibold text-slate-800">Schedule-Based Group Assignment</h3>
-                            <p className="text-sm text-slate-500 mt-1 max-w-md">Select one of the schedules below to view available class groups and assign paid students.</p>
+                            <p className="text-sm text-slate-500 mt-1 max-w-md">Select one of the schedules below to view available class groups and assign paid leads.</p>
                         </div>
                     </div>
                 </div>

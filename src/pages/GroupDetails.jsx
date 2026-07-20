@@ -23,6 +23,7 @@ export default function GroupDetails() {
     // State for local assignment before save
     const [selectedLeads, setSelectedLeads] = useState([]);
     const [targetGroup, setTargetGroup] = useState('');
+    const [assignedLeadsTotal, setAssignedLeadsTotal] = useState([]);
 
     useEffect(() => {
         fetchPaidLeads();
@@ -49,6 +50,23 @@ export default function GroupDetails() {
             data.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
 
             setPaidLeads(data);
+
+            // Fetch all assigned leads for the target groups in this schedule slot (across all sales reps)
+            const groupNames = scheduleGroups.map(g => g.groupName);
+            if (groupNames.length > 0) {
+                const assignedQ = query(
+                    collection(db, 'leads'),
+                    where('group_name', 'in', groupNames)
+                );
+                const assignedSnap = await getDocs(assignedQ);
+                const assignedList = [];
+                assignedSnap.forEach((doc) => {
+                    assignedList.push({ id: doc.id, ...doc.data() });
+                });
+                setAssignedLeadsTotal(assignedList);
+            } else {
+                setAssignedLeadsTotal([]);
+            }
         } catch (err) {
             console.error("Error fetching paid leads", err);
             setError('Failed to load registrant data.');
@@ -68,7 +86,7 @@ export default function GroupDetails() {
 
     const groupStartDate = scheduleGroups[0]?.startDate || '';
 
-    // Eligible leads (Paid, Unassigned, Preferred this program and level)
+    // Eligible leads (Paid, Unassigned, Preferred this program, level, day, and time)
     const eligibleLeads = paidLeads.filter(lead => {
         if (lead.group_name || assignments[lead.id]) return false; // Already assigned
         
@@ -76,7 +94,13 @@ export default function GroupDetails() {
         if (!pref) return false;
 
         const normalizedRouteProgram = normalizeProgram(program);
-        return pref.branch === branch && pref.name === normalizedRouteProgram && (!pref.level || pref.level === level);
+        const matchesBasic = pref.branch === branch && pref.name === normalizedRouteProgram && (!pref.level || pref.level === level);
+        if (!matchesBasic) return false;
+
+        // Match day and time (with fallback for legacy data lacking day/time preference)
+        const dayMatch = !pref.day || pref.day === day;
+        const timeMatch = !pref.time || pref.time === time;
+        return dayMatch && timeMatch;
     });
 
     const toggleLeadSelection = (leadId) => {
@@ -91,22 +115,35 @@ export default function GroupDetails() {
         setIsLoading(true);
         setError('');
         try {
-            // Update Firestore for each selected lead doc
-            const updatePromises = selectedLeads.map(leadId => 
-                updateDoc(doc(db, 'leads', leadId), { group_name: targetGroup })
-            );
+            // Find target group details to read the initial CSV enrolled count
+            const targetGroupDetails = scheduleGroups.find(g => g.groupName === targetGroup);
+            const csvMemberCount = targetGroupDetails ? targetGroupDetails.member : 0;
+
+            // Count how many leads from database are already assigned to this group (across all sales reps)
+            const dbAssignedCount = assignedLeadsTotal.filter(l => l.group_name === targetGroup).length;
+            const startSequence = csvMemberCount + dbAssignedCount;
+
+            // Update Firestore for each selected lead doc with sequential slots
+            const updatePromises = selectedLeads.map((leadId, index) => {
+                const sequenceNo = startSequence + index + 1;
+                return updateDoc(doc(db, 'leads', leadId), { 
+                    group_name: targetGroup,
+                    group_sequence_no: sequenceNo
+                });
+            });
             
             await Promise.all(updatePromises);
 
             // Also update Zustand store locally
-            selectedLeads.forEach(leadId => {
+            selectedLeads.forEach((leadId, index) => {
+                const sequenceNo = startSequence + index + 1;
                 assignGroupStore(leadId, targetGroup);
             });
             
             setSelectedLeads([]);
             setTargetGroup('');
-            alert('Students successfully allocated to class group!');
-            fetchPaidLeads(); // Refresh list from Firestore
+            alert('Leads successfully allocated to class group!');
+            fetchPaidLeads(); // Refresh lists and count from Firestore
         } catch (err) {
             console.error("Error saving assignments", err);
             setError('Failed to save class group allocation.');
@@ -135,60 +172,60 @@ export default function GroupDetails() {
                         <Users className="text-brand" size={18}/>
                         Selected Schedule
                     </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-emerald-50 rounded-lg text-emerald-600">
-                                <MapPin size={20} />
+                    <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
+                        <div className="flex items-center gap-3 min-w-[120px]">
+                            <div className="p-2.5 bg-emerald-50 rounded-xl text-emerald-600 shadow-sm border border-emerald-100">
+                                <MapPin size={18} />
                             </div>
                             <div>
-                                <p className="text-xs text-slate-500 font-medium uppercase">Center</p>
-                                <p className="font-semibold text-slate-800">{branch}</p>
+                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Center</p>
+                                <p className="text-sm font-bold text-slate-700">{branch}</p>
                             </div>
                         </div>
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-brand/10 rounded-lg text-brand">
-                                <BookOpen size={20} />
+                        <div className="flex items-center gap-3 min-w-[130px]">
+                            <div className="p-2.5 bg-brand/10 rounded-xl text-brand shadow-sm border border-brand/20">
+                                <BookOpen size={18} />
                             </div>
                             <div>
-                                <p className="text-xs text-slate-500 font-medium uppercase">Program</p>
-                                <p className="font-semibold text-slate-800">{program}</p>
+                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Program</p>
+                                <p className="text-sm font-bold text-slate-700">{program}</p>
                             </div>
                         </div>
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-blue-100/50 rounded-lg text-blue-600">
-                                <Award size={20} />
+                        <div className="flex items-center gap-3 min-w-[90px]">
+                            <div className="p-2.5 bg-blue-50 rounded-xl text-blue-600 shadow-sm border border-blue-100">
+                                <Award size={18} />
                             </div>
                             <div>
-                                <p className="text-xs text-slate-500 font-medium uppercase">Level</p>
-                                <p className="font-semibold text-slate-800">Level {level}</p>
+                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Level</p>
+                                <p className="text-sm font-bold text-slate-700">Level {level}</p>
                             </div>
                         </div>
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
-                                <Calendar size={20} />
+                        <div className="flex items-center gap-3 min-w-[150px] max-w-[220px]">
+                            <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600 shadow-sm border border-indigo-100">
+                                <Calendar size={18} />
                             </div>
                             <div>
-                                <p className="text-xs text-slate-500 font-medium uppercase">Day</p>
-                                <p className="font-semibold text-slate-800">{day}</p>
+                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Day</p>
+                                <p className="text-sm font-bold text-slate-700 leading-tight">{day}</p>
                             </div>
                         </div>
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-rose-50 rounded-lg text-rose-600">
-                                <Clock size={20} />
+                        <div className="flex items-center gap-3 min-w-[90px]">
+                            <div className="p-2.5 bg-rose-50 rounded-xl text-rose-600 shadow-sm border border-rose-100">
+                                <Clock size={18} />
                             </div>
                             <div>
-                                <p className="text-xs text-slate-500 font-medium uppercase">Time</p>
-                                <p className="font-semibold text-slate-800">{time}</p>
+                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Time</p>
+                                <p className="text-sm font-bold text-slate-700">{time}</p>
                             </div>
                         </div>
                         {groupStartDate && (
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-amber-50 rounded-lg text-amber-600">
-                                    <Calendar size={20} />
+                            <div className="flex items-center gap-3 min-w-[120px]">
+                                <div className="p-2.5 bg-amber-50 rounded-xl text-amber-600 shadow-sm border border-amber-100">
+                                    <Calendar size={18} />
                                 </div>
                                 <div>
-                                    <p className="text-xs text-slate-500 font-medium uppercase">Start Date</p>
-                                    <p className="font-semibold text-slate-800">{groupStartDate}</p>
+                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Start Date</p>
+                                    <p className="text-sm font-bold text-slate-700">{groupStartDate}</p>
                                 </div>
                             </div>
                         )}
@@ -212,12 +249,12 @@ export default function GroupDetails() {
                         <div className="glass-card p-5">
                             <h3 className="font-semibold text-slate-800 mb-4 flex items-center gap-2">
                                 <span className="p-1 px-2.5 bg-slate-100 rounded-lg text-sm">{eligibleLeads.length}</span>
-                                Students Waiting
+                                Leads Waiting
                             </h3>
                             
                             {eligibleLeads.length === 0 ? (
                                 <div className="text-center p-8 bg-slate-50 rounded-xl border border-slate-100 border-dashed">
-                                    <p className="text-sm text-slate-500">No students waiting for this schedule.</p>
+                                    <p className="text-sm text-slate-500">No leads waiting for this schedule.</p>
                                 </div>
                             ) : (
                                 <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
@@ -281,8 +318,10 @@ export default function GroupDetails() {
                                             </div>
                                             <div className="flex gap-2">
                                                 <span className="text-xs font-medium px-2 py-1 bg-slate-100 text-slate-600 rounded">Cap: {group.kapasitas}</span>
-                                                <span className="text-xs font-medium px-2 py-1 bg-slate-100 text-slate-600 rounded">Enrolled: {group.member}</span>
-                                                {group.status === 'Full' && (
+                                                <span className="text-xs font-medium px-2 py-1 bg-slate-100 text-slate-600 rounded">
+                                                    Enrolled: {group.member + assignedLeadsTotal.filter(l => l.group_name === group.groupName).length}
+                                                </span>
+                                                {(group.status === 'Full' || (group.member + assignedLeadsTotal.filter(l => l.group_name === group.groupName).length) >= group.kapasitas) && (
                                                     <span className="text-xs font-medium px-2 py-1 bg-red-100 text-red-600 rounded">Full</span>
                                                 )}
                                             </div>
@@ -300,7 +339,7 @@ export default function GroupDetails() {
                                     : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                                 }`}
                             >
-                                Confirm Assignment ({selectedLeads.length} Student{selectedLeads.length > 1 ? 's' : ''})
+                                Confirm Assignment ({selectedLeads.length} Lead{selectedLeads.length > 1 ? 's' : ''})
                             </button>
                         </div>
 

@@ -85,7 +85,7 @@ export default function EditLeadModal({ isOpen, onClose, lead, onSaveSuccess }) 
             <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-full flex flex-col animate-slide-up overflow-hidden">
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-100 bg-white">
-                    <h2 className="text-xl font-bold text-slate-800">Complete Student Data</h2>
+                    <h2 className="text-xl font-bold text-slate-800">Complete Lead Data</h2>
                     <button 
                         onClick={onClose}
                         className="p-2 text-slate-400 hover:text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-full transition-colors"
@@ -107,7 +107,7 @@ export default function EditLeadModal({ isOpen, onClose, lead, onSaveSuccess }) 
                         
                         {/* Data Pribadi (Murid) */}
                         <div className="space-y-4">
-                            <h3 className="font-semibold text-slate-700 border-b border-slate-200 pb-2">Student Personal Info</h3>
+                            <h3 className="font-semibold text-slate-700 border-b border-slate-200 pb-2">Lead Personal Info</h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-xs font-medium text-slate-600 mb-1">Full Name</label>

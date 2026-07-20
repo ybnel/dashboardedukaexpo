@@ -76,7 +76,13 @@ export default function Checkout() {
             // Update the lead in Firestore to mark as paid and save preferences
             await updateDoc(doc(db, 'leads', currentCheckout.leadId), { 
                 is_paid: true,
-                class_details: classDetails
+                class_details: classDetails,
+                day_preference: classDetails.day || '',
+                time_preference: classDetails.time || '',
+                program_preference: classDetails.name || '',
+                branch_preference: classDetails.branch || '',
+                payment_method: paymentMethod,
+                payment_date: new Date().toISOString()
             });
 
             // Save preference locally so it survives navigation/refresh

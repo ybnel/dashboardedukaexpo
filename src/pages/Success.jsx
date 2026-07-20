@@ -1,35 +1,41 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { CheckCircle, Printer, ArrowRight } from 'lucide-react';
+import { CheckCircle, Download, ArrowRight } from 'lucide-react';
 
 const printStyles = `
+@page {
+    size: auto;
+    margin: 0mm;
+}
 @media print {
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white !important;
+    }
     /* Hide everything on screen */
     body * {
         visibility: hidden;
     }
-    /* Show only the printable receipt */
-    #printable-receipt, #printable-receipt * {
+    /* Show only the printable receipt card */
+    #printable-receipt-card, #printable-receipt-card * {
         visibility: visible;
     }
-    /* Position the printable receipt at the top left of the printed page */
-    #printable-receipt {
+    /* Position the receipt cleanly on the print page */
+    #printable-receipt-card {
         position: absolute;
         left: 0;
         top: 0;
-        width: 76mm !important;
+        width: 100% !important;
+        max-width: 100% !important;
         margin: 0 !important;
-        padding: 10px !important;
+        padding: 20mm !important;
         display: block !important;
         background: white !important;
-        color: black !important;
         box-shadow: none !important;
         border: none !important;
-    }
-    /* Hide margins/headers/footers from standard browser printer */
-    @page {
-        size: auto;
-        margin: 0mm;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
 }
 `;
@@ -72,6 +78,7 @@ export default function Success() {
                 </div>
             )}
 
+            {/* On-Screen View Card */}
             <div className="glass-card w-full max-w-md p-8 text-center animate-slide-up relative z-10 bg-white/95">
                 <div className="w-24 h-24 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
                     <CheckCircle size={48} className="animate-[pulse_2s_ease-in-out_infinite]" />
@@ -80,7 +87,7 @@ export default function Success() {
                 <h2 className="text-3xl font-extrabold text-slate-800 mb-2">Payment Successful!</h2>
                 <p className="text-slate-600 mb-8">Registration of {lead.child_name} has been successfully processed.</p>
 
-                {/* Receipt Mockup (On Screen) */}
+                {/* Compact Receipt Card (Screen View Only) */}
                 <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl p-6 mb-8 text-left relative">
                     <div className="absolute -top-3 -right-3 w-8 h-8 bg-brand text-white rounded-full flex items-center justify-center shadow-md">
                         <CheckCircle size={16} />
@@ -99,7 +106,7 @@ export default function Success() {
 
                     <div className="space-y-3 text-sm">
                         <div className="flex justify-between">
-                            <span className="text-slate-500">Student:</span>
+                            <span className="text-slate-500">Lead:</span>
                             <span className="font-semibold text-slate-800 text-right">{lead.child_name}</span>
                         </div>
                         <div className="flex justify-between">
@@ -151,8 +158,8 @@ export default function Success() {
                         className="w-full py-4 rounded-xl border-2 border-slate-200 text-slate-700 font-semibold flex items-center justify-center gap-2 hover:bg-slate-50 active:scale-95 transition-all cursor-pointer"
                         onClick={handlePrint}
                     >
-                        <Printer size={20} />
-                        Print Payment Receipt
+                        <Download size={20} />
+                        Download Payment Receipt
                     </button>
 
                     <button
@@ -171,85 +178,85 @@ export default function Success() {
                 </div>
             </div>
 
-            {/* Hidden Thermal Printer Receipt Template (Print-only, Simplified) */}
-            <div id="printable-receipt" className="hidden text-black p-4 w-[76mm] mx-auto bg-white font-mono text-xs leading-normal">
-                <div className="text-center font-bold text-sm mb-0.5">ENGLISH1</div>
-                <div className="text-center text-xs mb-3 uppercase font-semibold">EXPO 2026</div>
-                
-                <div className="border-t border-dashed border-black my-2"></div>
-                
-                <div className="space-y-1">
-                    <div className="flex justify-between">
-                        <span>Ref No:</span>
-                        <span className="font-bold">{receiptNo}</span>
+            {/* Premium A4 Print-Only Invoice Layout */}
+            <div id="printable-receipt-card" className="hidden print:block font-sans text-slate-800 p-10 w-full max-w-[800px] mx-auto bg-white">
+                {/* Header Letterhead */}
+                <div className="flex justify-between items-start border-b-2 border-slate-200 pb-6 mb-6">
+                    <div>
+                        <h1 className="text-3xl font-black tracking-tight text-blue-600">ENGLISH1</h1>
+                        <p className="text-xs text-slate-400 mt-1 uppercase font-bold tracking-wider">Official Temporary Receipt</p>
                     </div>
-                    <div className="flex justify-between">
-                        <span>Date:</span>
-                        <span>{currentDate}</span>
+                    <div className="text-right">
+                        <h2 className="text-xl font-bold text-slate-700 uppercase">Payment Receipt</h2>
+                        <p className="text-xs text-slate-500 mt-1">Ref No: <span className="font-mono font-bold text-slate-800">{receiptNo}</span></p>
+                        <p className="text-xs text-slate-500">Date: <span className="font-semibold text-slate-800">{currentDate}</span></p>
                     </div>
                 </div>
-                
-                <div className="border-t border-dashed border-black my-2"></div>
-                
-                <div className="space-y-1">
-                    <div className="flex justify-between font-bold">
-                        <span>Student:</span>
-                        <span>{lead.child_name}</span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span>Program:</span>
-                        <span className="font-bold text-right">
-                            {classDetails.name} ({classDetails.level})
-                        </span>
-                    </div>
-                    {classDetails.courseType && (
-                        <div className="flex justify-between text-[11px] text-slate-700">
-                            <span>Package:</span>
-                            <span>{classDetails.courseType} ({classDetails.courseLength})</span>
+
+                {/* Details Section */}
+                <div className="grid grid-cols-2 gap-8 mb-8">
+                    <div>
+                        <p className="text-xs text-slate-400 uppercase font-bold tracking-wider mb-2">Lead Information</p>
+                        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/60 space-y-1">
+                            <p className="text-sm font-bold text-slate-800">{lead.child_name}</p>
+                            <p className="text-xs text-slate-500">Parent: {lead.parent_name}</p>
+                            <p className="text-xs text-slate-500">Phone: {lead.parent_phone}</p>
                         </div>
-                    )}
-                    {classDetails.originalPrice && (
-                        <>
-                            <div className="flex justify-between text-[11px] text-slate-700">
-                                <span>Original Price:</span>
-                                <span>Rp {classDetails.originalPrice.toLocaleString('id-ID')}</span>
-                            </div>
-                            <div className="flex justify-between text-[11px] text-slate-700">
-                                <span>Discount:</span>
-                                <span>-Rp {classDetails.discount.toLocaleString('id-ID')}</span>
-                            </div>
-                        </>
-                    )}
-                    <div className="flex justify-between font-bold text-sm pt-1 border-t border-dashed border-black mt-1">
-                        <span>TOTAL PAID:</span>
-                        <span>Rp {classDetails.price.toLocaleString('id-ID')}</span>
+                    </div>
+                    <div>
+                        <p className="text-xs text-slate-400 uppercase font-bold tracking-wider mb-2">Transaction Details</p>
+                        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/60 space-y-1">
+                            <p className="text-sm font-bold text-slate-800">ENGLISH1 {classDetails.branch}</p>
+                            <p className="text-xs text-slate-500">Payment Method: <span className="font-semibold text-slate-800">{paymentMethod}</span></p>
+                            <p className="text-xs text-slate-500">Sales Representative: <span className="font-semibold text-slate-800 capitalize">{salesRep}</span></p>
+                        </div>
                     </div>
                 </div>
-                
-                <div className="border-t border-dashed border-black my-2"></div>
-                
-                <div className="space-y-1">
-                    <div className="flex justify-between">
-                        <span>Payment Method:</span>
-                        <span className="font-bold">{paymentMethod}</span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span>Sales:</span>
-                        <span className="capitalize">{salesRep}</span>
-                    </div>
+
+                {/* Program Recap Table */}
+                <div className="border border-slate-200 rounded-xl overflow-hidden mb-8">
+                    <table className="w-full text-left border-collapse">
+                        <thead>
+                            <tr className="bg-slate-100 border-b border-slate-200">
+                                <th className="p-4 text-xs font-bold uppercase text-slate-600">Course / Program Description</th>
+                                <th className="p-4 text-xs font-bold uppercase text-slate-600 text-right">Price</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                            <tr>
+                                <td className="p-4">
+                                    <p className="font-bold text-slate-800">{classDetails.name}</p>
+                                    <p className="text-xs text-slate-500 mt-1">
+                                        Level: {classDetails.level} | Session: {classDetails.courseType ? `${classDetails.courseType} (${classDetails.courseLength})` : classDetails.schedule}
+                                    </p>
+                                </td>
+                                <td className="p-4 text-right font-semibold text-slate-800">
+                                    Rp {(classDetails.originalPrice || classDetails.price).toLocaleString('id-ID')}
+                                </td>
+                            </tr>
+                            {classDetails.originalPrice && (
+                                <tr className="bg-slate-50/50">
+                                    <td className="p-4 text-right text-xs font-semibold text-emerald-600">Expo Discount:</td>
+                                    <td className="p-4 text-right text-xs font-bold text-emerald-600">-Rp {classDetails.discount.toLocaleString('id-ID')}</td>
+                                </tr>
+                            )}
+                            <tr className="bg-slate-50 border-t border-slate-200">
+                                <td className="p-4 text-right text-sm font-bold text-slate-800 uppercase">Total Paid:</td>
+                                <td className="p-4 text-right text-lg font-black text-blue-600">
+                                    Rp {classDetails.price.toLocaleString('id-ID')}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-                
-                <div className="border-t border-dashed border-black my-2 mt-4"></div>
-                
-                <div className="text-[10px] text-left space-y-1 leading-normal text-slate-800">
-                    <span className="font-bold block mb-1">Note:</span>
-                    <div>1. This is a temporary receipt that must be presented at the center to be exchanged for the original receipt.</div>
-                    <div>2. Payments are non-refundable.</div>
-                    <div>3. Payments are non-transferable.</div>
+
+                {/* Notice Area */}
+                <div className="mt-12 pt-8 border-t border-slate-200 text-[10px] text-slate-400 space-y-1.5 leading-normal">
+                    <p className="font-bold text-slate-600 mb-1">Important Notice:</p>
+                    <p>1. This is a temporary receipt that must be presented at the center to be exchanged for the original receipt.</p>
+                    <p>2. Payments are non-refundable.</p>
+                    <p>3. Payments are non-transferable.</p>
                 </div>
-                
-                <div className="border-t border-dashed border-black my-2 mt-4"></div>
-                <div className="text-center font-bold mt-2">THANK YOU</div>
             </div>
         </div>
     );

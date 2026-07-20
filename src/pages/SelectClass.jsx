@@ -50,6 +50,9 @@ export default function SelectClass() {
     const [selectedCourseType, setSelectedCourseType] = useState('Standard');
     const [selectedCourseLength, setSelectedCourseLength] = useState(1);
     
+    // 6. Schedule Selection State
+    const [selectedScheduleIndex, setSelectedScheduleIndex] = useState(null);
+    
     // Remote Data State (Leads)
     const [leads, setLeads] = useState([]);
     const [isLoadingLeads, setIsLoadingLeads] = useState(true);
@@ -74,17 +77,20 @@ export default function SelectClass() {
         setSelectedLevel('');
         setSelectedCourseType('Standard');
         setSelectedCourseLength(1);
+        setSelectedScheduleIndex(null);
     }, [selectedCenter]);
 
     useEffect(() => {
         setSelectedLevel('');
         setSelectedCourseType('Standard');
         setSelectedCourseLength(1);
+        setSelectedScheduleIndex(null);
     }, [selectedProgram]);
 
     useEffect(() => {
         setSelectedCourseType('Standard');
         setSelectedCourseLength(1);
+        setSelectedScheduleIndex(null);
     }, [selectedLevel]);
 
     // Use static levels based on program (per client request)
@@ -164,7 +170,7 @@ export default function SelectClass() {
     }, []);
 
     const isFormValid = () => {
-        if (!selectedLead || !selectedCenter || !selectedProgram || !selectedLevel || !selectedCourseType || !selectedCourseLength) return false;
+        if (!selectedLead || !selectedCenter || !selectedProgram || !selectedLevel || !selectedCourseType || !selectedCourseLength || selectedScheduleIndex === null) return false;
         return true;
     };
 
@@ -174,6 +180,8 @@ export default function SelectClass() {
         const isSS = selectedProgram.toLowerCase().includes('small stars');
         const pricingKey = `${isSS ? 'SS' : 'HF_TB_FR'}_${selectedCourseType}`;
         const pricing = PRICING_TABLE[pricingKey][selectedCourseLength];
+        
+        const selectedSchedule = matchingSchedules[selectedScheduleIndex];
 
         const classDetails = {
             id: `custom-${Date.now()}`,
@@ -184,7 +192,10 @@ export default function SelectClass() {
             courseLength: `${selectedCourseLength} Course${selectedCourseLength > 1 ? 's' : ''}`,
             price: pricing.net,
             originalPrice: pricing.original,
-            discount: pricing.discount
+            discount: pricing.discount,
+            schedule: selectedSchedule ? `${selectedSchedule.hari}, ${selectedSchedule.jam}` : '',
+            day: selectedSchedule ? selectedSchedule.hari : '',
+            time: selectedSchedule ? selectedSchedule.jam : ''
         };
 
         startCheckout(selectedLead, classDetails);
@@ -206,7 +217,7 @@ export default function SelectClass() {
 
             <div className="space-y-6">
                 
-                {/* Step 1: Select Student */}
+                {/* Step 1: Select Lead */}
                 <div className="glass-card p-6 relative z-50">
                     <label className="block text-sm font-medium text-slate-700 mb-4">
                         <div className="flex items-center gap-2">
@@ -218,7 +229,7 @@ export default function SelectClass() {
                     {isLoadingLeads ? (
                         <div className="flex items-center gap-3 text-slate-500 py-2">
                             <Loader2 className="animate-spin" size={18} />
-                            <span className="text-sm">Loading students list...</span>
+                            <span className="text-sm">Loading leads list...</span>
                         </div>
                     ) : error ? (
                         <div className="bg-red-50 text-red-600 p-4 rounded-xl flex items-center gap-2 text-sm border border-red-100">
@@ -240,7 +251,7 @@ export default function SelectClass() {
                                 <span className={selectedLead ? "text-slate-800 font-medium" : "text-slate-500"}>
                                     {selectedLead 
                                         ? leads.find(l => l.id === selectedLead)?.child_name 
-                                        : "-- Select Student --"}
+                                        : "-- Select Lead --"}
                                 </span>
                                 <ChevronDown size={20} className={`text-slate-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
                             </button>
@@ -254,7 +265,7 @@ export default function SelectClass() {
                                             <input
                                                 type="text"
                                                 autoFocus
-                                                placeholder="Search student name..."
+                                                placeholder="Search lead name..."
                                                 value={searchQuery}
                                                 onChange={(e) => setSearchQuery(e.target.value)}
                                                 className="w-full pl-9 pr-4 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand"
@@ -263,7 +274,7 @@ export default function SelectClass() {
                                     </div>
                                     <div className="max-h-60 overflow-y-auto p-2 space-y-1">
                                         {leads.filter(lead => !lead.is_paid && lead.child_name.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 ? (
-                                            <div className="p-3 text-sm text-slate-500 text-center">Student not found</div>
+                                            <div className="p-3 text-sm text-slate-500 text-center">Lead not found</div>
                                         ) : (
                                             leads
                                                 .filter(lead => !lead.is_paid)
@@ -420,12 +431,12 @@ export default function SelectClass() {
                     </div>
                 )}
 
-                {/* Schedule Reference Info Card */}
+                {/* Schedule Selection Info */}
                 {selectedLevel && (
                     <div className="glass-card p-6 animate-slide-up bg-slate-50/50 border border-slate-200/60">
                         <label className="block text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
                             <Calendar size={18} className="text-brand shrink-0" />
-                            Class Schedule & Start Date Info (Sales Reference)
+                            5. Select Class Schedule Preference
                         </label>
                         {matchingSchedules.length === 0 ? (
                             <p className="text-sm text-slate-500 italic bg-white p-4 rounded-xl border border-slate-100">
@@ -433,26 +444,45 @@ export default function SelectClass() {
                             </p>
                         ) : (
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                {matchingSchedules.map((c, i) => (
-                                    <div key={i} className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex flex-col justify-between">
-                                        <div>
-                                            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Group: {c.groupCode}</p>
-                                            <p className="font-bold text-slate-800 text-sm mt-1">{c.groupName}</p>
-                                            <p className="text-xs text-slate-600 mt-2 flex items-center gap-1.5 font-medium">
-                                                <Clock size={13} className="text-slate-400 shrink-0" />
-                                                {c.hari}, {c.jam}
-                                            </p>
-                                        </div>
-                                        {c.startDate && (
-                                            <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between">
-                                                <span className="text-xs text-slate-400 font-medium">Class Start Date:</span>
-                                                <span className="text-xs font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-100">
-                                                    {c.startDate}
-                                                </span>
+                                {matchingSchedules.map((c, i) => {
+                                    const isSelected = selectedScheduleIndex === i;
+                                    return (
+                                        <button
+                                            key={i}
+                                            type="button"
+                                            onClick={() => setSelectedScheduleIndex(i)}
+                                            className={`text-left p-4 rounded-xl border-2 transition-all flex flex-col justify-between ${
+                                                isSelected 
+                                                ? 'border-brand bg-brand/5 ring-2 ring-brand/10 shadow-sm scale-[1.01]' 
+                                                : 'bg-white border-slate-100 hover:border-slate-200 hover:shadow-sm'
+                                            }`}
+                                        >
+                                            <div className="w-full">
+                                                <div className="flex justify-between items-center mb-1">
+                                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Group: {c.groupCode}</p>
+                                                    {isSelected && (
+                                                        <span className="text-[10px] bg-brand text-white px-2 py-0.5 rounded-full font-bold">
+                                                            Selected
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <p className="font-bold text-slate-800 text-sm mt-1">{c.groupName}</p>
+                                                <p className="text-xs text-slate-600 mt-2 flex items-center gap-1.5 font-medium">
+                                                    <Clock size={13} className="text-slate-400 shrink-0" />
+                                                    {c.hari}, {c.jam}
+                                                </p>
                                             </div>
-                                        )}
-                                    </div>
-                                ))}
+                                            {c.startDate && (
+                                                <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between w-full">
+                                                    <span className="text-xs text-slate-400 font-medium">Class Start Date:</span>
+                                                    <span className="text-xs font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-100">
+                                                        {c.startDate}
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </button>
+                                    );
+                                })}
                             </div>
                         )}
                     </div>

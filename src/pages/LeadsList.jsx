@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { db } from '../lib/firebase';
 import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { useStore } from '../store/useStore';
-import { Loader2, AlertCircle, Edit, UserPlus, Search, CheckSquare, Square, Users, CalendarClock, Download } from 'lucide-react';
+import { Loader2, AlertCircle, Edit, UserPlus, Search, CheckSquare, Square, Users, CalendarClock, Download, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import EditLeadModal from '../components/EditLeadModal';
 
@@ -64,18 +64,7 @@ export default function LeadsList() {
         fetchLeads(); // Refresh data table
     };
 
-    const handlePaymentToggle = async (lead) => {
-        const newStatus = !lead.is_paid;
-        try {
-            await updateDoc(doc(db, 'leads', lead.id), { is_paid: newStatus });
-            
-            // Update local state immediately for better UX
-            setLeads(leads.map(l => l.id === lead.id ? { ...l, is_paid: newStatus } : l));
-        } catch (err) {
-            console.error('Error updating payment status:', err);
-            setError('Gagal mengubah status pembayaran.');
-        }
-    };
+
 
     const handleExportCSV = () => {
         if (leads.length === 0) return;
@@ -101,7 +90,7 @@ export default function LeadsList() {
             `"${(lead.day_preference || '')}"`,
             `"${(lead.time_preference || '')}"`,
             `"${(lead.level || '')}"`,
-            `"${(lead.group_name || '')}"`,
+            `"${(lead.group_name || '')}${lead.group_sequence_no ? ` (#${lead.group_sequence_no})` : ''}"`,
             lead.is_paid ? 'Lunas' : 'Belum Bayar',
             `"${(lead.sales_rep || '')}"`,
             new Date(lead.created_at).toLocaleDateString('id-ID')
@@ -244,7 +233,7 @@ export default function LeadsList() {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="input-field pl-12 bg-white shadow-sm border-slate-200"
-                    placeholder={salesRep === 'admin' ? "Search name, phone, or sales..." : "Search student, parent, or phone..."}
+                    placeholder={salesRep === 'admin' ? "Search name, phone, or sales..." : "Search lead, parent, or phone..."}
                 />
             </div>
 
@@ -279,7 +268,7 @@ export default function LeadsList() {
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="bg-slate-50/50 border-b border-slate-100">
-                                    <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Student Name</th>
+                                    <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Lead Name</th>
                                     <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Phone No. (Parent)</th>
                                     {salesRep === 'admin' && (
                                         <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Sales</th>
@@ -312,7 +301,7 @@ export default function LeadsList() {
                                             <td className="p-4">
                                                 {lead.group_name ? (
                                                     <span className="inline-flex items-center px-2 py-1 rounded text-xs font-semibold bg-brand/10 text-brand border border-brand/20">
-                                                        {lead.group_name}
+                                                        {lead.group_name} {lead.group_sequence_no && `(#${lead.group_sequence_no})`}
                                                     </span>
                                                 ) : (
                                                     <span className="text-slate-400 text-xs font-medium">-</span>
@@ -330,16 +319,33 @@ export default function LeadsList() {
                                                 )}
                                             </td>
                                             <td className="p-4">
-                                                <button
-                                                    onClick={() => lead.is_paid 
-                                                        ? handlePaymentToggle(lead) 
-                                                        : navigate('/select-class', { state: { preSelectedLeadId: lead.id } })
-                                                    }
-                                                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors bg-green-50 text-green-700 border-green-200 hover:bg-green-100 cursor-pointer"
-                                                >
-                                                    {lead.is_paid ? <CheckSquare size={16} /> : <Square size={16} />}
-                                                    {lead.is_paid ? 'Paid' : 'Unpaid'}
-                                                </button>
+                                                {lead.is_paid ? (
+                                                    <button
+                                                        onClick={() => {
+                                                            navigate('/success', { 
+                                                                state: { 
+                                                                    lead, 
+                                                                    classDetails: lead.class_details, 
+                                                                    paymentMethod: lead.payment_method || 'Bank Transfer', 
+                                                                    salesRep: lead.sales_rep 
+                                                                } 
+                                                            });
+                                                        }}
+                                                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold border transition-colors bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100 cursor-pointer shadow-sm animate-pulse-once"
+                                                        title="Print Invoice"
+                                                    >
+                                                        <FileText size={16} />
+                                                        Invoice
+                                                    </button>
+                                                ) : (
+                                                    <button
+                                                        onClick={() => navigate('/select-class', { state: { preSelectedLeadId: lead.id } })}
+                                                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100 cursor-pointer"
+                                                    >
+                                                        <Square size={16} />
+                                                        Unpaid
+                                                    </button>
+                                                )}
                                             </td>
                                             <td className="p-4 text-right">
                                                 <button

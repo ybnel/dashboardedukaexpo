@@ -54,7 +54,7 @@ export default function AddLead() {
                         <CheckCircle size={48} />
                     </div>
                     <h2 className="text-2xl font-bold text-slate-900 mb-2">Lead Saved!</h2>
-                    <p className="text-lg text-slate-700 mb-8">Student named <span className="font-semibold">{childName}</span> has been successfully registered.</p>
+                    <p className="text-lg text-slate-700 mb-8">Lead named <span className="font-semibold">{childName}</span> has been successfully registered.</p>
 
                     <div className="flex flex-col gap-3">
                         <button
@@ -108,7 +108,7 @@ export default function AddLead() {
                         <label className="block text-base font-semibold text-slate-800 mb-2">
                             <div className="flex items-center gap-2">
                                 <User size={20} className="text-brand" />
-                                Student Full Name
+                                Lead Full Name
                             </div>
                         </label>
                         <input
