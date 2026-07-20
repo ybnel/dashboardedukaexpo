@@ -1,5 +1,6 @@
 export const MOCK_SALES = [
     { username: 'Puri', password: '123' },
+    { username: 'Bunga', password: '123' },
     { username: 'Nissya', password: '123' },
     { username: 'Ivan', password: '123' },
     { username: 'Alib', password: '123' },
