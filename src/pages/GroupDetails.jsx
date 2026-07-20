@@ -250,17 +250,9 @@ export default function GroupDetails() {
                         
                         {/* Section 1: Eligible Leads */}
                         <div className="glass-card p-5">
-                            <h3 className="font-semibold text-slate-800 mb-4 flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <span className="p-1 px-2.5 bg-slate-100 rounded-lg text-sm">{eligibleLeads.length}</span>
-                                    Leads Waiting
-                                </div>
-                                <button
-                                    onClick={() => navigate('/add-lead')}
-                                    className="text-xs font-bold text-brand hover:underline flex items-center gap-1 cursor-pointer"
-                                >
-                                    <Plus size={14} /> Add Lead
-                                </button>
+                            <h3 className="font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                                <span className="p-1 px-2.5 bg-slate-100 rounded-lg text-sm">{eligibleLeads.length}</span>
+                                Leads Waiting
                             </h3>
                             
                             {eligibleLeads.length === 0 ? (
