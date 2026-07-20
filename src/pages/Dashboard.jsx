@@ -44,7 +44,7 @@ export default function Dashboard() {
         fetchPendingAssignments();
     }, [salesRep, assignments]);
 
-    const isAdmin = salesRep && salesRep.toLowerCase() === 'admin';
+    const showReport = salesRep && ['admin', 'anna', 'wulan', 'ria', 'sales1'].includes(salesRep.toLowerCase());
 
     const handleExportAdminRecap = async () => {
         setIsLoading(true);
@@ -208,7 +208,7 @@ export default function Dashboard() {
                     </div>
                 </button>
 
-                {isAdmin && (
+                {showReport && (
                     <button
                         onClick={handleExportAdminRecap}
                         className="glass-card p-5 flex items-center gap-4 text-left border border-slate-200 hover:border-emerald-500/30 hover:shadow-md transition-all group"
