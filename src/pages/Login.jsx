@@ -29,7 +29,7 @@ export default function Login() {
                 login(user.username);
                 navigate('/');
             } else {
-                setError('Username atau password tidak valid.');
+                setError('Invalid username or password.');
                 setIsLoading(false);
             }
         }, 1200); // 1.2 detik delay

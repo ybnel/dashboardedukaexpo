@@ -51,7 +51,7 @@ export default function GroupDetails() {
             setPaidLeads(data);
         } catch (err) {
             console.error("Error fetching paid leads", err);
-            setError('Gagal memuat data pendaftar.');
+            setError('Failed to load registrant data.');
         } finally {
             setIsLoading(false);
         }
@@ -104,11 +104,11 @@ export default function GroupDetails() {
             
             setSelectedLeads([]);
             setTargetGroup('');
-            alert('Siswa berhasil dialokasikan ke grup kelas!');
+            alert('Students successfully allocated to class group!');
             fetchPaidLeads(); // Refresh list from Firestore
         } catch (err) {
             console.error("Error saving assignments", err);
-            setError('Gagal menyimpan alokasi grup kelas.');
+            setError('Failed to save class group allocation.');
         } finally {
             setIsLoading(false);
         }
@@ -124,7 +124,7 @@ export default function GroupDetails() {
                 >
                     <ArrowLeft size={24} />
                 </button>
-                <h1 className="text-xl font-bold text-slate-800">Detail Pembagian Grup</h1>
+                <h1 className="text-xl font-bold text-slate-800">Group Assignment Details</h1>
             </div>
             <div className="space-y-6">
                 
@@ -132,7 +132,7 @@ export default function GroupDetails() {
                 <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm">
                     <h3 className="font-semibold text-slate-800 mb-4 pb-3 border-b border-slate-100 flex items-center gap-2">
                         <Users className="text-brand" size={18}/>
-                        Jadwal Terpilih
+                        Selected Schedule
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-4">
                         <div className="flex items-center gap-3">
@@ -140,7 +140,7 @@ export default function GroupDetails() {
                                 <MapPin size={20} />
                             </div>
                             <div>
-                                <p className="text-xs text-slate-500 font-medium uppercase">Cabang</p>
+                                <p className="text-xs text-slate-500 font-medium uppercase">Center</p>
                                 <p className="font-semibold text-slate-800">{branch}</p>
                             </div>
                         </div>
@@ -167,7 +167,7 @@ export default function GroupDetails() {
                                 <Calendar size={20} />
                             </div>
                             <div>
-                                <p className="text-xs text-slate-500 font-medium uppercase">Hari</p>
+                                <p className="text-xs text-slate-500 font-medium uppercase">Day</p>
                                 <p className="font-semibold text-slate-800">{day}</p>
                             </div>
                         </div>
@@ -176,7 +176,7 @@ export default function GroupDetails() {
                                 <Clock size={20} />
                             </div>
                             <div>
-                                <p className="text-xs text-slate-500 font-medium uppercase">Jam</p>
+                                <p className="text-xs text-slate-500 font-medium uppercase">Time</p>
                                 <p className="font-semibold text-slate-800">{time}</p>
                             </div>
                         </div>
@@ -186,7 +186,7 @@ export default function GroupDetails() {
                                     <Calendar size={20} />
                                 </div>
                                 <div>
-                                    <p className="text-xs text-slate-500 font-medium uppercase">Tanggal Mulai</p>
+                                    <p className="text-xs text-slate-500 font-medium uppercase">Start Date</p>
                                     <p className="font-semibold text-slate-800">{groupStartDate}</p>
                                 </div>
                             </div>
@@ -197,7 +197,7 @@ export default function GroupDetails() {
                 {isLoading ? (
                     <div className="glass-card p-12 flex flex-col items-center justify-center text-slate-400">
                         <Loader2 className="animate-spin mb-4" size={32} />
-                        <p>Memuat data...</p>
+                        <p>Loading data...</p>
                     </div>
                 ) : error ? (
                     <div className="bg-red-50 text-red-600 p-4 rounded-xl flex items-center gap-2 text-sm border border-red-100">
@@ -211,12 +211,12 @@ export default function GroupDetails() {
                         <div className="glass-card p-5">
                             <h3 className="font-semibold text-slate-800 mb-4 flex items-center gap-2">
                                 <span className="p-1 px-2.5 bg-slate-100 rounded-lg text-sm">{eligibleLeads.length}</span>
-                                Siswa Menunggu
+                                Students Waiting
                             </h3>
                             
                             {eligibleLeads.length === 0 ? (
                                 <div className="text-center p-8 bg-slate-50 rounded-xl border border-slate-100 border-dashed">
-                                    <p className="text-sm text-slate-500">Tidak ada siswa yang menunggu untuk jadwal ini.</p>
+                                    <p className="text-sm text-slate-500">No students waiting for this schedule.</p>
                                 </div>
                             ) : (
                                 <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
@@ -234,7 +234,7 @@ export default function GroupDetails() {
                                                 <div>
                                                     <p className="font-semibold text-slate-800">{lead.child_name}</p>
                                                     <p className="text-xs text-slate-500 mt-1">
-                                                        Status: Lunas {pref?.level && `| Level ${pref.level}`} {pref?.courseType && `| ${pref.courseType} (${pref.courseLength})`}
+                                                        Status: Paid {pref?.level && `| Level ${pref.level}`} {pref?.courseType && `| ${pref.courseType} (${pref.courseLength})`}
                                                     </p>
                                                 </div>
                                                 <div className={`text-xl ${isSelected ? 'text-brand' : 'text-slate-300'}`}>
@@ -251,7 +251,7 @@ export default function GroupDetails() {
                         <div className="glass-card p-5">
                             <h3 className="font-semibold text-slate-800 mb-4 flex items-center gap-2">
                                 <span className="p-1 px-2.5 bg-slate-100 rounded-lg text-sm">{scheduleGroups.length}</span>
-                                Pilih Grup Kelas Tujuan
+                                Select Target Class Group
                             </h3>
 
                             <div className="space-y-3 mb-6">
@@ -279,10 +279,10 @@ export default function GroupDetails() {
                                                 {isSelected && <CheckCircle2 size={18} className="text-brand" />}
                                             </div>
                                             <div className="flex gap-2">
-                                                <span className="text-xs font-medium px-2 py-1 bg-slate-100 text-slate-600 rounded">Kap: {group.kapasitas}</span>
-                                                <span className="text-xs font-medium px-2 py-1 bg-slate-100 text-slate-600 rounded">Terisi: {group.member}</span>
+                                                <span className="text-xs font-medium px-2 py-1 bg-slate-100 text-slate-600 rounded">Cap: {group.kapasitas}</span>
+                                                <span className="text-xs font-medium px-2 py-1 bg-slate-100 text-slate-600 rounded">Enrolled: {group.member}</span>
                                                 {group.status === 'Full' && (
-                                                    <span className="text-xs font-medium px-2 py-1 bg-red-100 text-red-600 rounded">Penuh</span>
+                                                    <span className="text-xs font-medium px-2 py-1 bg-red-100 text-red-600 rounded">Full</span>
                                                 )}
                                             </div>
                                         </label>
@@ -299,7 +299,7 @@ export default function GroupDetails() {
                                     : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                                 }`}
                             >
-                                Konfirmasi Penempatan ({selectedLeads.length} Siswa)
+                                Confirm Assignment ({selectedLeads.length} Student{selectedLeads.length > 1 ? 's' : ''})
                             </button>
                         </div>
 

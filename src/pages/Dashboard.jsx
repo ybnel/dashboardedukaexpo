@@ -49,7 +49,7 @@ export default function Dashboard() {
             {/* Header */}
             <div className="flex justify-between items-center mb-6 glass-card p-5">
                 <div>
-                    <p className="text-sm font-medium text-slate-500 mb-1">Selamat datang,</p>
+                    <p className="text-sm font-medium text-slate-500 mb-1">Welcome,</p>
                     <h1 className="text-xl font-bold text-slate-800 capitalize flex items-center gap-2">
                         <span className="bg-brand/10 text-brand px-3 py-1 rounded-lg text-lg">{salesRep}</span>
                     </h1>
@@ -68,10 +68,10 @@ export default function Dashboard() {
                         </div>
                         <div>
                             <h3 className="font-bold text-sm text-orange-700">
-                                Data Belum Lengkap!
+                                Incomplete Data!
                             </h3>
                             <p className="text-xs text-orange-600 mt-1 max-w-sm">
-                                Ada <strong>{incompleteLeads.length} leads</strong> yang datanya belum lengkap (belum pilih kelas & bayar). Klik untuk memprosesnya.
+                                There are <strong>{incompleteLeads.length} leads</strong> with incomplete data (class & payment not selected). Click to process.
                             </p>
                         </div>
                     </div>
@@ -93,10 +93,10 @@ export default function Dashboard() {
                         </div>
                         <div>
                             <h3 className="font-bold text-sm text-sky-700">
-                                Info Pembagian Grup
+                                Group Assignment Info
                             </h3>
                             <p className="text-xs text-sky-600 mt-1 max-w-sm">
-                                Ada <strong>{unassignedLeads.length} leads lunas</strong> yang belum dibagi ke dalam grup. Klik di sini untuk membaginya sekarang.
+                                There are <strong>{unassignedLeads.length} paid leads</strong> not yet assigned to any group. Click here to assign them now.
                             </p>
                         </div>
                     </div>
@@ -107,7 +107,7 @@ export default function Dashboard() {
             )}
 
             {/* Main Actions */}
-            <h2 className="text-lg font-bold text-slate-800 mb-4 px-1">Menu Utama</h2>
+            <h2 className="text-lg font-bold text-slate-800 mb-4 px-1">Main Menu</h2>
             <div className="grid grid-cols-1 gap-4 mb-8">
                 <button
                     onClick={() => navigate('/add-lead')}
@@ -117,8 +117,8 @@ export default function Dashboard() {
                         <UserPlus size={24} />
                     </div>
                     <div>
-                        <h3 className="font-bold text-slate-800">1. Tambah Lead Baru</h3>
-                        <p className="text-xs text-slate-500 mt-0.5">Daftarkan peserta pameran baru ke sistem</p>
+                        <h3 className="font-bold text-slate-800">1. Add New Lead</h3>
+                        <p className="text-xs text-slate-500 mt-0.5">Register a new expo participant into the system</p>
                     </div>
                 </button>
 
@@ -130,8 +130,8 @@ export default function Dashboard() {
                         <BookOpen size={24} />
                     </div>
                     <div>
-                        <h3 className="font-bold text-slate-800">2. Pilih Kelas & Bayar</h3>
-                        <p className="text-xs text-slate-500 mt-0.5">Selesaikan transaksi lead yang sudah terdaftar</p>
+                        <h3 className="font-bold text-slate-800">2. Select Class & Pay</h3>
+                        <p className="text-xs text-slate-500 mt-0.5">Complete transaction for registered leads</p>
                     </div>
                 </button>
             </div>

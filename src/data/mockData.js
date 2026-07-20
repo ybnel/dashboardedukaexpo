@@ -37,13 +37,13 @@ export const PACKAGE_PRICE = 1500000;
 
 export const SCHEDULE_OPTIONS = {
     weekday: {
-        label: 'Weekday (Senin - Jumat)',
-        days: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'],
+        label: 'Weekday (Monday - Friday)',
+        days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
         times: ['14:00 - 15:30', '15:30 - 17:00', '17:00 - 18:30']
     },
     weekend: {
-        label: 'Weekend (Sabtu & Minggu)',
-        days: ['Sabtu', 'Minggu'],
+        label: 'Weekend (Saturday & Sunday)',
+        days: ['Saturday', 'Sunday'],
         times: ['09:00 - 10:30', '10:30 - 12:00', '13:00 - 14:30']
     }
 };
@@ -57,8 +57,8 @@ function getDayOfWeek(dateStr) {
     const month = parseInt(parts[1], 10) - 1; // 0-indexed
     const year = parseInt(parts[2], 10);
     const date = new Date(year, month, day);
-    const daysIndonesian = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-    return daysIndonesian[date.getDay()];
+    const daysEnglish = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    return daysEnglish[date.getDay()];
 }
 
 function resolveDate(rawDate, sessionDays) {
@@ -123,7 +123,17 @@ function normalizeProgram(rawProgram) {
     if (lower.includes('high flyers')) return 'High Flyers';
     if (lower.includes('trailblazer')) return 'Trailblazers';
     if (lower.includes('frontrunner')) return 'Frontrunner';
-    return 'Other';
+    
+    // Format other programs (e.g. Pathfinder, Future Leaders) to title case
+    return rawProgram.trim()
+        .split(/\s+/)
+        .map(word => {
+            if (word.toUpperCase() === word && word.length > 1) {
+                return word;
+            }
+            return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+        })
+        .join(' ');
 }
 
 function getLevelFromGroupCode(groupCode) {
@@ -152,13 +162,13 @@ function normalizeCenter(rawCenter) {
 function translateDays(rawDays) {
     if (!rawDays) return '';
     const mapping = {
-        'mon': 'Senin',
-        'tue': 'Selasa',
-        'wed': 'Rabu',
-        'thu': 'Kamis',
-        'fri': 'Jumat',
-        'sat': 'Sabtu',
-        'sun': 'Minggu'
+        'mon': 'Monday',
+        'tue': 'Tuesday',
+        'wed': 'Wednesday',
+        'thu': 'Thursday',
+        'fri': 'Friday',
+        'sat': 'Saturday',
+        'sun': 'Sunday'
     };
     const tokens = rawDays.toLowerCase().split(/[\s,&]+/);
     const translated = tokens.map(t => mapping[t.trim()] || t).filter(Boolean);
@@ -275,18 +285,18 @@ function parseCSV(csvText) {
         }
         if (!dayOfWeek) {
             const nameUpper = groupName.toUpperCase();
-            if (nameUpper.includes('SAT') || nameUpper.includes('SABTU')) dayOfWeek = 'Sabtu';
-            else if (nameUpper.includes('SUN') || nameUpper.includes('MINGGU')) dayOfWeek = 'Minggu';
-            else if (nameUpper.includes('MON') || nameUpper.includes('SENIN')) dayOfWeek = 'Senin';
-            else if (nameUpper.includes('TUE') || nameUpper.includes('SELASA')) dayOfWeek = 'Selasa';
-            else if (nameUpper.includes('WED') || nameUpper.includes('RABU')) dayOfWeek = 'Rabu';
-            else if (nameUpper.includes('THU') || nameUpper.includes('KAMIS')) dayOfWeek = 'Kamis';
-            else if (nameUpper.includes('FRI') || nameUpper.includes('JUMAT')) dayOfWeek = 'Jumat';
+            if (nameUpper.includes('SAT') || nameUpper.includes('SABTU')) dayOfWeek = 'Saturday';
+            else if (nameUpper.includes('SUN') || nameUpper.includes('MINGGU')) dayOfWeek = 'Sunday';
+            else if (nameUpper.includes('MON') || nameUpper.includes('SENIN')) dayOfWeek = 'Monday';
+            else if (nameUpper.includes('TUE') || nameUpper.includes('SELASA')) dayOfWeek = 'Tuesday';
+            else if (nameUpper.includes('WED') || nameUpper.includes('RABU')) dayOfWeek = 'Wednesday';
+            else if (nameUpper.includes('THU') || nameUpper.includes('KAMIS')) dayOfWeek = 'Thursday';
+            else if (nameUpper.includes('FRI') || nameUpper.includes('JUMAT')) dayOfWeek = 'Friday';
             else {
                 if (timeSession && (timeSession.startsWith('09') || timeSession.startsWith('10') || timeSession.startsWith('13'))) {
-                    dayOfWeek = 'Sabtu';
+                    dayOfWeek = 'Saturday';
                 } else {
-                    dayOfWeek = 'Senin';
+                    dayOfWeek = 'Monday';
                 }
             }
         }

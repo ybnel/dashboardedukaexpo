@@ -84,7 +84,7 @@ export default function GroupAssignment() {
                 setPaidLeads(data);
             } catch (err) {
                 console.error("Error fetching paid leads", err);
-                setError('Gagal memuat data pendaftar.');
+                setError('Failed to load registrant data.');
             } finally {
                 setIsLoading(false);
             }
@@ -168,7 +168,7 @@ export default function GroupAssignment() {
             return a.localeCompare(b);
         });
         const days = [...new Set(schedules.map(s => s.day))].sort((a,b) => {
-            const order = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+            const order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
             const firstA = a.split('&')[0].trim();
             const firstB = b.split('&')[0].trim();
             return order.indexOf(firstA) - order.indexOf(firstB);
@@ -197,7 +197,7 @@ export default function GroupAssignment() {
                 >
                     <ArrowLeft size={24} />
                 </button>
-                <h1 className="text-xl font-bold text-slate-800">Daftar Jadwal Kelas</h1>
+                <h1 className="text-xl font-bold text-slate-800">Class Schedule List</h1>
             </div>
 
             <div className="space-y-6 max-w-4xl mx-auto">
@@ -209,8 +209,8 @@ export default function GroupAssignment() {
                             <CalendarClock size={24} />
                         </div>
                         <div>
-                            <h3 className="font-semibold text-slate-800">Pembagian Grup Berbasis Jadwal</h3>
-                            <p className="text-sm text-slate-500 mt-1 max-w-md">Pilih salah satu jadwal di bawah untuk melihat detail grup kelas yang tersedia dan mengalokasikan siswa yang sudah membayar.</p>
+                            <h3 className="font-semibold text-slate-800">Schedule-Based Group Assignment</h3>
+                            <p className="text-sm text-slate-500 mt-1 max-w-md">Select one of the schedules below to view available class groups and assign paid students.</p>
                         </div>
                     </div>
                 </div>
@@ -219,7 +219,7 @@ export default function GroupAssignment() {
                 <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                     <div className="col-span-full flex items-center gap-2 mb-1">
                         <Filter size={16} className="text-slate-400" />
-                        <span className="text-xs font-semibold text-slate-500 uppercase">Filter</span>
+                        <span className="text-xs font-semibold text-slate-500 uppercase">Filters</span>
                     </div>
 
                     {/* Cabang */}
@@ -233,7 +233,7 @@ export default function GroupAssignment() {
                                 <MapPin size={16} className="text-emerald-500 shrink-0" />
                                 <span className="truncate">
                                     {filterBranch.length === 0 
-                                        ? 'Semua Cabang' 
+                                        ? 'All Centers' 
                                         : filterBranch.length === 1 
                                             ? filterBranch[0] 
                                             : `${filterBranch[0]} (+${filterBranch.length - 1})`
@@ -257,7 +257,7 @@ export default function GroupAssignment() {
                                         }}
                                         className="rounded border-slate-300 text-brand focus:ring-brand cursor-pointer"
                                     />
-                                    <span>Pilih Semua ({filterOptions.branches.length})</span>
+                                    <span>Select All ({filterOptions.branches.length})</span>
                                 </label>
                                 {filterOptions.branches.map(b => {
                                     const isChecked = filterBranch.includes(b);
@@ -293,7 +293,7 @@ export default function GroupAssignment() {
                             value={filterProgram}
                             onChange={(e) => setAssignmentFilters({ program: e.target.value, level: [] })}
                         >
-                            <option value="">Semua Program</option>
+                            <option value="">All Programs</option>
                             {filterOptions.programs.map(p => (
                                 <option key={p} value={p}>{p}</option>
                             ))}
@@ -311,7 +311,7 @@ export default function GroupAssignment() {
                                 <Award size={16} className="text-blue-500 shrink-0" />
                                 <span className="truncate">
                                     {filterLevel.length === 0 
-                                        ? 'Semua Level' 
+                                        ? 'All Levels' 
                                         : filterLevel.length === 1 
                                             ? `Level ${filterLevel[0]}` 
                                             : `Level ${filterLevel[0]} (+${filterLevel.length - 1})`
@@ -335,7 +335,7 @@ export default function GroupAssignment() {
                                         }}
                                         className="rounded border-slate-300 text-brand focus:ring-brand cursor-pointer"
                                     />
-                                    <span>Pilih Semua ({filterOptions.levels.length})</span>
+                                    <span>Select All ({filterOptions.levels.length})</span>
                                 </label>
                                 {filterOptions.levels.map(lvl => {
                                     const isChecked = filterLevel.includes(lvl);
@@ -374,7 +374,7 @@ export default function GroupAssignment() {
                                 <Calendar size={16} className="text-orange-500 shrink-0" />
                                 <span className="truncate">
                                     {filterDay.length === 0 
-                                        ? 'Semua Hari' 
+                                        ? 'All Days' 
                                         : filterDay.length === 1 
                                             ? filterDay[0] 
                                             : `${filterDay[0]} (+${filterDay.length - 1})`
@@ -398,7 +398,7 @@ export default function GroupAssignment() {
                                         }}
                                         className="rounded border-slate-300 text-brand focus:ring-brand cursor-pointer"
                                     />
-                                    <span>Pilih Semua ({filterOptions.days.length})</span>
+                                    <span>Select All ({filterOptions.days.length})</span>
                                 </label>
                                 {filterOptions.days.map(d => {
                                     const isChecked = filterDay.includes(d);
@@ -437,7 +437,7 @@ export default function GroupAssignment() {
                                 <Clock size={16} className="text-rose-500 shrink-0" />
                                 <span className="truncate">
                                     {filterTime.length === 0 
-                                        ? 'Semua Jam' 
+                                        ? 'All Times' 
                                         : filterTime.length === 1 
                                             ? filterTime[0] 
                                             : `${filterTime[0]} (+${filterTime.length - 1})`
@@ -461,7 +461,7 @@ export default function GroupAssignment() {
                                         }}
                                         className="rounded border-slate-300 text-brand focus:ring-brand cursor-pointer"
                                     />
-                                    <span>Pilih Semua ({filterOptions.times.length})</span>
+                                    <span>Select All ({filterOptions.times.length})</span>
                                 </label>
                                 {filterOptions.times.map(t => {
                                     const isChecked = filterTime.includes(t);
@@ -494,7 +494,7 @@ export default function GroupAssignment() {
                             onClick={resetAssignmentFilters}
                             className="w-full py-2.5 text-sm font-semibold text-slate-500 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors text-center shadow-sm"
                         >
-                            Reset Filter
+                            Reset Filters
                         </button>
                     )}
                 </div>
@@ -502,7 +502,7 @@ export default function GroupAssignment() {
                 {isLoading ? (
                     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-12 flex flex-col items-center justify-center text-slate-400">
                         <Loader2 className="animate-spin mb-4 text-brand" size={32} />
-                        <p>Memuat data jadwal...</p>
+                        <p>Loading schedules data...</p>
                     </div>
                 ) : error ? (
                     <div className="bg-red-50 text-red-600 p-4 rounded-xl flex items-center gap-2 text-sm border border-red-100">
@@ -528,7 +528,7 @@ export default function GroupAssignment() {
                                         {sched.waitingCount > 0 && (
                                             <span className="text-xs font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded flex items-center gap-1">
                                                 <Users size={12} />
-                                                {sched.waitingCount} Menunggu
+                                                {sched.waitingCount} Waiting
                                             </span>
                                         )}
                                     </div>
@@ -546,13 +546,13 @@ export default function GroupAssignment() {
                                         </span>
                                         <span className="text-slate-300">•</span>
                                         <span className="text-slate-500">
-                                            Kapasitas: {sched.totalMember}/{sched.totalCapacity}
+                                            Capacity: {sched.totalMember}/{sched.totalCapacity}
                                         </span>
                                         {sched.startDate && (
                                             <>
                                                 <span className="text-slate-300">•</span>
                                                 <span className="text-xs font-semibold text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-100">
-                                                    Mulai: {sched.startDate}
+                                                    Start: {sched.startDate}
                                                 </span>
                                             </>
                                         )}
@@ -566,7 +566,7 @@ export default function GroupAssignment() {
 
                         {filteredSchedules.length === 0 && (
                             <div className="col-span-1 md:col-span-2 text-center p-12 bg-white rounded-2xl border border-slate-200">
-                                <p className="text-slate-500">Tidak ada jadwal yang sesuai pencarian.</p>
+                                <p className="text-slate-500">No schedules match your search filters.</p>
                             </div>
                         )}
                     </div>

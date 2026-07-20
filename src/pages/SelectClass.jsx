@@ -139,7 +139,7 @@ export default function SelectClass() {
                 setLeads(data);
             } catch (err) {
                 console.error('Error fetching leads:', err);
-                setError('Gagal memuat data leads. Pastikan koneksi internet stabil.');
+                setError('Failed to load leads. Please check your internet connection.');
             } finally {
                 setIsLoadingLeads(false);
             }
@@ -201,7 +201,7 @@ export default function SelectClass() {
                 >
                     <ArrowLeft size={24} />
                 </button>
-                <h1 className="text-xl font-bold text-slate-800">Pilih Paket Belajar</h1>
+                <h1 className="text-xl font-bold text-slate-800">Select Learning Package</h1>
             </div>
 
             <div className="space-y-6">
@@ -211,14 +211,14 @@ export default function SelectClass() {
                     <label className="block text-sm font-medium text-slate-700 mb-4">
                         <div className="flex items-center gap-2">
                             <UserCheck size={18} className="text-brand" />
-                            1. Pilih Pendaftar (Lead)
+                            1. Select Registrant (Lead)
                         </div>
                     </label>
                     
                     {isLoadingLeads ? (
                         <div className="flex items-center gap-3 text-slate-500 py-2">
                             <Loader2 className="animate-spin" size={18} />
-                            <span className="text-sm">Memuat daftar siswa...</span>
+                            <span className="text-sm">Loading students list...</span>
                         </div>
                     ) : error ? (
                         <div className="bg-red-50 text-red-600 p-4 rounded-xl flex items-center gap-2 text-sm border border-red-100">
@@ -227,7 +227,7 @@ export default function SelectClass() {
                         </div>
                     ) : leads.length === 0 ? (
                         <div className="p-4 bg-yellow-50 text-yellow-700 rounded-xl text-sm border border-yellow-200">
-                            Belum ada pendaftar tersimpan. Silakan tambah pendaftar baru dari Dashboard.
+                            No registrants saved yet. Please add a new registrant from the Dashboard.
                         </div>
                     ) : (
                         <div ref={dropdownRef} className="relative">
@@ -240,7 +240,7 @@ export default function SelectClass() {
                                 <span className={selectedLead ? "text-slate-800 font-medium" : "text-slate-500"}>
                                     {selectedLead 
                                         ? leads.find(l => l.id === selectedLead)?.child_name 
-                                        : "-- Pilih Siswa --"}
+                                        : "-- Select Student --"}
                                 </span>
                                 <ChevronDown size={20} className={`text-slate-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
                             </button>
@@ -254,7 +254,7 @@ export default function SelectClass() {
                                             <input
                                                 type="text"
                                                 autoFocus
-                                                placeholder="Cari nama siswa..."
+                                                placeholder="Search student name..."
                                                 value={searchQuery}
                                                 onChange={(e) => setSearchQuery(e.target.value)}
                                                 className="w-full pl-9 pr-4 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand"
@@ -263,7 +263,7 @@ export default function SelectClass() {
                                     </div>
                                     <div className="max-h-60 overflow-y-auto p-2 space-y-1">
                                         {leads.filter(lead => !lead.is_paid && lead.child_name.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 ? (
-                                            <div className="p-3 text-sm text-slate-500 text-center">Siswa tidak ditemukan</div>
+                                            <div className="p-3 text-sm text-slate-500 text-center">Student not found</div>
                                         ) : (
                                             leads
                                                 .filter(lead => !lead.is_paid)
@@ -301,7 +301,7 @@ export default function SelectClass() {
                         <label className="block text-sm font-medium text-slate-700 mb-4">
                             <div className="flex items-center gap-2">
                                 <MapPin size={18} className="text-emerald-500" />
-                                2. Pilih Cabang (Center)
+                                2. Select Center
                             </div>
                         </label>
                         
@@ -312,7 +312,7 @@ export default function SelectClass() {
                                 className="w-full text-left px-4 py-3 rounded-xl border-2 border-slate-200 bg-slate-50 hover:bg-slate-100 transition-colors flex items-center justify-between"
                             >
                                 <span className={selectedCenter ? "text-slate-800 font-medium" : "text-slate-500"}>
-                                    {selectedCenter || "-- Pilih Lokasi --"}
+                                    {selectedCenter || "-- Select Location --"}
                                 </span>
                                 <ChevronDown size={20} className={`text-slate-400 transition-transform ${isCenterDropdownOpen ? 'rotate-180' : ''}`} />
                             </button>
@@ -325,7 +325,7 @@ export default function SelectClass() {
                                             <input
                                                 type="text"
                                                 autoFocus
-                                                placeholder="Cari cabang..."
+                                                placeholder="Search center..."
                                                 value={searchCenterQuery}
                                                 onChange={(e) => setSearchCenterQuery(e.target.value)}
                                                 className="w-full pl-9 pr-4 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand"
@@ -334,7 +334,7 @@ export default function SelectClass() {
                                     </div>
                                     <div className="max-h-60 overflow-y-auto p-2 space-y-1">
                                         {CENTERS.filter(center => center.toLowerCase().includes(searchCenterQuery.toLowerCase())).length === 0 ? (
-                                            <div className="p-3 text-sm text-slate-500 text-center">Cabang tidak ditemukan</div>
+                                            <div className="p-3 text-sm text-slate-500 text-center">Center not found</div>
                                         ) : (
                                             CENTERS
                                                 .filter(center => center.toLowerCase().includes(searchCenterQuery.toLowerCase()))
@@ -371,7 +371,7 @@ export default function SelectClass() {
                         <label className="block text-sm font-medium text-slate-700 mb-4">
                             <div className="flex items-center gap-2">
                                 <BookOpen size={18} className="text-orange-500" />
-                                3. Pilih Program Belajar
+                                3. Select Program
                             </div>
                         </label>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -400,7 +400,7 @@ export default function SelectClass() {
                         <label className="block text-sm font-medium text-slate-700 mb-4">
                             <div className="flex items-center gap-2">
                                 <Award size={18} className="text-blue-500" />
-                                4. Pilih Level Belajar
+                                4. Select Level
                             </div>
                         </label>
                         <div className="flex flex-wrap gap-3">
@@ -425,18 +425,18 @@ export default function SelectClass() {
                     <div className="glass-card p-6 animate-slide-up bg-slate-50/50 border border-slate-200/60">
                         <label className="block text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
                             <Calendar size={18} className="text-brand shrink-0" />
-                            Informasi Jadwal Kelas & Tanggal Mulai (Referensi Sales)
+                            Class Schedule & Start Date Info (Sales Reference)
                         </label>
                         {matchingSchedules.length === 0 ? (
                             <p className="text-sm text-slate-500 italic bg-white p-4 rounded-xl border border-slate-100">
-                                Tidak ada jadwal kelas aktif di database untuk Cabang {selectedCenter}, Program {selectedProgram}, Level {selectedLevel}.
+                                No active class schedules found in the database for Center {selectedCenter}, Program {selectedProgram}, Level {selectedLevel}.
                             </p>
                         ) : (
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 {matchingSchedules.map((c, i) => (
                                     <div key={i} className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex flex-col justify-between">
                                         <div>
-                                            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Grup: {c.groupCode}</p>
+                                            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Group: {c.groupCode}</p>
                                             <p className="font-bold text-slate-800 text-sm mt-1">{c.groupName}</p>
                                             <p className="text-xs text-slate-600 mt-2 flex items-center gap-1.5 font-medium">
                                                 <Clock size={13} className="text-slate-400 shrink-0" />
@@ -445,7 +445,7 @@ export default function SelectClass() {
                                         </div>
                                         {c.startDate && (
                                             <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between">
-                                                <span className="text-xs text-slate-400 font-medium">Mulai Kelas:</span>
+                                                <span className="text-xs text-slate-400 font-medium">Class Start Date:</span>
                                                 <span className="text-xs font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-100">
                                                     {c.startDate}
                                                 </span>
@@ -466,13 +466,13 @@ export default function SelectClass() {
                             <label className="block text-sm font-medium text-slate-700 mb-3">
                                 <div className="flex items-center gap-2">
                                     <Clock size={18} className="text-indigo-500" />
-                                    5. Pilih Tipe Jam Kursus
+                                    5. Select Course Type
                                 </div>
                             </label>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 {[
-                                    { id: 'Standard', label: 'Standard', desc: 'Weekday / Jam Biasa' },
-                                    { id: 'Peak', label: 'Peak', desc: 'Saturday / Jam Sibuk (Weekend)' }
+                                    { id: 'Standard', label: 'Standard', desc: 'Weekday / Standard Hours' },
+                                    { id: 'Peak', label: 'Peak', desc: 'Saturday / Peak Hours (Weekend)' }
                                 ].map(type => (
                                     <button
                                         key={type.id}
@@ -496,7 +496,7 @@ export default function SelectClass() {
                             <label className="block text-sm font-medium text-slate-700 mb-3">
                                 <div className="flex items-center gap-2">
                                     <CheckSquare size={18} className="text-emerald-500" />
-                                    6. Pilih Paket Kursus (Course Length)
+                                    6. Select Course Length
                                 </div>
                             </label>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -522,11 +522,11 @@ export default function SelectClass() {
                                                     Rp {pricing.original.toLocaleString('id-ID')}
                                                 </span>
                                                 <span className="text-xs text-emerald-600 font-medium block">
-                                                    Hemat Rp {pricing.discount.toLocaleString('id-ID')}
+                                                    Save Rp {pricing.discount.toLocaleString('id-ID')}
                                                 </span>
                                             </div>
                                             <div className="mt-4 pt-2 border-t border-slate-100 w-full">
-                                                <span className="text-xs text-slate-500 block">Harga Setelah Diskon:</span>
+                                                <span className="text-xs text-slate-500 block">Price After Discount:</span>
                                                 <span className="font-extrabold text-lg text-slate-800">
                                                     Rp {pricing.net.toLocaleString('id-ID')}
                                                 </span>
@@ -549,7 +549,7 @@ export default function SelectClass() {
                     <div className="pt-2 animate-slide-up pb-8 mt-6">
                         <div className="glass-card p-4 flex flex-col sm:flex-row gap-4 items-center justify-between border-brand/20 bg-brand/5">
                             <div className="w-full sm:w-auto text-left">
-                                <p className="text-xs text-slate-500">Total Tagihan Sementara:</p>
+                                <p className="text-xs text-slate-500">Subtotal Amount:</p>
                                 <p className="text-xl font-bold text-slate-800 flex items-center">
                                     Rp {pricing.net.toLocaleString('id-ID')}
                                 </p>
@@ -561,7 +561,7 @@ export default function SelectClass() {
                                 onClick={handleProceed}
                                 className="btn-primary w-full sm:w-auto px-8"
                             >
-                                Konfirmasi Bayar <ChevronRight size={20} className="ml-2 -mr-1" />
+                                Confirm Payment <ChevronRight size={20} className="ml-2 -mr-1" />
                             </button>
                         </div>
                     </div>

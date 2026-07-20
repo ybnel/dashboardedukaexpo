@@ -39,7 +39,7 @@ export default function AddLead() {
             setSuccessId(docRef.id);
         } catch (err) {
             console.error('Error adding lead:', err);
-            const errMessage = err?.message || 'Gagal menyimpan data ke database. Silakan coba lagi.';
+            const errMessage = err?.message || 'Failed to save data to database. Please try again.';
             setError(`Error: ${errMessage}`);
         } finally {
             setIsLoading(false);
@@ -53,8 +53,8 @@ export default function AddLead() {
                     <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
                         <CheckCircle size={48} />
                     </div>
-                    <h2 className="text-2xl font-bold text-slate-900 mb-2">Lead Tersimpan!</h2>
-                    <p className="text-lg text-slate-700 mb-8">Siswa bernama <span className="font-semibold">{childName}</span> berhasil didaftarkan.</p>
+                    <h2 className="text-2xl font-bold text-slate-900 mb-2">Lead Saved!</h2>
+                    <p className="text-lg text-slate-700 mb-8">Student named <span className="font-semibold">{childName}</span> has been successfully registered.</p>
 
                     <div className="flex flex-col gap-3">
                         <button
@@ -67,13 +67,13 @@ export default function AddLead() {
                             }}
                             className="btn-primary w-full"
                         >
-                            Tambah Lead Lagi
+                            Add Another Lead
                         </button>
                         <button
                             onClick={() => navigate('/')}
                             className="btn-secondary w-full"
                         >
-                            Ke Dashboard
+                            Go to Dashboard
                         </button>
                     </div>
                 </div>
@@ -91,7 +91,7 @@ export default function AddLead() {
                 >
                     <ArrowLeft size={24} />
                 </button>
-                <h1 className="text-2xl font-bold text-slate-900">Tambah Lead Baru</h1>
+                <h1 className="text-2xl font-bold text-slate-900">Add New Lead</h1>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -108,7 +108,7 @@ export default function AddLead() {
                         <label className="block text-base font-semibold text-slate-800 mb-2">
                             <div className="flex items-center gap-2">
                                 <User size={20} className="text-brand" />
-                                Nama Lengkap Anak
+                                Student Full Name
                             </div>
                         </label>
                         <input
@@ -116,7 +116,7 @@ export default function AddLead() {
                             value={childName}
                             onChange={(e) => setChildName(e.target.value)}
                             className="input-field"
-                            placeholder="Contoh: Budi Santoso"
+                            placeholder="e.g. John Doe"
                             required
                         />
                     </div>
@@ -128,7 +128,7 @@ export default function AddLead() {
                         <label className="block text-base font-semibold text-slate-800 mb-2">
                             <div className="flex items-center gap-2">
                                 <User size={20} className="text-slate-500" />
-                                Nama Orang Tua / Wali
+                                Parent / Guardian Name
                             </div>
                         </label>
                         <input
@@ -136,7 +136,7 @@ export default function AddLead() {
                             value={parentName}
                             onChange={(e) => setParentName(e.target.value)}
                             className="input-field"
-                            placeholder="Contoh: Bapak Andi"
+                            placeholder="e.g. Mr. Smith"
                             required
                         />
                     </div>
@@ -146,7 +146,7 @@ export default function AddLead() {
                         <label className="block text-base font-semibold text-slate-800 mb-2">
                             <div className="flex items-center gap-2">
                                 <Phone size={20} className="text-green-600" />
-                                Nomor WhatsApp (Aktif)
+                                WhatsApp Number (Active)
                             </div>
                         </label>
                         <input
@@ -154,7 +154,7 @@ export default function AddLead() {
                             value={phone}
                             onChange={(e) => setPhone(e.target.value)}
                             className="input-field"
-                            placeholder="Contoh: 081234567890"
+                            placeholder="e.g. 081234567890"
                             required
                         />
                     </div>
@@ -166,7 +166,7 @@ export default function AddLead() {
                         <label className="block text-base font-semibold text-slate-800 mb-2">
                             <div className="flex items-center gap-2">
                                 <FileText size={20} className="text-orange-500" />
-                                Sumber Informasi
+                                Information Source
                             </div>
                         </label>
                         <select
@@ -175,11 +175,11 @@ export default function AddLead() {
                             className="input-field cursor-pointer bg-slate-50"
                         >
                             <option value="Booth / Expo">Booth / Expo</option>
-                            <option value="Teman">Teman</option>
+                            <option value="Friend">Friend</option>
                             <option value="Internet">Internet</option>
                             <option value="ATL">ATL</option>
                             <option value="Other Offline">Other Offline</option>
-                            <option value="Lainnya">Lainnya</option>
+                            <option value="Others">Others</option>
                         </select>
                     </div>
                 </div>
@@ -194,10 +194,10 @@ export default function AddLead() {
                         {isLoading ? (
                             <>
                                 <Loader2 className="animate-spin" size={24} />
-                                Menyimpan Data...
+                                Saving Data...
                             </>
                         ) : (
-                            'Simpan Data Lead'
+                            'Save Lead Data'
                         )}
                     </button>
                 </div>

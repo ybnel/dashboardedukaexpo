@@ -136,11 +136,11 @@ export default function LeadsList() {
         <div className="min-h-screen p-4 pb-24 animate-fade-in relative">
             <div className="flex justify-between items-center mb-6 pt-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-800">Daftar Leads</h1>
+                    <h1 className="text-2xl font-bold text-slate-800">Leads List</h1>
                     <p className="text-sm text-slate-500">
                         {salesRep === 'admin' 
-                            ? 'Menampilkan semua leads di dalam sistem' 
-                            : 'Menampilkan semua leads yang Anda daftarkan'}
+                            ? 'Showing all leads in the system' 
+                            : 'Showing all leads registered by you'}
                     </p>
                 </div>
                 <div className="flex gap-2">
@@ -148,7 +148,7 @@ export default function LeadsList() {
                         <button
                             onClick={handleExportCSV}
                             className="p-3 bg-slate-100 text-slate-700 rounded-full shadow-md hover:bg-slate-200 transition-colors flex items-center justify-center hover:text-slate-900 border border-slate-200/50"
-                            title="Unduh Rekap CSV"
+                            title="Download CSV Summary"
                         >
                             <Download size={24} />
                         </button>
@@ -169,7 +169,7 @@ export default function LeadsList() {
                         <div>
                             <p className="text-sm font-medium text-slate-400">Total Leads</p>
                             <h3 className="text-3xl font-extrabold text-slate-800 mt-1">{leads.length}</h3>
-                            <p className="text-xs text-slate-500 mt-2">Semua Pendaftar</p>
+                            <p className="text-xs text-slate-500 mt-2">All Registrants</p>
                         </div>
                         <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
                             <Users size={24} />
@@ -179,14 +179,14 @@ export default function LeadsList() {
                     {/* Card 2: Lunas */}
                     <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-center justify-between">
                         <div>
-                            <p className="text-sm font-medium text-slate-400">Sudah Lunas</p>
+                            <p className="text-sm font-medium text-slate-400">Paid</p>
                             <h3 className="text-3xl font-extrabold text-emerald-600 mt-1">
                                 {leads.filter(l => l.is_paid).length}
                             </h3>
                             <p className="text-xs text-slate-500 mt-2">
                                 {leads.length > 0 
-                                    ? `${Math.round((leads.filter(l => l.is_paid).length / leads.length) * 100)}% Rasio Pembayaran`
-                                    : '0% Rasio Pembayaran'}
+                                    ? `${Math.round((leads.filter(l => l.is_paid).length / leads.length) * 100)}% Payment Ratio`
+                                    : '0% Payment Ratio'}
                             </p>
                         </div>
                         <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
@@ -197,14 +197,14 @@ export default function LeadsList() {
                     {/* Card 3: Sudah Masuk Grup */}
                     <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-center justify-between">
                         <div>
-                            <p className="text-sm font-medium text-slate-400">Alokasi Kelas</p>
+                            <p className="text-sm font-medium text-slate-400">Class Allocation</p>
                             <h3 className="text-3xl font-extrabold text-brand mt-1">
                                 {leads.filter(l => l.group_name).length}
                             </h3>
                             <p className="text-xs text-slate-500 mt-2">
                                 {leads.length > 0 
-                                    ? `${Math.round((leads.filter(l => l.group_name).length / leads.length) * 100)}% Terdistribusi`
-                                    : '0% Terdistribusi'}
+                                    ? `${Math.round((leads.filter(l => l.group_name).length / leads.length) * 100)}% Distributed`
+                                    : '0% Distributed'}
                             </p>
                         </div>
                         <div className="w-12 h-12 rounded-xl bg-brand/10 text-brand flex items-center justify-center">
@@ -215,11 +215,11 @@ export default function LeadsList() {
                     {/* Card 4: Belum Lunas */}
                     <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-center justify-between">
                         <div>
-                            <p className="text-sm font-medium text-slate-400">Belum Lunas</p>
+                            <p className="text-sm font-medium text-slate-400">Unpaid</p>
                             <h3 className="text-3xl font-extrabold text-amber-600 mt-1">
                                 {leads.filter(l => !l.is_paid).length}
                             </h3>
-                            <p className="text-xs text-slate-500 mt-2">Tunggakan Administrasi</p>
+                            <p className="text-xs text-slate-500 mt-2">Pending Administration</p>
                         </div>
                         <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
                             <AlertCircle size={24} />
@@ -244,7 +244,7 @@ export default function LeadsList() {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="input-field pl-12 bg-white shadow-sm border-slate-200"
-                    placeholder={salesRep === 'admin' ? "Cari nama, no. HP, atau sales..." : "Cari nama anak, orang tua, atau no. HP..."}
+                    placeholder={salesRep === 'admin' ? "Search name, phone, or sales..." : "Search student, parent, or phone..."}
                 />
             </div>
 
@@ -252,18 +252,18 @@ export default function LeadsList() {
                 {isLoading ? (
                     <div className="flex flex-col items-center justify-center p-12 text-slate-400">
                         <Loader2 className="animate-spin mb-4" size={32} />
-                        <p>Memuat data...</p>
+                        <p>Loading data...</p>
                     </div>
                 ) : leads.length === 0 ? (
                     <div className="text-center p-12">
                         <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
                             <UserPlus size={32} />
                         </div>
-                        <h3 className="text-lg font-bold text-slate-700 mb-2">Belum ada Lead</h3>
-                        <p className="text-slate-500 text-sm mb-6">Anda belum mendaftarkan lead satupun.</p>
+                        <h3 className="text-lg font-bold text-slate-700 mb-2">No Leads Yet</h3>
+                        <p className="text-slate-500 text-sm mb-6">You haven't registered any leads yet.</p>
                         <button onClick={() => navigate('/add-lead')} className="btn-primary inline-flex items-center gap-2 px-6">
                             <UserPlus size={18} />
-                            Tambah Lead Baru
+                            Add New Lead
                         </button>
                     </div>
                 ) : filteredLeads.length === 0 ? (
@@ -271,23 +271,23 @@ export default function LeadsList() {
                         <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
                             <Search size={32} />
                         </div>
-                        <h3 className="text-lg font-bold text-slate-700 mb-2">Pencarian Tidak Ditemukan</h3>
-                        <p className="text-slate-500 text-sm">Tidak ada data yang cocok dengan "{searchTerm}".</p>
+                        <h3 className="text-lg font-bold text-slate-700 mb-2">Search Result Not Found</h3>
+                        <p className="text-slate-500 text-sm">No data matches "{searchTerm}".</p>
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="bg-slate-50/50 border-b border-slate-100">
-                                    <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Nama Anak</th>
-                                    <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">No. HP (Ortu)</th>
+                                    <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Student Name</th>
+                                    <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Phone No. (Parent)</th>
                                     {salesRep === 'admin' && (
                                         <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Sales</th>
                                     )}
-                                    <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Grup Kelas</th>
-                                    <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status Lengkap</th>
-                                    <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Pembayaran</th>
-                                    <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Aksi</th>
+                                    <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Class Group</th>
+                                    <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Completeness</th>
+                                    <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Payment</th>
+                                    <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Action</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
@@ -321,11 +321,11 @@ export default function LeadsList() {
                                             <td className="p-4">
                                                 {isComplete ? (
                                                     <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-50 text-green-600 border border-green-200">
-                                                        Lengkap
+                                                        Complete
                                                     </span>
                                                 ) : (
                                                     <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-yellow-50 text-yellow-600 border border-yellow-200">
-                                                        Belum Lengkap
+                                                        Incomplete
                                                      </span>
                                                 )}
                                             </td>
@@ -335,21 +335,17 @@ export default function LeadsList() {
                                                         ? handlePaymentToggle(lead) 
                                                         : navigate('/select-class', { state: { preSelectedLeadId: lead.id } })
                                                     }
-                                                    className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
-                                                        lead.is_paid 
-                                                        ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100' 
-                                                        : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100 cursor-pointer'
-                                                    }`}
+                                                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors bg-green-50 text-green-700 border-green-200 hover:bg-green-100 cursor-pointer"
                                                 >
                                                     {lead.is_paid ? <CheckSquare size={16} /> : <Square size={16} />}
-                                                    {lead.is_paid ? 'Lunas' : 'Belum'}
+                                                    {lead.is_paid ? 'Paid' : 'Unpaid'}
                                                 </button>
                                             </td>
                                             <td className="p-4 text-right">
                                                 <button
                                                     onClick={() => handleEditClick(lead)}
                                                     className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand transition-colors"
-                                                    title="Lengkapi Data"
+                                                    title="Complete Data"
                                                 >
                                                     <Edit size={16} />
                                                 </button>

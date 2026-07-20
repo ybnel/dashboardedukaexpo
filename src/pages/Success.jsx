@@ -77,8 +77,8 @@ export default function Success() {
                     <CheckCircle size={48} className="animate-[pulse_2s_ease-in-out_infinite]" />
                 </div>
 
-                <h2 className="text-3xl font-extrabold text-slate-800 mb-2">Pembayaran Sukses!</h2>
-                <p className="text-slate-600 mb-8">Pendaftaran {lead.child_name} berhasil diproses.</p>
+                <h2 className="text-3xl font-extrabold text-slate-800 mb-2">Payment Successful!</h2>
+                <p className="text-slate-600 mb-8">Registration of {lead.child_name} has been successfully processed.</p>
 
                 {/* Receipt Mockup (On Screen) */}
                 <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl p-6 mb-8 text-left relative">
@@ -88,18 +88,18 @@ export default function Success() {
 
                     <div className="flex justify-between items-center mb-4 pb-4 border-b border-slate-200">
                         <div>
-                            <p className="text-xs text-slate-500 uppercase">No. Referensi</p>
+                            <p className="text-xs text-slate-500 uppercase">Reference No</p>
                             <p className="font-mono font-bold text-slate-800">{receiptNo}</p>
                         </div>
                         <div className="text-right">
-                            <p className="text-xs text-slate-500 uppercase">Tanggal</p>
+                            <p className="text-xs text-slate-500 uppercase">Date</p>
                             <p className="font-semibold text-slate-800">{currentDate}</p>
                         </div>
                     </div>
 
                     <div className="space-y-3 text-sm">
                         <div className="flex justify-between">
-                            <span className="text-slate-500">Siswa:</span>
+                            <span className="text-slate-500">Student:</span>
                             <span className="font-semibold text-slate-800 text-right">{lead.child_name}</span>
                         </div>
                         <div className="flex justify-between">
@@ -115,34 +115,34 @@ export default function Success() {
                         {classDetails.originalPrice && (
                             <>
                                 <div className="flex justify-between text-xs text-slate-500">
-                                    <span>Harga Normal:</span>
+                                    <span>Original Price:</span>
                                     <span className="line-through">Rp {classDetails.originalPrice.toLocaleString('id-ID')}</span>
                                 </div>
                                 <div className="flex justify-between text-xs text-emerald-600 font-medium">
-                                    <span>Diskon Expo:</span>
+                                    <span>Expo Discount:</span>
                                     <span>-Rp {classDetails.discount.toLocaleString('id-ID')}</span>
                                 </div>
                             </>
                         )}
                         <div className="flex justify-between border-t border-slate-200 pt-2">
-                            <span className="text-slate-500 font-semibold">Total Dibayar:</span>
+                            <span className="text-slate-500 font-semibold">Total Paid:</span>
                             <span className="font-bold text-brand text-lg">Rp {classDetails.price.toLocaleString('id-ID')}</span>
                         </div>
                         <div className="flex justify-between">
-                            <span className="text-slate-500">Metode Bayar:</span>
+                            <span className="text-slate-500">Payment Method:</span>
                             <span className="font-semibold text-slate-800 text-right">{paymentMethod}</span>
                         </div>
                         <div className="flex justify-between">
-                            <span className="text-slate-500">Sales In Charge:</span>
+                            <span className="text-slate-500">Sales Representative:</span>
                             <span className="font-semibold text-slate-800 capitalize text-right">{salesRep}</span>
                         </div>
                     </div>
 
                     <div className="mt-4 pt-4 border-t border-dashed border-slate-200 text-[10px] text-slate-500 space-y-1 leading-normal">
-                        <p className="font-bold text-slate-700">Keterangan / Note:</p>
-                        <p>1. Receipt ini adalah receipt sementara yang harus ditunjukkan ke center utk ditukar dengan receipt asli.</p>
-                        <p>2. Payment tidak bisa di refund ato dikembalikan.</p>
-                        <p>3. Payment tidak dapat dipindahtangankan.</p>
+                        <p className="font-bold text-slate-700">Note:</p>
+                        <p>1. This is a temporary receipt that must be presented at the center to be exchanged for the original receipt.</p>
+                        <p>2. Payments are non-refundable.</p>
+                        <p>3. Payments are non-transferable.</p>
                     </div>
                 </div>
 
@@ -152,21 +152,21 @@ export default function Success() {
                         onClick={handlePrint}
                     >
                         <Printer size={20} />
-                        Cetak Struk Pembayaran
+                        Print Payment Receipt
                     </button>
 
                     <button
                         onClick={() => navigate('/assign-group', { state: { lead, classDetails } })}
                         className="btn-primary w-full py-4 text-lg shadow-brand/30 mb-2"
                     >
-                        Lanjut Bagi Grup <ArrowRight size={20} className="ml-2" />
+                        Proceed to Group Assignment <ArrowRight size={20} className="ml-2" />
                     </button>
 
                     <button
                         onClick={() => navigate('/')}
                         className="w-full py-3 rounded-xl border-2 border-transparent text-slate-500 font-semibold hover:text-slate-700 transition-all text-sm cursor-pointer"
                     >
-                        Lewati dan Kembali ke Utama
+                        Skip and Return to Main
                     </button>
                 </div>
             </div>
@@ -180,11 +180,11 @@ export default function Success() {
                 
                 <div className="space-y-1">
                     <div className="flex justify-between">
-                        <span>No. Ref:</span>
+                        <span>Ref No:</span>
                         <span className="font-bold">{receiptNo}</span>
                     </div>
                     <div className="flex justify-between">
-                        <span>Tanggal:</span>
+                        <span>Date:</span>
                         <span>{currentDate}</span>
                     </div>
                 </div>
@@ -193,7 +193,7 @@ export default function Success() {
                 
                 <div className="space-y-1">
                     <div className="flex justify-between font-bold">
-                        <span>Siswa:</span>
+                        <span>Student:</span>
                         <span>{lead.child_name}</span>
                     </div>
                     <div className="flex justify-between">
@@ -204,24 +204,24 @@ export default function Success() {
                     </div>
                     {classDetails.courseType && (
                         <div className="flex justify-between text-[11px] text-slate-700">
-                            <span>Paket:</span>
+                            <span>Package:</span>
                             <span>{classDetails.courseType} ({classDetails.courseLength})</span>
                         </div>
                     )}
                     {classDetails.originalPrice && (
                         <>
                             <div className="flex justify-between text-[11px] text-slate-700">
-                                <span>Harga Normal:</span>
+                                <span>Original Price:</span>
                                 <span>Rp {classDetails.originalPrice.toLocaleString('id-ID')}</span>
                             </div>
                             <div className="flex justify-between text-[11px] text-slate-700">
-                                <span>Diskon:</span>
+                                <span>Discount:</span>
                                 <span>-Rp {classDetails.discount.toLocaleString('id-ID')}</span>
                             </div>
                         </>
                     )}
                     <div className="flex justify-between font-bold text-sm pt-1 border-t border-dashed border-black mt-1">
-                        <span>TOTAL BAYAR:</span>
+                        <span>TOTAL PAID:</span>
                         <span>Rp {classDetails.price.toLocaleString('id-ID')}</span>
                     </div>
                 </div>
@@ -230,7 +230,7 @@ export default function Success() {
                 
                 <div className="space-y-1">
                     <div className="flex justify-between">
-                        <span>Metode Bayar:</span>
+                        <span>Payment Method:</span>
                         <span className="font-bold">{paymentMethod}</span>
                     </div>
                     <div className="flex justify-between">
@@ -242,14 +242,14 @@ export default function Success() {
                 <div className="border-t border-dashed border-black my-2 mt-4"></div>
                 
                 <div className="text-[10px] text-left space-y-1 leading-normal text-slate-800">
-                    <span className="font-bold block mb-1">Keterangan / Note:</span>
-                    <div>1. Receipt ini adalah receipt sementara yang harus ditunjukkan ke center utk ditukar dengan receipt asli.</div>
-                    <div>2. Payment tidak bisa di refund ato dikembalikan.</div>
-                    <div>3. Payment tidak dapat dipindahtangankan.</div>
+                    <span className="font-bold block mb-1">Note:</span>
+                    <div>1. This is a temporary receipt that must be presented at the center to be exchanged for the original receipt.</div>
+                    <div>2. Payments are non-refundable.</div>
+                    <div>3. Payments are non-transferable.</div>
                 </div>
                 
                 <div className="border-t border-dashed border-black my-2 mt-4"></div>
-                <div className="text-center font-bold mt-2">TERIMA KASIH</div>
+                <div className="text-center font-bold mt-2">THANK YOU</div>
             </div>
         </div>
     );

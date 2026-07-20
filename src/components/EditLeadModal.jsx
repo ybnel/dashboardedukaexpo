@@ -69,7 +69,7 @@ export default function EditLeadModal({ isOpen, onClose, lead, onSaveSuccess }) 
             onClose();
         } catch (err) {
             console.error('Error updating lead:', err);
-            setError('Gagal memperbarui data. Silakan coba lagi.');
+            setError('Failed to update data. Please try again.');
         } finally {
             setIsLoading(false);
         }
@@ -85,7 +85,7 @@ export default function EditLeadModal({ isOpen, onClose, lead, onSaveSuccess }) 
             <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-full flex flex-col animate-slide-up overflow-hidden">
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-100 bg-white">
-                    <h2 className="text-xl font-bold text-slate-800">Lengkapi Data Murid</h2>
+                    <h2 className="text-xl font-bold text-slate-800">Complete Student Data</h2>
                     <button 
                         onClick={onClose}
                         className="p-2 text-slate-400 hover:text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-full transition-colors"
@@ -107,38 +107,38 @@ export default function EditLeadModal({ isOpen, onClose, lead, onSaveSuccess }) 
                         
                         {/* Data Pribadi (Murid) */}
                         <div className="space-y-4">
-                            <h3 className="font-semibold text-slate-700 border-b border-slate-200 pb-2">Data Pribadi (Murid)</h3>
+                            <h3 className="font-semibold text-slate-700 border-b border-slate-200 pb-2">Student Personal Info</h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-xs font-medium text-slate-600 mb-1">Nama Lengkap</label>
+                                    <label className="block text-xs font-medium text-slate-600 mb-1">Full Name</label>
                                     <input type="text" name="child_name" value={formData.child_name} onChange={handleChange} required className="input-field py-2 text-sm" />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-medium text-slate-600 mb-1">Nama Panggilan</label>
+                                    <label className="block text-xs font-medium text-slate-600 mb-1">Nickname</label>
                                     <input type="text" name="nickname" value={formData.nickname} onChange={handleChange} className="input-field py-2 text-sm" />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-medium text-slate-600 mb-1">Tanggal Lahir (DD/MM/YYYY)</label>
-                                    <input type="text" name="dob" value={formData.dob} onChange={handleChange} className="input-field py-2 text-sm" placeholder="Contoh: 09/05/12" />
+                                    <label className="block text-xs font-medium text-slate-600 mb-1">Date of Birth (DD/MM/YYYY)</label>
+                                    <input type="text" name="dob" value={formData.dob} onChange={handleChange} className="input-field py-2 text-sm" placeholder="Example: 09/05/12" />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-medium text-slate-600 mb-1">Jenis Kelamin</label>
+                                    <label className="block text-xs font-medium text-slate-600 mb-1">Gender</label>
                                     <select name="gender" value={formData.gender} onChange={handleChange} className="input-field py-2 text-sm">
-                                        <option value="">Pilih...</option>
-                                        <option value="Pria">Pria</option>
-                                        <option value="Wanita">Wanita</option>
+                                        <option value="">Select...</option>
+                                        <option value="Pria">Male</option>
+                                        <option value="Wanita">Female</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-medium text-slate-600 mb-1">Nomor HP</label>
+                                    <label className="block text-xs font-medium text-slate-600 mb-1">Phone Number</label>
                                     <input type="text" name="child_phone" value={formData.child_phone} onChange={handleChange} className="input-field py-2 text-sm" />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-medium text-slate-600 mb-1">Alamat</label>
+                                    <label className="block text-xs font-medium text-slate-600 mb-1">Address</label>
                                     <input type="text" name="address" value={formData.address} onChange={handleChange} className="input-field py-2 text-sm" />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-medium text-slate-600 mb-1">Kode Pos</label>
+                                    <label className="block text-xs font-medium text-slate-600 mb-1">Postal Code</label>
                                     <input type="text" name="postal_code" value={formData.postal_code} onChange={handleChange} className="input-field py-2 text-sm" />
                                 </div>
                                 <div>
@@ -146,30 +146,30 @@ export default function EditLeadModal({ isOpen, onClose, lead, onSaveSuccess }) 
                                     <input type="email" name="child_email" value={formData.child_email} onChange={handleChange} className="input-field py-2 text-sm" />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-medium text-slate-600 mb-1">Nama Sekolah</label>
+                                    <label className="block text-xs font-medium text-slate-600 mb-1">School Name</label>
                                     <input type="text" name="school_name" value={formData.school_name} onChange={handleChange} className="input-field py-2 text-sm" />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-medium text-slate-600 mb-1">Kelas</label>
-                                    <input type="text" name="class_grade" value={formData.class_grade} onChange={handleChange} className="input-field py-2 text-sm" placeholder="Contoh: 7" />
+                                    <label className="block text-xs font-medium text-slate-600 mb-1">Grade</label>
+                                    <input type="text" name="class_grade" value={formData.class_grade} onChange={handleChange} className="input-field py-2 text-sm" placeholder="Example: 7" />
                                 </div>
                             </div>
                         </div>
 
                         {/* Orang Tua */}
                         <div className="space-y-4">
-                            <h3 className="font-semibold text-slate-700 border-b border-slate-200 pb-2">Data Orang Tua</h3>
+                            <h3 className="font-semibold text-slate-700 border-b border-slate-200 pb-2">Parent Information</h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="sm:col-span-2">
-                                    <label className="block text-xs font-medium text-slate-600 mb-1">Nama Orang Tua</label>
+                                    <label className="block text-xs font-medium text-slate-600 mb-1">Parent Name</label>
                                     <input type="text" name="parent_name" value={formData.parent_name} onChange={handleChange} required className="input-field py-2 text-sm" />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-medium text-slate-600 mb-1">Nomor HP Ortu</label>
+                                    <label className="block text-xs font-medium text-slate-600 mb-1">Parent Phone Number</label>
                                     <input type="text" name="parent_phone" value={formData.parent_phone} onChange={handleChange} required className="input-field py-2 text-sm" />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-medium text-slate-600 mb-1">E-Mail Ortu</label>
+                                    <label className="block text-xs font-medium text-slate-600 mb-1">Parent E-Mail</label>
                                     <input type="email" name="parent_email" value={formData.parent_email} onChange={handleChange} className="input-field py-2 text-sm" />
                                 </div>
                             </div>
@@ -177,25 +177,25 @@ export default function EditLeadModal({ isOpen, onClose, lead, onSaveSuccess }) 
 
                         {/* Staf Section */}
                         <div className="space-y-4">
-                            <h3 className="font-semibold text-slate-700 border-b border-slate-200 pb-2">Pendaftaran Akademik</h3>
+                            <h3 className="font-semibold text-slate-700 border-b border-slate-200 pb-2">Academic Registration</h3>
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                 <div>
-                                    <label className="block text-xs font-medium text-slate-600 mb-1">Sumber Info</label>
+                                    <label className="block text-xs font-medium text-slate-600 mb-1">Source of Info</label>
                                     <select name="channel" value={formData.channel} onChange={handleChange} className="input-field py-2 text-sm">
                                         <option value="Booth / Expo">Booth / Expo</option>
-                                        <option value="Teman">Teman</option>
+                                        <option value="Teman">Friend</option>
                                         <option value="Internet">Internet</option>
                                         <option value="ATL">ATL</option>
                                         <option value="Other Offline">Other Offline</option>
-                                        <option value="Lainnya">Lainnya</option>
+                                        <option value="Lainnya">Other</option>
                                     </select>
                                 </div>
                                 <div> 
-                                    <label className="block text-xs font-medium text-slate-600 mb-1">Guru ENGLISH1</label>
+                                    <label className="block text-xs font-medium text-slate-600 mb-1">ENGLISH1 Teacher</label>
                                     <input type="text" name="teacher_name" value={formData.teacher_name} onChange={handleChange} className="input-field py-2 text-sm" />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-medium text-slate-600 mb-1">Hasil PT</label>
+                                    <label className="block text-xs font-medium text-slate-600 mb-1">Placement Test Result</label>
                                     <input type="text" name="pt_result" value={formData.pt_result} onChange={handleChange} className="input-field py-2 text-sm" />
                                 </div>
                             </div>
@@ -211,7 +211,7 @@ export default function EditLeadModal({ isOpen, onClose, lead, onSaveSuccess }) 
                         className="px-6 py-2.5 rounded-lg font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors"
                         disabled={isLoading}
                     >
-                        Batal
+                        Cancel
                     </button>
                     <button 
                         type="submit" 
@@ -222,9 +222,9 @@ export default function EditLeadModal({ isOpen, onClose, lead, onSaveSuccess }) 
                         {isLoading ? (
                             <>
                                 <Loader2 className="animate-spin" size={18} />
-                                Menyimpan...
+                                Saving...
                             </>
-                        ) : 'Simpan Data'}
+                        ) : 'Save Data'}
                     </button>
                 </div>
             </div>
