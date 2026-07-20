@@ -213,6 +213,31 @@ function getLevelFromGroupName(groupName, program) {
     return '';
 }
 
+function getCapacity(program, level) {
+    const prog = (program || '').toLowerCase();
+    const lvl = (level || '').trim();
+    
+    if (prog.includes('small stars')) {
+        if (lvl === '1' || lvl === '2') {
+            return 8;
+        }
+        if (lvl === '3' || lvl === '4') {
+            return 12;
+        }
+        return 15; // default fallback
+    }
+    
+    if (prog.includes('high flyers')) {
+        return 14;
+    }
+    
+    if (prog.includes('trailblazer')) {
+        return 14;
+    }
+    
+    return 15; // Frontrunner and others remain unchanged
+}
+
 function parseCSV(csvText) {
     const lines = csvText.split(/\r?\n/);
     if (lines.length === 0) return [];
@@ -327,7 +352,7 @@ function parseCSV(csvText) {
                 groupName: groupName,
                 groupCode: groupCode,
                 status: status,
-                kapasitas: 15,
+                kapasitas: getCapacity(program, level),
                 member: activeStudents,
                 level: level,
                 startDate: startDate,
