@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { CheckCircle, Download, ArrowRight } from 'lucide-react';
+import { CheckCircle, Download, ArrowRight, Loader2 } from 'lucide-react';
 
 const printStyles = `
 @page {
@@ -57,14 +57,57 @@ export default function Success() {
 
     const { lead, classDetails, paymentMethod, salesRep } = state;
 
+    const [isDownloading, setIsDownloading] = useState(false);
+
     useEffect(() => {
         // Simple mock "confetti" animation timer
         const timer = setTimeout(() => setShowConfetti(false), 3000);
         return () => clearTimeout(timer);
     }, []);
 
-    const handlePrint = () => {
-        window.print();
+    const handleDownload = () => {
+        const element = document.getElementById('printable-receipt-card');
+        if (!element) return;
+
+        setIsDownloading(true);
+
+        // Temporarily prepare class for capture offscreen
+        const originalClass = element.className;
+        element.className = "block font-sans text-slate-800 p-10 w-[800px] bg-white absolute -left-[9999px] -top-[9999px]";
+
+        const opt = {
+            margin:       15,
+            filename:     `receipt_${receiptNo}.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true, logging: false },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        const runHtml2Pdf = () => {
+            window.html2pdf().from(element).set(opt).save().then(() => {
+                element.className = originalClass;
+                setIsDownloading(false);
+            }).catch(err => {
+                console.error("PDF generation error:", err);
+                element.className = originalClass;
+                setIsDownloading(false);
+                alert("Failed to download PDF. Please try again.");
+            });
+        };
+
+        if (window.html2pdf) {
+            runHtml2Pdf();
+        } else {
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+            script.onload = runHtml2Pdf;
+            script.onerror = () => {
+                element.className = originalClass;
+                setIsDownloading(false);
+                alert("Failed to load PDF library. Please check your internet connection.");
+            };
+            document.body.appendChild(script);
+        }
     };
 
     return (
@@ -155,11 +198,16 @@ export default function Success() {
 
                 <div className="space-y-4">
                     <button
-                        className="w-full py-4 rounded-xl border-2 border-slate-200 text-slate-700 font-semibold flex items-center justify-center gap-2 hover:bg-slate-50 active:scale-95 transition-all cursor-pointer"
-                        onClick={handlePrint}
+                        className="w-full py-4 rounded-xl border-2 border-slate-200 text-slate-700 font-semibold flex items-center justify-center gap-2 hover:bg-slate-50 active:scale-95 transition-all cursor-pointer disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed"
+                        onClick={handleDownload}
+                        disabled={isDownloading}
                     >
-                        <Download size={20} />
-                        Download Payment Receipt
+                        {isDownloading ? (
+                            <Loader2 size={20} className="animate-spin text-slate-500" />
+                        ) : (
+                            <Download size={20} />
+                        )}
+                        {isDownloading ? 'Generating PDF...' : 'Download Payment Receipt'}
                     </button>
 
                     <button
