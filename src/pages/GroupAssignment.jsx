@@ -102,7 +102,7 @@ export default function GroupAssignment() {
         const seen = new Set();
 
         MOCK_AVAILABLE_CLASSES.forEach(c => {
-            const key = `${c.school}|${c.program}|${c.level}|${c.hari}|${c.jam}`;
+            const key = `${c.school}|${c.rawProgram}|${c.level}|${c.hari}|${c.jam}`;
             if (!seen.has(key)) {
                 seen.add(key);
 
@@ -116,7 +116,7 @@ export default function GroupAssignment() {
 
                 const matchingClasses = MOCK_AVAILABLE_CLASSES.filter(x => 
                     x.school === c.school && 
-                    x.program === c.program && 
+                    x.rawProgram === c.rawProgram && 
                     x.level === c.level && 
                     x.hari === c.hari && 
                     x.jam === c.jam
@@ -127,6 +127,7 @@ export default function GroupAssignment() {
                 unique.push({
                     branch: c.school,
                     program: c.program,
+                    rawProgram: c.rawProgram,
                     level: c.level,
                     day: c.hari,
                     time: c.jam,
@@ -514,7 +515,7 @@ export default function GroupAssignment() {
                         {filteredSchedules.map((sched, idx) => (
                             <div
                                 key={idx}
-                                onClick={() => navigate(`/assign-group/${encodeURIComponent(sched.branch)}/${encodeURIComponent(sched.program)}/${encodeURIComponent(sched.level)}/${encodeURIComponent(sched.day)}/${encodeURIComponent(sched.time)}`)}
+                                onClick={() => navigate(`/assign-group/${encodeURIComponent(sched.branch)}/${encodeURIComponent(sched.rawProgram)}/${encodeURIComponent(sched.level)}/${encodeURIComponent(sched.day)}/${encodeURIComponent(sched.time)}`)}
                                 className="group bg-white border border-slate-200 rounded-2xl p-5 hover:border-brand hover:shadow-md transition-all cursor-pointer flex justify-between items-center relative overflow-hidden"
                             >
                                 {sched.waitingCount > 0 && (
@@ -533,7 +534,7 @@ export default function GroupAssignment() {
                                         )}
                                     </div>
                                     <h3 className="font-extrabold text-slate-800 text-xl group-hover:text-brand transition-colors mt-2 uppercase tracking-wide">
-                                        {sched.program}
+                                        {sched.rawProgram}
                                     </h3>
                                     <p className="text-sm text-slate-600 mt-2 flex items-center gap-2 flex-wrap font-medium">
                                         <span className="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">

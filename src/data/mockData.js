@@ -116,24 +116,14 @@ function resolveDate(rawDate, sessionDays) {
     return `${String(day).padStart(2, '0')}-${String(month).padStart(2, '0')}-${year}`;
 }
 
-function normalizeProgram(rawProgram) {
+export function normalizeProgram(rawProgram) {
     if (!rawProgram) return 'Other';
-    const lower = rawProgram.toLowerCase();
-    if (lower.includes('small stars')) return 'Small Stars';
-    if (lower.includes('high flyers')) return 'High Flyers';
+    const lower = rawProgram.toLowerCase().replace(/\s+/g, '');
+    if (lower.includes('smallstars')) return 'Small Stars';
+    if (lower.includes('highflyers')) return 'High Flyers';
     if (lower.includes('trailblazer')) return 'Trailblazers';
     if (lower.includes('frontrunner')) return 'Frontrunner';
-    
-    // Format other programs (e.g. Pathfinder, Future Leaders) to title case
-    return rawProgram.trim()
-        .split(/\s+/)
-        .map(word => {
-            if (word.toUpperCase() === word && word.length > 1) {
-                return word;
-            }
-            return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-        })
-        .join(' ');
+    return 'Other';
 }
 
 function getLevelFromGroupCode(groupCode) {
@@ -245,8 +235,19 @@ function parseCSV(csvText) {
         });
         
         const center = normalizeCenter(row['Center']);
-        const rawProgram = row['Program'] ? row['Program'].trim() : '';
+        let rawProgram = row['Program'] ? row['Program'].trim() : '';
         const program = normalizeProgram(rawProgram);
+        if (rawProgram) {
+            rawProgram = rawProgram
+                .split(/\s+/)
+                .map(word => {
+                    if (word.toUpperCase() === word && word.length > 1) {
+                        return word;
+                    }
+                    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+                })
+                .join(' ');
+        }
         let timeSession = row['Time Session'] ? row['Time Session'].trim() : '';
         if (!timeSession) {
             timeSession = row['Time'] ? row['Time'].trim() : '';
@@ -318,6 +319,7 @@ function parseCSV(csvText) {
             classes.push({
                 school: center,
                 program: program,
+                rawProgram: rawProgram,
                 hari: dayOfWeek,
                 jam: timeSession,
                 groupName: groupName,

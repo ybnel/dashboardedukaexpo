@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useStore } from '../store/useStore';
 import { db } from '../lib/firebase';
 import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
-import { MOCK_AVAILABLE_CLASSES } from '../data/mockData';
+import { MOCK_AVAILABLE_CLASSES, normalizeProgram } from '../data/mockData';
 import { ArrowLeft, Users, Loader2, AlertCircle, CheckSquare, Square, MapPin, Calendar, Clock, BookOpen, CheckCircle2, Award } from 'lucide-react';
 
 export default function GroupDetails() {
@@ -60,7 +60,7 @@ export default function GroupDetails() {
     // Available groups for this specific schedule
     const scheduleGroups = MOCK_AVAILABLE_CLASSES.filter(c => 
         c.school === branch && 
-        c.program === program &&
+        c.rawProgram === program &&
         c.level === level &&
         c.hari === day && 
         c.jam === time
@@ -75,7 +75,8 @@ export default function GroupDetails() {
         const pref = lead.class_details || preferences[lead.id];
         if (!pref) return false;
 
-        return pref.branch === branch && pref.name === program && (!pref.level || pref.level === level);
+        const normalizedRouteProgram = normalizeProgram(program);
+        return pref.branch === branch && pref.name === normalizedRouteProgram && (!pref.level || pref.level === level);
     });
 
     const toggleLeadSelection = (leadId) => {
