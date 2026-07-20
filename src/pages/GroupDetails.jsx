@@ -4,7 +4,7 @@ import { useStore } from '../store/useStore';
 import { db } from '../lib/firebase';
 import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { MOCK_AVAILABLE_CLASSES, normalizeProgram } from '../data/mockData';
-import { ArrowLeft, Users, Loader2, AlertCircle, CheckSquare, Square, MapPin, Calendar, Clock, BookOpen, CheckCircle2, Award } from 'lucide-react';
+import { ArrowLeft, Users, Loader2, AlertCircle, CheckSquare, Square, MapPin, Calendar, Clock, BookOpen, CheckCircle2, Award, Plus } from 'lucide-react';
 
 export default function GroupDetails() {
     const navigate = useNavigate();
@@ -250,14 +250,29 @@ export default function GroupDetails() {
                         
                         {/* Section 1: Eligible Leads */}
                         <div className="glass-card p-5">
-                            <h3 className="font-semibold text-slate-800 mb-4 flex items-center gap-2">
-                                <span className="p-1 px-2.5 bg-slate-100 rounded-lg text-sm">{eligibleLeads.length}</span>
-                                Leads Waiting
+                            <h3 className="font-semibold text-slate-800 mb-4 flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <span className="p-1 px-2.5 bg-slate-100 rounded-lg text-sm">{eligibleLeads.length}</span>
+                                    Leads Waiting
+                                </div>
+                                <button
+                                    onClick={() => navigate('/add-lead')}
+                                    className="text-xs font-bold text-brand hover:underline flex items-center gap-1 cursor-pointer"
+                                >
+                                    <Plus size={14} /> Add Lead
+                                </button>
                             </h3>
                             
                             {eligibleLeads.length === 0 ? (
-                                <div className="text-center p-8 bg-slate-50 rounded-xl border border-slate-100 border-dashed">
+                                <div className="text-center p-8 bg-slate-50 rounded-xl border border-slate-100 border-dashed flex flex-col items-center gap-3">
                                     <p className="text-sm text-slate-500">No leads waiting for this schedule.</p>
+                                    <button 
+                                        onClick={() => navigate('/add-lead')}
+                                        className="btn-primary py-2 px-4 text-xs inline-flex items-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer"
+                                    >
+                                        <Plus size={14} />
+                                        Add New Lead
+                                    </button>
                                 </div>
                             ) : (
                                 <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
