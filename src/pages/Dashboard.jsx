@@ -86,9 +86,7 @@ export default function Dashboard() {
         }
     };
 
-    const handleOpenSheetOnly = () => {
-        window.open(GOOGLE_SHEETS_URL, '_blank');
-    };
+
 
     return (
         <div className="min-h-screen p-4 pb-20 animate-fade-in bg-slate-50/50">
@@ -201,9 +199,11 @@ export default function Dashboard() {
                             </div>
                         </button>
                     ) : (
-                        <button
-                            onClick={handleOpenSheetOnly}
-                            className="glass-card p-5 flex items-center gap-4 text-left border border-slate-200 hover:border-emerald-500/30 hover:shadow-md transition-all group"
+                        <a
+                            href={GOOGLE_SHEETS_URL}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="glass-card p-5 flex items-center gap-4 text-left border border-slate-200 hover:border-emerald-500/30 hover:shadow-md transition-all group block"
                         >
                             <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex flex-shrink-0 items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-colors">
                                 <Database size={24} />
@@ -217,7 +217,7 @@ export default function Dashboard() {
                                 </h3>
                                 <p className="text-xs text-slate-500 mt-0.5">Open the shared Google Sheets report directly in a new tab</p>
                             </div>
-                        </button>
+                        </a>
                     )
                 )}
             </div>
