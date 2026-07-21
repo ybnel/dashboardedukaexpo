@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Loader2, AlertCircle } from 'lucide-react';
 import { db } from '../lib/firebase';
 import { doc, updateDoc } from 'firebase/firestore';
+import { syncLeadsToGoogleSheets } from '../utils/syncHelper';
 
 export default function EditLeadModal({ isOpen, onClose, lead, onSaveSuccess }) {
     const [formData, setFormData] = useState({
@@ -66,6 +67,7 @@ export default function EditLeadModal({ isOpen, onClose, lead, onSaveSuccess }) 
             await updateDoc(doc(db, 'leads', lead.id), formData);
             
             onSaveSuccess();
+            syncLeadsToGoogleSheets(); // Sync silently in background
             onClose();
         } catch (err) {
             console.error('Error updating lead:', err);

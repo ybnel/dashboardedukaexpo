@@ -4,6 +4,7 @@ import { useStore } from '../store/useStore';
 import { db } from '../lib/firebase';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { ArrowLeft, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { syncLeadsToGoogleSheets } from '../utils/syncHelper';
 
 export default function Checkout() {
     const PAYMENT_METHODS = [
@@ -90,6 +91,8 @@ export default function Checkout() {
 
             // Complete checkout locally
             completeCheckout();
+            
+            syncLeadsToGoogleSheets(); // Sync silently in background
             
             // Navigate to success page
             navigate('/success', { state: { lead, classDetails, paymentMethod, salesRep } });

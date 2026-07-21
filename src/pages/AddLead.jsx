@@ -4,6 +4,7 @@ import { useStore } from '../store/useStore';
 import { ArrowLeft, User, Phone, FileText, CheckCircle, Loader2, AlertCircle } from 'lucide-react';
 import { db } from '../lib/firebase';
 import { collection, addDoc } from 'firebase/firestore';
+import { syncLeadsToGoogleSheets } from '../utils/syncHelper';
 
 export default function AddLead() {
     const [childName, setChildName] = useState('');
@@ -37,6 +38,7 @@ export default function AddLead() {
 
             // Success
             setSuccessId(docRef.id);
+            syncLeadsToGoogleSheets(); // Sync silently in background
         } catch (err) {
             console.error('Error adding lead:', err);
             const errMessage = err?.message || 'Failed to save data to database. Please try again.';

@@ -5,6 +5,7 @@ import { db } from '../lib/firebase';
 import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { MOCK_AVAILABLE_CLASSES, normalizeProgram } from '../data/mockData';
 import { ArrowLeft, Users, Loader2, AlertCircle, CheckSquare, Square, MapPin, Calendar, Clock, BookOpen, CheckCircle2, Award, Plus } from 'lucide-react';
+import { syncLeadsToGoogleSheets } from '../utils/syncHelper';
 
 export default function GroupDetails() {
     const navigate = useNavigate();
@@ -144,6 +145,7 @@ export default function GroupDetails() {
             setSelectedLeads([]);
             setTargetGroup('');
             alert('Leads successfully allocated to class group!');
+            syncLeadsToGoogleSheets(); // Sync silently in background
             fetchPaidLeads(); // Refresh lists and count from Firestore
         } catch (err) {
             console.error("Error saving assignments", err);

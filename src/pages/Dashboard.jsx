@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store/useStore';
 import { db } from '../lib/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
-import { UserPlus, BookOpen, ChevronRight, Info, FileWarning, Download, Loader2 } from 'lucide-react';
+import { UserPlus, BookOpen, ChevronRight, Info, FileWarning, Download, Loader2, Database } from 'lucide-react';
 
 export default function Dashboard() {
     const salesRep = useStore((state) => state.salesRep);
@@ -44,9 +44,12 @@ export default function Dashboard() {
         fetchPendingAssignments();
     }, [salesRep, assignments]);
 
+    const isAdmin = salesRep && salesRep.toLowerCase() === 'admin';
     const showReport = salesRep && ['admin', 'anna', 'wulan', 'ria', 'sales1'].includes(salesRep.toLowerCase());
 
-    const handleExportAdminRecap = async () => {
+    const GOOGLE_SHEETS_URL = "https://docs.google.com/spreadsheets/d/1_M-3c5eGKEimialB8AHZseTBK3tI1ZRfID2hRfviZMk/edit?usp=sharing";
+
+    const handleSyncToSheets = async () => {
         setIsLoading(true);
         try {
             // Fetch ALL leads in Firestore
@@ -57,64 +60,34 @@ export default function Dashboard() {
                 allLeads.push({ id: doc.id, ...doc.data() });
             });
 
-            // Filter: exclude 'anna', 'wulan', 'ria', 'sales1'
-            const excludedSales = ['anna', 'wulan', 'ria', 'sales1'];
-            const filteredLeads = allLeads.filter(lead => {
-                const rep = (lead.sales_rep || '').trim().toLowerCase();
-                return !excludedSales.includes(rep);
+            // Sort by registration date chronological order
+            allLeads.sort((a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0));
+
+            // Deployed Web App URL
+            const webAppUrl = "https://script.google.com/macros/s/AKfycbyv430T3TgV26JOooDENYqfrjAJ2uOkHBHlmRzehPEkEBDpf7qFSGJngBTuc7DzI5JTDg/exec";
+
+            // POST data to Google Sheets Apps Script
+            await fetch(webAppUrl, {
+                method: 'POST',
+                mode: 'no-cors', // Apps Script requires no-cors for simple redirects
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ leads: allLeads })
             });
 
-            if (filteredLeads.length === 0) {
-                alert('No leads found for other sales reps.');
-                return;
-            }
-
-            // Define CSV headers
-            const headers = [
-                'Nama Anak', 'Nama Orang Tua', 'No. HP', 'Tanggal Lahir', 
-                'Kelas Sekolah', 'Alamat', 'Program Pilihan', 'Cabang', 
-                'Hari Sesi', 'Jam Sesi', 'Level', 'Grup Kelas', 
-                'Status Pembayaran', 'Sales Rep', 'Tanggal Registrasi'
-            ];
-
-            // Map data rows
-            const rows = filteredLeads.map(lead => [
-                `"${(lead.child_name || '').replace(/"/g, '""')}"`,
-                `"${(lead.parent_name || '').replace(/"/g, '""')}"`,
-                `"${(lead.parent_phone || '')}"`,
-                `"${(lead.dob || '')}"`,
-                `"${(lead.class_grade || '')}"`,
-                `"${(lead.address || '').replace(/"/g, '""')}"`,
-                `"${(lead.program_preference || '')}"`,
-                `"${(lead.branch_preference || '')}"`,
-                `"${(lead.day_preference || '')}"`,
-                `"${(lead.time_preference || '')}"`,
-                `"${(lead.level || '')}"`,
-                `"${(lead.group_name || '')}${lead.group_sequence_no ? ` (#${lead.group_sequence_no})` : ''}"`,
-                lead.is_paid ? 'Lunas' : 'Belum Bayar',
-                `"${(lead.sales_rep || '')}"`,
-                lead.created_at ? new Date(lead.created_at).toLocaleDateString('id-ID') : ''
-            ]);
-
-            // Combine into CSV text with BOM
-            const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
-
-            // Trigger download
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.setAttribute('href', url);
-            link.setAttribute('download', `rekap_admin_sales_lainnya_${new Date().toISOString().split('T')[0]}.csv`);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            alert('Database successfully synced to Google Sheets!');
+            window.open(GOOGLE_SHEETS_URL, '_blank');
         } catch (err) {
-            console.error('Error generating admin recap:', err);
-            alert('Failed to generate admin report.');
+            console.error('Error syncing to Google Sheets:', err);
+            alert('Failed to sync to Google Sheets: ' + err.message);
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const handleOpenSheetOnly = () => {
+        window.open(GOOGLE_SHEETS_URL, '_blank');
     };
 
     return (
@@ -209,23 +182,43 @@ export default function Dashboard() {
                 </button>
 
                 {showReport && (
-                    <button
-                        onClick={handleExportAdminRecap}
-                        className="glass-card p-5 flex items-center gap-4 text-left border border-slate-200 hover:border-emerald-500/30 hover:shadow-md transition-all group"
-                    >
-                        <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex flex-shrink-0 items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-colors">
-                            <Download size={24} />
-                        </div>
-                        <div>
-                            <h3 className="font-bold text-slate-800 flex items-center gap-2">
-                                3. Export Sales Recap (Admin)
-                                <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-extrabold uppercase tracking-wide">
-                                    Special Report
-                                </span>
-                            </h3>
-                            <p className="text-xs text-slate-500 mt-0.5">Recap leads registered by other sales representatives</p>
-                        </div>
-                    </button>
+                    isAdmin ? (
+                        <button
+                            onClick={handleSyncToSheets}
+                            className="glass-card p-5 flex items-center gap-4 text-left border border-slate-200 hover:border-emerald-500/30 hover:shadow-md transition-all group"
+                        >
+                            <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex flex-shrink-0 items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                                <Database size={24} />
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-slate-800 flex items-center gap-2">
+                                    3. Sync Database to Google Sheets
+                                    <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-extrabold uppercase tracking-wide">
+                                        Admin Sync
+                                    </span>
+                                </h3>
+                                <p className="text-xs text-slate-500 mt-0.5">Upload all registered leads and open the Google Sheets report</p>
+                            </div>
+                        </button>
+                    ) : (
+                        <button
+                            onClick={handleOpenSheetOnly}
+                            className="glass-card p-5 flex items-center gap-4 text-left border border-slate-200 hover:border-emerald-500/30 hover:shadow-md transition-all group"
+                        >
+                            <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex flex-shrink-0 items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                                <Database size={24} />
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-slate-800 flex items-center gap-2">
+                                    3. Open Sheets Report
+                                    <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-extrabold uppercase tracking-wide">
+                                        View Report
+                                    </span>
+                                </h3>
+                                <p className="text-xs text-slate-500 mt-0.5">Open the shared Google Sheets report directly in a new tab</p>
+                            </div>
+                        </button>
+                    )
                 )}
             </div>
 
