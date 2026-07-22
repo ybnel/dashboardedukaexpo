@@ -19,6 +19,8 @@ export default function LeadsList() {
     const salesRep = useStore((state) => state.salesRep);
     const navigate = useNavigate();
 
+    const canViewAllLeads = salesRep && ['admin', 'anna', 'wulan', 'ria', 'sales1'].includes(salesRep.toLowerCase());
+
     useEffect(() => {
         fetchLeads();
     }, [salesRep]);
@@ -31,7 +33,7 @@ export default function LeadsList() {
 
         try {
             let q;
-            if (salesRep === 'admin') {
+            if (canViewAllLeads) {
                 q = query(collection(db, 'leads'));
             } else {
                 q = query(collection(db, 'leads'), where('sales_rep', '==', salesRep));
@@ -117,7 +119,7 @@ export default function LeadsList() {
             lead.child_name?.toLowerCase().includes(term) ||
             lead.parent_name?.toLowerCase().includes(term) ||
             lead.parent_phone?.includes(term) ||
-            (salesRep === 'admin' && lead.sales_rep?.toLowerCase().includes(term))
+            (canViewAllLeads && lead.sales_rep?.toLowerCase().includes(term))
         );
     });
 
@@ -127,13 +129,13 @@ export default function LeadsList() {
                 <div>
                     <h1 className="text-2xl font-bold text-slate-800">Leads List</h1>
                     <p className="text-sm text-slate-500">
-                        {salesRep === 'admin' 
+                        {canViewAllLeads 
                             ? 'Showing all leads in the system' 
                             : 'Showing all leads registered by you'}
                     </p>
                 </div>
                 <div className="flex gap-2">
-                    {salesRep === 'admin' && leads.length > 0 && (
+                    {canViewAllLeads && leads.length > 0 && (
                         <button
                             onClick={handleExportCSV}
                             className="p-3 bg-slate-100 text-slate-700 rounded-full shadow-md hover:bg-slate-200 transition-colors flex items-center justify-center hover:text-slate-900 border border-slate-200/50"
@@ -151,7 +153,7 @@ export default function LeadsList() {
                 </div>
             </div>
 
-            {salesRep === 'admin' && leads.length > 0 && (
+            {canViewAllLeads && leads.length > 0 && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     {/* Card 1: Total Leads */}
                     <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-center justify-between">
@@ -233,7 +235,7 @@ export default function LeadsList() {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="input-field pl-12 bg-white shadow-sm border-slate-200"
-                    placeholder={salesRep === 'admin' ? "Search name, phone, or sales..." : "Search lead, parent, or phone..."}
+                    placeholder={canViewAllLeads ? "Search name, phone, or sales..." : "Search lead, parent, or phone..."}
                 />
             </div>
 
@@ -270,7 +272,7 @@ export default function LeadsList() {
                                 <tr className="bg-slate-50/50 border-b border-slate-100">
                                     <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Lead Name</th>
                                     <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Phone No. (Parent)</th>
-                                    {salesRep === 'admin' && (
+                                    {canViewAllLeads && (
                                         <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Sales</th>
                                     )}
                                     <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Class Group</th>
@@ -291,7 +293,7 @@ export default function LeadsList() {
                                             <td className="p-4">
                                                 <span className="text-sm text-slate-700">{lead.parent_phone}</span>
                                             </td>
-                                            {salesRep === 'admin' && (
+                                            {canViewAllLeads && (
                                                 <td className="p-4">
                                                     <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
                                                         {lead.sales_rep}
