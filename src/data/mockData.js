@@ -120,10 +120,10 @@ function resolveDate(rawDate, sessionDays) {
 export function normalizeProgram(rawProgram) {
     if (!rawProgram) return 'Other';
     const lower = rawProgram.toLowerCase().replace(/\s+/g, '');
-    if (lower.includes('smallstars')) return 'Small Stars';
-    if (lower.includes('highflyers')) return 'High Flyers';
-    if (lower.includes('trailblazer')) return 'Trailblazers';
-    if (lower.includes('frontrunner')) return 'Frontrunner';
+    if (lower.includes('smallstar') || lower.includes('smallstars')) return 'Small Stars';
+    if (lower.includes('highflyer') || lower.includes('highflyers') || lower.includes('highflayer') || lower.includes('highflayers')) return 'High Flyers';
+    if (lower.includes('trailblazer') || lower.includes('trailblazers')) return 'Trailblazers';
+    if (lower.includes('frontrunner') || lower.includes('frontrunners')) return 'Frontrunner';
     return 'Other';
 }
 
@@ -339,7 +339,7 @@ function parseCSV(csvText) {
             }
             if (level) {
                 level = level.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
-                if (level === 'FOUNDATION' || level === 'FOUND') {
+                if (level.includes('FOUNDATION') || level.includes('FOUND') || level === '0') {
                     level = '0';
                 }
             }

@@ -87,11 +87,23 @@ export default function SelectClass() {
         setSelectedScheduleIndex(null);
     }, [selectedProgram]);
 
+    // Custom forming class schedule fallback state
+    const [customDay, setCustomDay] = useState('Wednesday & Friday');
+    const [customTime, setCustomTime] = useState('15:00');
+
     useEffect(() => {
         setSelectedCourseType('Standard');
         setSelectedCourseLength(1);
         setSelectedScheduleIndex(null);
     }, [selectedLevel]);
+
+    // Format level label for display (Level 0 for High Flyers is Foundation)
+    const getLevelLabel = (lvl, programName) => {
+        if (programName?.toLowerCase().includes('high flyers') && (lvl === '0' || lvl === 'FOUNDATION')) {
+            return 'Foundation';
+        }
+        return `Level ${lvl}`;
+    };
 
     // Use static levels based on program (per client request)
     const availableLevels = React.useMemo(() => {
@@ -117,9 +129,11 @@ export default function SelectClass() {
     const matchingSchedules = React.useMemo(() => {
         if (!selectedCenter || !selectedProgram || !selectedLevel) return [];
         return MOCK_AVAILABLE_CLASSES.filter(c => {
-            return c.school.toLowerCase() === selectedCenter.toLowerCase() &&
-                   c.program.toLowerCase() === selectedProgram.toLowerCase() &&
-                   String(c.level) === String(selectedLevel);
+            const matchesCenter = c.school.toLowerCase() === selectedCenter.toLowerCase();
+            const matchesProgram = c.program.toLowerCase() === selectedProgram.toLowerCase();
+            const matchesLevel = String(c.level) === String(selectedLevel) || 
+                                 (selectedLevel === '0' && (c.level === 'FOUNDATION' || c.level === '0'));
+            return matchesCenter && matchesProgram && matchesLevel;
         });
     }, [selectedCenter, selectedProgram, selectedLevel]);
 
@@ -170,8 +184,11 @@ export default function SelectClass() {
     }, []);
 
     const isFormValid = () => {
-        if (!selectedLead || !selectedCenter || !selectedProgram || !selectedLevel || !selectedCourseType || !selectedCourseLength || selectedScheduleIndex === null) return false;
-        return true;
+        if (!selectedLead || !selectedCenter || !selectedProgram || !selectedLevel || !selectedCourseType || !selectedCourseLength) return false;
+        if (matchingSchedules.length > 0) {
+            return selectedScheduleIndex !== null || Boolean(customDay && customTime);
+        }
+        return Boolean(customDay && customTime);
     };
 
     const handleProceed = () => {
@@ -181,21 +198,27 @@ export default function SelectClass() {
         const pricingKey = `${isSS ? 'SS' : 'HF_TB_FR'}_${selectedCourseType}`;
         const pricing = PRICING_TABLE[pricingKey][selectedCourseLength];
         
-        const selectedSchedule = matchingSchedules[selectedScheduleIndex];
+        const selectedSchedule = matchingSchedules.length > 0 && selectedScheduleIndex !== null
+            ? matchingSchedules[selectedScheduleIndex]
+            : null;
+
+        const finalDay = selectedSchedule ? selectedSchedule.hari : customDay;
+        const finalTime = selectedSchedule ? selectedSchedule.jam : customTime;
+        const displayLevel = (selectedProgram.toLowerCase().includes('high flyers') && selectedLevel === '0') ? 'Foundation' : selectedLevel;
 
         const classDetails = {
             id: `custom-${Date.now()}`,
             name: selectedProgram,
             branch: selectedCenter,
-            level: selectedLevel,
+            level: displayLevel,
             courseType: selectedCourseType,
             courseLength: `${selectedCourseLength} Course${selectedCourseLength > 1 ? 's' : ''}`,
             price: pricing.net,
             originalPrice: pricing.original,
             discount: pricing.discount,
-            schedule: selectedSchedule ? `${selectedSchedule.hari}, ${selectedSchedule.jam}` : '',
-            day: selectedSchedule ? selectedSchedule.hari : '',
-            time: selectedSchedule ? selectedSchedule.jam : ''
+            schedule: selectedSchedule ? `${selectedSchedule.hari}, ${selectedSchedule.jam}` : `${finalDay}, ${finalTime} (Forming Class)`,
+            day: finalDay,
+            time: finalTime
         };
 
         startCheckout(selectedLead, classDetails);
@@ -424,7 +447,7 @@ export default function SelectClass() {
                                         selectedLevel === lvl ? 'border-brand bg-brand/5 text-brand' : 'border-slate-200 hover:border-slate-300 text-slate-600'
                                     }`}
                                 >
-                                    Level {lvl}
+                                    {getLevelLabel(lvl, selectedProgram)}
                                 </button>
                             ))}
                         </div>
@@ -439,9 +462,53 @@ export default function SelectClass() {
                             5. Select Class Schedule Preference
                         </label>
                         {matchingSchedules.length === 0 ? (
-                            <p className="text-sm text-slate-500 italic bg-white p-4 rounded-xl border border-slate-100">
-                                No active class schedules found in the database for Center {selectedCenter}, Program {selectedProgram}, Level {selectedLevel}.
-                            </p>
+                            <div className="bg-white p-4 rounded-xl border border-amber-200/70 bg-amber-50/40 space-y-3">
+                                <div className="flex items-center gap-2 text-amber-800 font-bold text-sm">
+                                    <Info size={18} className="text-amber-600" />
+                                    Forming Class / Custom Schedule Slot
+                                </div>
+                                <p className="text-xs text-slate-600 leading-relaxed">
+                                    No active class group found in database CSV for <strong>{selectedCenter} - {selectedProgram} ({getLevelLabel(selectedLevel, selectedProgram)})</strong>. Select preferred schedule slot for this forming class:
+                                </p>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                                    <div>
+                                        <label className="block text-xs font-semibold text-slate-600 mb-1">Preferred Day</label>
+                                        <select
+                                            value={customDay}
+                                            onChange={(e) => setCustomDay(e.target.value)}
+                                            className="input-field py-2 text-xs bg-white border-slate-200"
+                                        >
+                                            <option value="Wednesday & Friday">Wednesday & Friday</option>
+                                            <option value="Tuesday & Thursday">Tuesday & Thursday</option>
+                                            <option value="Saturday">Saturday</option>
+                                            <option value="Sunday">Sunday</option>
+                                            <option value="Monday">Monday</option>
+                                            <option value="Tuesday">Tuesday</option>
+                                            <option value="Wednesday">Wednesday</option>
+                                            <option value="Thursday">Thursday</option>
+                                            <option value="Friday">Friday</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-semibold text-slate-600 mb-1">Preferred Time Slot</label>
+                                        <select
+                                            value={customTime}
+                                            onChange={(e) => setCustomTime(e.target.value)}
+                                            className="input-field py-2 text-xs bg-white border-slate-200"
+                                        >
+                                            <option value="15:00">15:00 - 16:30</option>
+                                            <option value="16:30">16:30 - 18:00</option>
+                                            <option value="18:10">18:10 - 19:40</option>
+                                            <option value="19:40">19:40 - 21:10</option>
+                                            <option value="09:00">09:00 - 10:30</option>
+                                            <option value="10:00">10:00 - 11:30</option>
+                                            <option value="10:30">10:30 - 12:00</option>
+                                            <option value="13:00">13:00 - 14:30</option>
+                                            <option value="13:30">13:30 - 15:00</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                         ) : (
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 {matchingSchedules.map((c, i) => {

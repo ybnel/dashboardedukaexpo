@@ -146,6 +146,50 @@ export default function GroupAssignment() {
             }
         });
 
+        // Also check unassigned leads for forming schedules that may not be in MOCK_AVAILABLE_CLASSES
+        unassignedLeads.forEach(lead => {
+            const pref = lead.class_details || preferences[lead.id];
+            if (!pref) return;
+            const prefBranch = pref.branch;
+            const prefProgram = pref.name;
+            const rawLevel = pref.level || '';
+            const prefLevel = (rawLevel.toLowerCase() === 'foundation' || rawLevel === '0') ? '0' : rawLevel;
+            const prefDay = pref.day || 'Flexible';
+            const prefTime = pref.time || 'Flexible';
+
+            const rawProg = prefProgram === 'High Flyers' ? 'High Flyers 4.0' : prefProgram;
+            const key = `${prefBranch}|${rawProg}|${prefLevel}|${prefDay}|${prefTime}`;
+
+            if (!seen.has(key)) {
+                seen.add(key);
+
+                const waitingCount = unassignedLeads.filter(l => {
+                    const p = l.class_details || preferences[l.id];
+                    if (!p) return false;
+                    const matchesBasic = p.branch === prefBranch && p.name === prefProgram && (!p.level || (p.level.toLowerCase() === 'foundation' ? '0' : p.level) === prefLevel);
+                    if (!matchesBasic) return false;
+                    const dayMatch = !p.day || p.day === prefDay;
+                    const timeMatch = !p.time || p.time === prefTime;
+                    return dayMatch && timeMatch;
+                }).length;
+
+                unique.push({
+                    branch: prefBranch,
+                    program: prefProgram,
+                    rawProgram: rawProg,
+                    level: prefLevel,
+                    day: prefDay,
+                    time: prefTime,
+                    startDate: 'Forming Class',
+                    startWeek: 'Forming',
+                    groupCount: 0,
+                    totalMember: 0,
+                    totalCapacity: 15,
+                    waitingCount
+                });
+            }
+        });
+
         // Sort: waiting ones first, then by branch
         return unique.sort((a, b) => {
             if (b.waitingCount !== a.waitingCount) {

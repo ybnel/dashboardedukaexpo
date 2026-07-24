@@ -79,14 +79,24 @@ export default function GroupDetails() {
     // Available groups for this specific schedule
     const scheduleGroups = MOCK_AVAILABLE_CLASSES.filter(c => 
         c.school === branch && 
-        c.rawProgram === program &&
-        c.level === level &&
+        (c.rawProgram === program || c.program === normalizeProgram(program)) &&
+        (c.level === level || (level === 'Foundation' && c.level === '0') || (level === '0' && c.level === '0')) &&
         c.hari === day && 
         c.jam === time
     );
 
-    const groupStartDate = scheduleGroups[0]?.startDate || '';
-    const groupStartWeek = scheduleGroups[0]?.startWeek || '';
+    const activeGroups = scheduleGroups.length > 0 ? scheduleGroups : [
+        {
+            groupName: `${normalizeProgram(program)} ${level === '0' ? 'Foundation' : level} (Forming)`,
+            groupCode: 'FORMING',
+            kapasitas: 15,
+            member: 0,
+            status: 'Forming'
+        }
+    ];
+
+    const groupStartDate = scheduleGroups[0]?.startDate || 'Forming (TBD)';
+    const groupStartWeek = scheduleGroups[0]?.startWeek || 'Forming';
 
     // Eligible leads (Paid, Unassigned, Preferred this program, level, day, and time)
     const eligibleLeads = paidLeads.filter(lead => {
@@ -96,7 +106,9 @@ export default function GroupDetails() {
         if (!pref) return false;
 
         const normalizedRouteProgram = normalizeProgram(program);
-        const matchesBasic = pref.branch === branch && pref.name === normalizedRouteProgram && (!pref.level || pref.level === level);
+        const matchesBasic = pref.branch === branch && 
+                             pref.name === normalizedRouteProgram && 
+                             (!pref.level || pref.level === level || (pref.level === 'Foundation' && level === '0') || (pref.level === '0' && level === 'Foundation'));
         if (!matchesBasic) return false;
 
         // Match day and time (with fallback for legacy data lacking day/time preference)
@@ -300,12 +312,12 @@ export default function GroupDetails() {
                         {/* Section 2: Target Group Context & Action */}
                         <div className="glass-card p-5">
                             <h3 className="font-semibold text-slate-800 mb-4 flex items-center gap-2">
-                                <span className="p-1 px-2.5 bg-slate-100 rounded-lg text-sm">{scheduleGroups.length}</span>
+                                <span className="p-1 px-2.5 bg-slate-100 rounded-lg text-sm">{activeGroups.length}</span>
                                 Select Target Class Group
                             </h3>
 
                             <div className="space-y-3 mb-6">
-                                {scheduleGroups.map(group => {
+                                {activeGroups.map(group => {
                                     const isSelected = targetGroup === group.groupName;
                                     return (
                                         <label 
