@@ -8,6 +8,9 @@ import {
 } from 'react-router-dom'
 import { useStore } from './store/useStore'
 
+// Components
+import Navbar from './components/Navbar'
+
 // Pages
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
