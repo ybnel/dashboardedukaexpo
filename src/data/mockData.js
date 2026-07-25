@@ -27,9 +27,9 @@ export const MOCK_SALES = [
     { username: 'Dea', password: '123' },
     { username: 'Jessica', password: '123' },
 
-    // Malang 2 Sawojajar
+    // Malang 2 Sawojajar (MS)
     { username: 'Cici', password: '123' },
-    { username: 'Nadia (Sawojajar)', password: '123' },
+    { username: 'Nadia (MS)', password: '123' },
     { username: 'Frida', password: '123' },
     { username: 'Loca', password: '123' },
     { username: 'Lala', password: '123' },
@@ -39,17 +39,17 @@ export const MOCK_SALES = [
     { username: 'Malta', password: '123' },
     { username: 'Melati', password: '123' },
 
-    // Malang 1 Ijen
+    // Malang 1 Ijen (MI)
     { username: 'Hanna', password: '123' },
-    { username: 'Nadia (Ijen)', password: '123' },
+    { username: 'Nadia (MI)', password: '123' },
     { username: 'Kiki', password: '123' },
     { username: 'Adin', password: '123' },
     { username: 'Adit', password: '123' },
     { username: 'Syifa', password: '123' },
     { username: 'Shella', password: '123' },
-    { username: 'Putri (Ijen)', password: '123' },
+    { username: 'Putri (MI)', password: '123' },
     { username: 'Keiko', password: '123' },
-    { username: 'Farah (Ijen)', password: '123' },
+    { username: 'Farah (MI)', password: '123' },
     { username: 'Cynthia', password: '123' },
     { username: 'Sania', password: '123' },
     { username: 'Vidya', password: '123' },
@@ -58,17 +58,17 @@ export const MOCK_SALES = [
     { username: 'Talitha', password: '123' },
     { username: 'Afra', password: '123' },
 
-    // Sidoarjo
+    // Sidoarjo (SDA)
     { username: 'Fenny', password: '123' },
-    { username: 'Prima 1 (Sidoarjo)', password: '123' },
+    { username: 'Prima 1 (SDA)', password: '123' },
     { username: 'Nanda', password: '123' },
     { username: 'Fety', password: '123' },
     { username: 'Prabu', password: '123' },
-    { username: 'Prima 2 (Sidoarjo)', password: '123' },
+    { username: 'Prima 2 (SDA)', password: '123' },
     { username: 'Vio', password: '123' },
     { username: 'Ricka', password: '123' },
     { username: 'Rina', password: '123' },
-    { username: 'Putri (Sidoarjo)', password: '123' },
+    { username: 'Putri (SDA)', password: '123' },
     { username: 'Bagus', password: '123' },
     { username: 'Kirei', password: '123' },
     { username: 'Eva', password: '123' },
@@ -76,7 +76,7 @@ export const MOCK_SALES = [
     { username: 'Vivi', password: '123' },
     { username: 'Diah', password: '123' },
 
-    // Jember
+    // Jember (J)
     { username: 'Linda', password: '123' },
     { username: 'Windy', password: '123' },
     { username: 'Iza', password: '123' },
@@ -86,24 +86,24 @@ export const MOCK_SALES = [
     { username: 'Nida', password: '123' },
     { username: 'Widy', password: '123' },
 
-    // Lombok
+    // Lombok (L)
     { username: 'Fely', password: '123' },
     { username: 'Mega', password: '123' },
     { username: 'Alfie', password: '123' },
-    { username: 'Putri (Lombok)', password: '123' },
+    { username: 'Putri (L)', password: '123' },
     { username: 'Arnay', password: '123' },
     { username: 'Sito', password: '123' },
-    { username: 'Lilik (Lombok)', password: '123' },
-    { username: 'Farah (Lombok)', password: '123' },
+    { username: 'Lilik (L)', password: '123' },
+    { username: 'Farah (L)', password: '123' },
     { username: 'Indri', password: '123' },
     { username: 'Riska', password: '123' },
     { username: 'Pragas', password: '123' },
     { username: 'Zael', password: '123' },
     { username: 'Ferdi', password: '123' },
-    { username: 'Jessica (Lombok)', password: '123' },
+    { username: 'Jessica (L)', password: '123' },
 
-    // Madiun
-    { username: 'Lilik (Madiun)', password: '123' },
+    // Madiun (MD)
+    { username: 'Lilik (MD)', password: '123' },
     { username: 'Nia', password: '123' },
     { username: 'Zsallsa', password: '123' },
     { username: 'Adhitya', password: '123' },
