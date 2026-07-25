@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, Users, UserPlus, LogOut, User } from 'lucide-react';
 import { useStore } from '../store/useStore';
+import { getSalesUser } from '../data/mockData';
 
 export default function Navbar() {
     const navigate = useNavigate();
@@ -9,6 +10,8 @@ export default function Navbar() {
     const salesRep = useStore((state) => state.salesRep);
     const logout = useStore((state) => state.logout);
     const [showLogout, setShowLogout] = useState(false);
+
+    const currentUser = getSalesUser(salesRep);
 
     const handleLogout = () => {
         logout();
@@ -52,8 +55,11 @@ export default function Navbar() {
                     {/* Logout Popover */}
                     {showLogout && (
                         <div className="absolute bottom-full mb-4 left-1/2 -translate-x-1/2 bg-white rounded-xl shadow-lg border border-slate-100 p-2 min-w-[120px] animate-fade-in origin-bottom">
-                            <div className="text-center mb-2 pb-2 border-b border-slate-100">
-                                <p className="text-[10px] text-slate-400 capitalize truncate px-2">{salesRep}</p>
+                            <div className="text-center mb-2 pb-2 border-b border-slate-100 px-2">
+                                <p className="text-xs font-bold text-slate-800 truncate">{salesRep}</p>
+                                <p className="text-[10px] text-emerald-600 font-semibold truncate flex items-center justify-center gap-0.5 mt-0.5">
+                                    <span>📍</span> {currentUser?.locationLabel}
+                                </p>
                             </div>
                             <button
                                 onClick={handleLogout}

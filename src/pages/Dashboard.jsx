@@ -3,12 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store/useStore';
 import { db } from '../lib/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
-import { UserPlus, BookOpen, ChevronRight, Info, FileWarning, Download, Loader2, Database } from 'lucide-react';
+import { UserPlus, BookOpen, ChevronRight, Info, FileWarning, Download, Loader2, Database, MapPin } from 'lucide-react';
+import { getSalesUser } from '../data/mockData';
 
 export default function Dashboard() {
     const salesRep = useStore((state) => state.salesRep);
     const assignments = useStore((state) => state.assignments);
     const navigate = useNavigate();
+
+    const currentUser = getSalesUser(salesRep);
 
     const [unassignedLeads, setUnassignedLeads] = useState([]);
     const [incompleteLeads, setIncompleteLeads] = useState([]);
@@ -94,9 +97,17 @@ export default function Dashboard() {
             <div className="flex justify-between items-center mb-6 glass-card p-5">
                 <div>
                     <p className="text-sm font-medium text-slate-500 mb-1">Welcome,</p>
-                    <h1 className="text-xl font-bold text-slate-800 capitalize flex items-center gap-2">
-                        <span className="bg-brand/10 text-brand px-3 py-1 rounded-lg text-lg">{salesRep}</span>
-                    </h1>
+                    <div className="flex items-center gap-2 flex-wrap">
+                        <h1 className="text-xl font-bold text-slate-800 capitalize flex items-center gap-2">
+                            <span className="bg-brand/10 text-brand px-3 py-1 rounded-lg text-lg">{salesRep}</span>
+                        </h1>
+                        {currentUser && (
+                            <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1">
+                                <MapPin size={14} />
+                                {currentUser.locationLabel}
+                            </span>
+                        )}
+                    </div>
                 </div>
             </div>
 

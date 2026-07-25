@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { db } from '../lib/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { useStore } from '../store/useStore';
-import { MOCK_AVAILABLE_CLASSES, PROGRAMS } from '../data/mockData';
+import { MOCK_AVAILABLE_CLASSES, PROGRAMS, getSalesUser, getCityFromCenter } from '../data/mockData';
 import { ArrowLeft, Users, Loader2, AlertCircle, ChevronRight, ChevronDown, CalendarClock, Filter, MapPin, Calendar, Clock, BookOpen, Award } from 'lucide-react';
 
 export default function GroupAssignment() {
@@ -96,12 +96,22 @@ export default function GroupAssignment() {
     // Derived Data (Filter out leads that are already assigned in DB or locally)
     const unassignedLeads = paidLeads.filter(lead => !lead.group_name && !assignments[lead.id]);
 
+    // Current Sales User profile & City filter
+    const currentUser = useMemo(() => getSalesUser(salesRep), [salesRep]);
+
+    const availableClassesForUser = useMemo(() => {
+        if (!currentUser || currentUser.role === 'admin' || currentUser.city === 'All') {
+            return MOCK_AVAILABLE_CLASSES;
+        }
+        return MOCK_AVAILABLE_CLASSES.filter(c => getCityFromCenter(c.school) === currentUser.city);
+    }, [currentUser]);
+
     // Compute Schedules
     const schedules = useMemo(() => {
         const unique = [];
         const seen = new Set();
 
-        MOCK_AVAILABLE_CLASSES.forEach(c => {
+        availableClassesForUser.forEach(c => {
             const key = `${c.school}|${c.rawProgram}|${c.level}|${c.hari}|${c.jam}`;
             if (!seen.has(key)) {
                 seen.add(key);
@@ -119,7 +129,7 @@ export default function GroupAssignment() {
                     return dayMatch && timeMatch;
                 }).length;
 
-                const matchingClasses = MOCK_AVAILABLE_CLASSES.filter(x => 
+                const matchingClasses = availableClassesForUser.filter(x => 
                     x.school === c.school && 
                     x.rawProgram === c.rawProgram && 
                     x.level === c.level && 
@@ -252,6 +262,24 @@ export default function GroupAssignment() {
             </div>
 
             <div className="space-y-6 max-w-4xl mx-auto">
+
+                {/* Location Badge Banner */}
+                {currentUser && (
+                    <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl flex items-center justify-between shadow-sm">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2.5 bg-emerald-100 text-emerald-700 rounded-xl">
+                                <MapPin size={20} />
+                            </div>
+                            <div>
+                                <p className="text-xs text-emerald-600 font-semibold uppercase tracking-wider">Lokasi Tim Sales Anda</p>
+                                <h4 className="text-sm font-bold text-slate-800">{currentUser.locationLabel}</h4>
+                            </div>
+                        </div>
+                        <span className="text-xs font-semibold px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full">
+                            {currentUser.role === 'admin' ? 'Akses Admin (Semua Kota)' : `Terfilter Kota: ${currentUser.city}`}
+                        </span>
+                    </div>
+                )}
 
                 {/* Information Callout */}
                 <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">

@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useStore } from '../store/useStore';
 import { db } from '../lib/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
-import { CENTERS, PROGRAMS, MOCK_AVAILABLE_CLASSES, PACKAGE_PRICE } from '../data/mockData';
+import { CENTERS, PROGRAMS, MOCK_AVAILABLE_CLASSES, PACKAGE_PRICE, getSalesUser, getCityFromCenter } from '../data/mockData';
 import { ArrowLeft, UserCheck, Calendar, MapPin, ChevronRight, Loader2, AlertCircle, Clock, CheckSquare, Square, Search, ChevronDown, Check, BookOpen, Award } from 'lucide-react';
 
 const PRICING_TABLE = {
@@ -70,6 +70,19 @@ export default function SelectClass() {
     const salesRep = useStore((state) => state.salesRep);
     const startCheckout = useStore((state) => state.startCheckout);
     const navigate = useNavigate();
+
+    // Current Sales User profile & City filter
+    const currentUser = React.useMemo(() => getSalesUser(salesRep), [salesRep]);
+
+    const availableCenters = React.useMemo(() => {
+        if (!currentUser || currentUser.role === 'admin' || currentUser.city === 'All') {
+            return CENTERS;
+        }
+        const userCityClasses = MOCK_AVAILABLE_CLASSES.filter(c => getCityFromCenter(c.school) === currentUser.city);
+        const validCenters = new Set(userCityClasses.map(c => c.school));
+        const filtered = CENTERS.filter(c => validCenters.has(c));
+        return filtered.length > 0 ? filtered : CENTERS;
+    }, [currentUser]);
 
     // Reset dependent fields when parent fields change
     useEffect(() => {
@@ -240,6 +253,24 @@ export default function SelectClass() {
 
             <div className="space-y-6">
                 
+                {/* Location Badge Banner */}
+                {currentUser && (
+                    <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl flex items-center justify-between shadow-sm">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2.5 bg-emerald-100 text-emerald-700 rounded-xl">
+                                <MapPin size={20} />
+                            </div>
+                            <div>
+                                <p className="text-xs text-emerald-600 font-semibold uppercase tracking-wider">Lokasi Tim Sales Anda</p>
+                                <h4 className="text-sm font-bold text-slate-800">{currentUser.locationLabel}</h4>
+                            </div>
+                        </div>
+                        <span className="text-xs font-semibold px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full">
+                            {currentUser.role === 'admin' ? 'Akses Admin (Semua Kota)' : `Terfilter Kota: ${currentUser.city}`}
+                        </span>
+                    </div>
+                )}
+
                 {/* Step 1: Select Lead */}
                 <div className="glass-card p-6 relative z-50">
                     <label className="block text-sm font-medium text-slate-700 mb-4">
@@ -367,10 +398,10 @@ export default function SelectClass() {
                                         </div>
                                     </div>
                                     <div className="max-h-60 overflow-y-auto p-2 space-y-1">
-                                        {CENTERS.filter(center => center.toLowerCase().includes(searchCenterQuery.toLowerCase())).length === 0 ? (
+                                        {availableCenters.filter(center => center.toLowerCase().includes(searchCenterQuery.toLowerCase())).length === 0 ? (
                                             <div className="p-3 text-sm text-slate-500 text-center">Center not found</div>
                                         ) : (
-                                            CENTERS
+                                            availableCenters
                                                 .filter(center => center.toLowerCase().includes(searchCenterQuery.toLowerCase()))
                                                 .map((center, idx) => (
                                                     <button

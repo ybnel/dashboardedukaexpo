@@ -1,127 +1,167 @@
 export const MOCK_SALES = [
-    // Existing Sales Accounts
-    { username: 'Puri', password: '123' },
-    { username: 'Bunga', password: '123' },
-    { username: 'Nissya', password: '123' },
-    { username: 'Ivan', password: '123' },
-    { username: 'Alib', password: '123' },
-    { username: 'Dio', password: '123' },
-    { username: 'Alif', password: '123' },
-    { username: 'Mayon', password: '123' },
-    { username: 'Fika', password: '123' },
-    { username: 'Zela', password: '123' },
-    { username: 'Deva', password: '123' },
-    { username: 'Yoga', password: '123' },
-    { username: 'Marina', password: '123' },
-    { username: 'Arlin', password: '123' },
-    { username: 'Gitta', password: '123' },
-    { username: 'Rizky', password: '123' },
-    { username: 'Laras', password: '123' },
-    { username: 'Ayak', password: '123' },
-    { username: 'Farhan', password: '123' },
-    { username: 'Audrey', password: '123' },
-    { username: 'Dimas', password: '123' },
-    { username: 'Nafil', password: '123' },
-    { username: 'Belinda', password: '123' },
-    { username: 'Ayustine', password: '123' },
-    { username: 'Dea', password: '123' },
-    { username: 'Jessica', password: '123' },
+    // Existing Sales Accounts (Surabaya)
+    { username: 'Puri', password: '123', city: 'Surabaya', locationLabel: 'Surabaya', role: 'sales' },
+    { username: 'Bunga', password: '123', city: 'Surabaya', locationLabel: 'Surabaya', role: 'sales' },
+    { username: 'Nissya', password: '123', city: 'Surabaya', locationLabel: 'Surabaya', role: 'sales' },
+    { username: 'Ivan', password: '123', city: 'Surabaya', locationLabel: 'Surabaya', role: 'sales' },
+    { username: 'Alib', password: '123', city: 'Surabaya', locationLabel: 'Surabaya', role: 'sales' },
+    { username: 'Dio', password: '123', city: 'Surabaya', locationLabel: 'Surabaya', role: 'sales' },
+    { username: 'Alif', password: '123', city: 'Surabaya', locationLabel: 'Surabaya', role: 'sales' },
+    { username: 'Mayon', password: '123', city: 'Surabaya', locationLabel: 'Surabaya', role: 'sales' },
+    { username: 'Fika', password: '123', city: 'Surabaya', locationLabel: 'Surabaya', role: 'sales' },
+    { username: 'Zela', password: '123', city: 'Surabaya', locationLabel: 'Surabaya', role: 'sales' },
+    { username: 'Deva', password: '123', city: 'Surabaya', locationLabel: 'Surabaya', role: 'sales' },
+    { username: 'Yoga', password: '123', city: 'Surabaya', locationLabel: 'Surabaya', role: 'sales' },
+    { username: 'Marina', password: '123', city: 'Surabaya', locationLabel: 'Surabaya', role: 'sales' },
+    { username: 'Arlin', password: '123', city: 'Surabaya', locationLabel: 'Surabaya', role: 'sales' },
+    { username: 'Gitta', password: '123', city: 'Surabaya', locationLabel: 'Surabaya', role: 'sales' },
+    { username: 'Rizky', password: '123', city: 'Surabaya', locationLabel: 'Surabaya', role: 'sales' },
+    { username: 'Laras', password: '123', city: 'Surabaya', locationLabel: 'Surabaya', role: 'sales' },
+    { username: 'Ayak', password: '123', city: 'Surabaya', locationLabel: 'Surabaya', role: 'sales' },
+    { username: 'Farhan', password: '123', city: 'Surabaya', locationLabel: 'Surabaya', role: 'sales' },
+    { username: 'Audrey', password: '123', city: 'Surabaya', locationLabel: 'Surabaya', role: 'sales' },
+    { username: 'Dimas', password: '123', city: 'Surabaya', locationLabel: 'Surabaya', role: 'sales' },
+    { username: 'Nafil', password: '123', city: 'Surabaya', locationLabel: 'Surabaya', role: 'sales' },
+    { username: 'Belinda', password: '123', city: 'Surabaya', locationLabel: 'Surabaya', role: 'sales' },
+    { username: 'Ayustine', password: '123', city: 'Surabaya', locationLabel: 'Surabaya', role: 'sales' },
+    { username: 'Dea', password: '123', city: 'Surabaya', locationLabel: 'Surabaya', role: 'sales' },
+    { username: 'Jessica', password: '123', city: 'Surabaya', locationLabel: 'Surabaya', role: 'sales' },
 
     // Malang 2 Sawojajar (MS)
-    { username: 'Cici', password: '123' },
-    { username: 'Nadia (MS)', password: '123' },
-    { username: 'Frida', password: '123' },
-    { username: 'Loca', password: '123' },
-    { username: 'Lala', password: '123' },
-    { username: 'Nita', password: '123' },
-    { username: 'Dhimas', password: '123' },
-    { username: 'Monica', password: '123' },
-    { username: 'Malta', password: '123' },
-    { username: 'Melati', password: '123' },
+    { username: 'Cici', password: '123', city: 'Malang', locationLabel: 'Malang Sawojajar', role: 'sales' },
+    { username: 'Nadia (MS)', password: '123', city: 'Malang', locationLabel: 'Malang Sawojajar', role: 'sales' },
+    { username: 'Frida', password: '123', city: 'Malang', locationLabel: 'Malang Sawojajar', role: 'sales' },
+    { username: 'Loca', password: '123', city: 'Malang', locationLabel: 'Malang Sawojajar', role: 'sales' },
+    { username: 'Lala', password: '123', city: 'Malang', locationLabel: 'Malang Sawojajar', role: 'sales' },
+    { username: 'Nita', password: '123', city: 'Malang', locationLabel: 'Malang Sawojajar', role: 'sales' },
+    { username: 'Dhimas', password: '123', city: 'Malang', locationLabel: 'Malang Sawojajar', role: 'sales' },
+    { username: 'Monica', password: '123', city: 'Malang', locationLabel: 'Malang Sawojajar', role: 'sales' },
+    { username: 'Malta', password: '123', city: 'Malang', locationLabel: 'Malang Sawojajar', role: 'sales' },
+    { username: 'Melati', password: '123', city: 'Malang', locationLabel: 'Malang Sawojajar', role: 'sales' },
 
     // Malang 1 Ijen (MI)
-    { username: 'Hanna', password: '123' },
-    { username: 'Nadia (MI)', password: '123' },
-    { username: 'Kiki', password: '123' },
-    { username: 'Adin', password: '123' },
-    { username: 'Adit', password: '123' },
-    { username: 'Syifa', password: '123' },
-    { username: 'Shella', password: '123' },
-    { username: 'Putri (MI)', password: '123' },
-    { username: 'Keiko', password: '123' },
-    { username: 'Farah (MI)', password: '123' },
-    { username: 'Cynthia', password: '123' },
-    { username: 'Sania', password: '123' },
-    { username: 'Vidya', password: '123' },
-    { username: 'Michael', password: '123' },
-    { username: 'Revita', password: '123' },
-    { username: 'Talitha', password: '123' },
-    { username: 'Afra', password: '123' },
+    { username: 'Hanna', password: '123', city: 'Malang', locationLabel: 'Malang Ijen', role: 'sales' },
+    { username: 'Nadia (MI)', password: '123', city: 'Malang', locationLabel: 'Malang Ijen', role: 'sales' },
+    { username: 'Kiki', password: '123', city: 'Malang', locationLabel: 'Malang Ijen', role: 'sales' },
+    { username: 'Adin', password: '123', city: 'Malang', locationLabel: 'Malang Ijen', role: 'sales' },
+    { username: 'Adit', password: '123', city: 'Malang', locationLabel: 'Malang Ijen', role: 'sales' },
+    { username: 'Syifa', password: '123', city: 'Malang', locationLabel: 'Malang Ijen', role: 'sales' },
+    { username: 'Shella', password: '123', city: 'Malang', locationLabel: 'Malang Ijen', role: 'sales' },
+    { username: 'Putri (MI)', password: '123', city: 'Malang', locationLabel: 'Malang Ijen', role: 'sales' },
+    { username: 'Keiko', password: '123', city: 'Malang', locationLabel: 'Malang Ijen', role: 'sales' },
+    { username: 'Farah (MI)', password: '123', city: 'Malang', locationLabel: 'Malang Ijen', role: 'sales' },
+    { username: 'Cynthia', password: '123', city: 'Malang', locationLabel: 'Malang Ijen', role: 'sales' },
+    { username: 'Sania', password: '123', city: 'Malang', locationLabel: 'Malang Ijen', role: 'sales' },
+    { username: 'Vidya', password: '123', city: 'Malang', locationLabel: 'Malang Ijen', role: 'sales' },
+    { username: 'Michael', password: '123', city: 'Malang', locationLabel: 'Malang Ijen', role: 'sales' },
+    { username: 'Revita', password: '123', city: 'Malang', locationLabel: 'Malang Ijen', role: 'sales' },
+    { username: 'Talitha', password: '123', city: 'Malang', locationLabel: 'Malang Ijen', role: 'sales' },
+    { username: 'Afra', password: '123', city: 'Malang', locationLabel: 'Malang Ijen', role: 'sales' },
 
     // Sidoarjo (SDA)
-    { username: 'Fenny', password: '123' },
-    { username: 'Prima 1 (SDA)', password: '123' },
-    { username: 'Nanda', password: '123' },
-    { username: 'Fety', password: '123' },
-    { username: 'Prabu', password: '123' },
-    { username: 'Prima 2 (SDA)', password: '123' },
-    { username: 'Vio', password: '123' },
-    { username: 'Ricka', password: '123' },
-    { username: 'Rina', password: '123' },
-    { username: 'Putri (SDA)', password: '123' },
-    { username: 'Bagus', password: '123' },
-    { username: 'Kirei', password: '123' },
-    { username: 'Eva', password: '123' },
-    { username: 'Dany', password: '123' },
-    { username: 'Vivi', password: '123' },
-    { username: 'Diah', password: '123' },
+    { username: 'Fenny', password: '123', city: 'Sidoarjo', locationLabel: 'Sidoarjo', role: 'sales' },
+    { username: 'Prima 1 (SDA)', password: '123', city: 'Sidoarjo', locationLabel: 'Sidoarjo', role: 'sales' },
+    { username: 'Nanda', password: '123', city: 'Sidoarjo', locationLabel: 'Sidoarjo', role: 'sales' },
+    { username: 'Fety', password: '123', city: 'Sidoarjo', locationLabel: 'Sidoarjo', role: 'sales' },
+    { username: 'Prabu', password: '123', city: 'Sidoarjo', locationLabel: 'Sidoarjo', role: 'sales' },
+    { username: 'Prima 2 (SDA)', password: '123', city: 'Sidoarjo', locationLabel: 'Sidoarjo', role: 'sales' },
+    { username: 'Vio', password: '123', city: 'Sidoarjo', locationLabel: 'Sidoarjo', role: 'sales' },
+    { username: 'Ricka', password: '123', city: 'Sidoarjo', locationLabel: 'Sidoarjo', role: 'sales' },
+    { username: 'Rina', password: '123', city: 'Sidoarjo', locationLabel: 'Sidoarjo', role: 'sales' },
+    { username: 'Putri (SDA)', password: '123', city: 'Sidoarjo', locationLabel: 'Sidoarjo', role: 'sales' },
+    { username: 'Bagus', password: '123', city: 'Sidoarjo', locationLabel: 'Sidoarjo', role: 'sales' },
+    { username: 'Kirei', password: '123', city: 'Sidoarjo', locationLabel: 'Sidoarjo', role: 'sales' },
+    { username: 'Eva', password: '123', city: 'Sidoarjo', locationLabel: 'Sidoarjo', role: 'sales' },
+    { username: 'Dany', password: '123', city: 'Sidoarjo', locationLabel: 'Sidoarjo', role: 'sales' },
+    { username: 'Vivi', password: '123', city: 'Sidoarjo', locationLabel: 'Sidoarjo', role: 'sales' },
+    { username: 'Diah', password: '123', city: 'Sidoarjo', locationLabel: 'Sidoarjo', role: 'sales' },
 
     // Jember (J)
-    { username: 'Linda', password: '123' },
-    { username: 'Windy', password: '123' },
-    { username: 'Iza', password: '123' },
-    { username: 'Fani', password: '123' },
-    { username: 'Karin', password: '123' },
-    { username: 'Erika', password: '123' },
-    { username: 'Nida', password: '123' },
-    { username: 'Widy', password: '123' },
+    { username: 'Linda', password: '123', city: 'Jember', locationLabel: 'Jember', role: 'sales' },
+    { username: 'Windy', password: '123', city: 'Jember', locationLabel: 'Jember', role: 'sales' },
+    { username: 'Iza', password: '123', city: 'Jember', locationLabel: 'Jember', role: 'sales' },
+    { username: 'Fani', password: '123', city: 'Jember', locationLabel: 'Jember', role: 'sales' },
+    { username: 'Karin', password: '123', city: 'Jember', locationLabel: 'Jember', role: 'sales' },
+    { username: 'Erika', password: '123', city: 'Jember', locationLabel: 'Jember', role: 'sales' },
+    { username: 'Nida', password: '123', city: 'Jember', locationLabel: 'Jember', role: 'sales' },
+    { username: 'Widy', password: '123', city: 'Jember', locationLabel: 'Jember', role: 'sales' },
 
     // Lombok (L)
-    { username: 'Fely', password: '123' },
-    { username: 'Mega', password: '123' },
-    { username: 'Alfie', password: '123' },
-    { username: 'Putri (L)', password: '123' },
-    { username: 'Arnay', password: '123' },
-    { username: 'Sito', password: '123' },
-    { username: 'Lilik (L)', password: '123' },
-    { username: 'Farah (L)', password: '123' },
-    { username: 'Indri', password: '123' },
-    { username: 'Riska', password: '123' },
-    { username: 'Pragas', password: '123' },
-    { username: 'Zael', password: '123' },
-    { username: 'Ferdi', password: '123' },
-    { username: 'Jessica (L)', password: '123' },
+    { username: 'Fely', password: '123', city: 'Lombok', locationLabel: 'Lombok', role: 'sales' },
+    { username: 'Mega', password: '123', city: 'Lombok', locationLabel: 'Lombok', role: 'sales' },
+    { username: 'Alfie', password: '123', city: 'Lombok', locationLabel: 'Lombok', role: 'sales' },
+    { username: 'Putri (L)', password: '123', city: 'Lombok', locationLabel: 'Lombok', role: 'sales' },
+    { username: 'Arnay', password: '123', city: 'Lombok', locationLabel: 'Lombok', role: 'sales' },
+    { username: 'Sito', password: '123', city: 'Lombok', locationLabel: 'Lombok', role: 'sales' },
+    { username: 'Lilik (L)', password: '123', city: 'Lombok', locationLabel: 'Lombok', role: 'sales' },
+    { username: 'Farah (L)', password: '123', city: 'Lombok', locationLabel: 'Lombok', role: 'sales' },
+    { username: 'Indri', password: '123', city: 'Lombok', locationLabel: 'Lombok', role: 'sales' },
+    { username: 'Riska', password: '123', city: 'Lombok', locationLabel: 'Lombok', role: 'sales' },
+    { username: 'Pragas', password: '123', city: 'Lombok', locationLabel: 'Lombok', role: 'sales' },
+    { username: 'Zael', password: '123', city: 'Lombok', locationLabel: 'Lombok', role: 'sales' },
+    { username: 'Ferdi', password: '123', city: 'Lombok', locationLabel: 'Lombok', role: 'sales' },
+    { username: 'Jessica (L)', password: '123', city: 'Lombok', locationLabel: 'Lombok', role: 'sales' },
 
     // Madiun (MD)
-    { username: 'Lilik (MD)', password: '123' },
-    { username: 'Nia', password: '123' },
-    { username: 'Zsallsa', password: '123' },
-    { username: 'Adhitya', password: '123' },
-    { username: 'Ardhya', password: '123' },
-    { username: 'Alda', password: '123' },
-    { username: 'Riandita', password: '123' },
-    { username: 'Santi', password: '123' },
-    { username: 'Agnes', password: '123' },
-    { username: 'Marsha', password: '123' },
-    { username: 'Egan', password: '123' },
+    { username: 'Lilik (MD)', password: '123', city: 'Madiun', locationLabel: 'Madiun', role: 'sales' },
+    { username: 'Nia', password: '123', city: 'Madiun', locationLabel: 'Madiun', role: 'sales' },
+    { username: 'Zsallsa', password: '123', city: 'Madiun', locationLabel: 'Madiun', role: 'sales' },
+    { username: 'Adhitya', password: '123', city: 'Madiun', locationLabel: 'Madiun', role: 'sales' },
+    { username: 'Ardhya', password: '123', city: 'Madiun', locationLabel: 'Madiun', role: 'sales' },
+    { username: 'Alda', password: '123', city: 'Madiun', locationLabel: 'Madiun', role: 'sales' },
+    { username: 'Riandita', password: '123', city: 'Madiun', locationLabel: 'Madiun', role: 'sales' },
+    { username: 'Santi', password: '123', city: 'Madiun', locationLabel: 'Madiun', role: 'sales' },
+    { username: 'Agnes', password: '123', city: 'Madiun', locationLabel: 'Madiun', role: 'sales' },
+    { username: 'Marsha', password: '123', city: 'Madiun', locationLabel: 'Madiun', role: 'sales' },
+    { username: 'Egan', password: '123', city: 'Madiun', locationLabel: 'Madiun', role: 'sales' },
 
     // Admin & Supervisor Accounts
-    { username: 'Anna', password: '123' },
-    { username: 'Wulan', password: '123' },
-    { username: 'Ria', password: '123' },
-    { username: 'sales1', password: '123' },
-    { username: 'admin', password: 'admin' }
+    { username: 'Anna', password: '123', city: 'All', locationLabel: 'All Cities (Admin)', role: 'admin' },
+    { username: 'Wulan', password: '123', city: 'All', locationLabel: 'All Cities (Admin)', role: 'admin' },
+    { username: 'Ria', password: '123', city: 'All', locationLabel: 'All Cities (Admin)', role: 'admin' },
+    { username: 'sales1', password: '123', city: 'Surabaya', locationLabel: 'Surabaya', role: 'sales' },
+    { username: 'admin', password: 'admin', city: 'All', locationLabel: 'All Cities (Admin)', role: 'admin' }
 ];
+
+export function getCityFromCenter(center) {
+    if (!center) return 'Surabaya';
+    const c = center.toLowerCase().trim();
+    if (c.includes('malang') || c.includes('sawojajar') || c.includes('ijen')) {
+        return 'Malang';
+    }
+    if (c.includes('sidoarjo')) {
+        return 'Sidoarjo';
+    }
+    if (c.includes('madiun')) {
+        return 'Madiun';
+    }
+    if (c.includes('jember')) {
+        return 'Jember';
+    }
+    if (c.includes('lombok')) {
+        return 'Lombok';
+    }
+    return 'Surabaya';
+}
+
+export function getSalesUser(username) {
+    if (!username) return { username: '', city: 'Surabaya', locationLabel: 'Surabaya', role: 'sales' };
+    const user = MOCK_SALES.find(u => u.username.toLowerCase() === username.trim().toLowerCase());
+    if (user) {
+        return {
+            username: user.username,
+            city: user.city || 'Surabaya',
+            locationLabel: user.locationLabel || user.city || 'Surabaya',
+            role: user.role || 'sales'
+        };
+    }
+    return {
+        username: username,
+        city: 'Surabaya',
+        locationLabel: 'Surabaya',
+        role: 'sales'
+    };
+}
 
 import csvContent from '../../Data Kelas Expo 2026.csv?raw';
 
@@ -436,6 +476,7 @@ function parseCSV(csvText) {
             }
             classes.push({
                 school: center,
+                city: getCityFromCenter(center),
                 program: program,
                 rawProgram: rawProgram,
                 hari: dayOfWeek,
@@ -521,6 +562,7 @@ function parseJsonRows(rows) {
         if (center && program && timeSession) {
             classes.push({
                 school: center,
+                city: getCityFromCenter(center),
                 program: program,
                 rawProgram: rawProgram || program,
                 hari: dayOfWeek,
