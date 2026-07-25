@@ -40,6 +40,8 @@ export const MOCK_SALES = [
     { username: 'Melati', password: '123', city: 'Malang', locationLabel: 'Malang Sawojajar', role: 'sales' },
 
     // Malang 1 Ijen (MI)
+    { username: 'Caca', password: '123', city: 'Malang', locationLabel: 'Malang Ijen', role: 'sales' },
+    { username: 'Lala (MI)', password: '123', city: 'Malang', locationLabel: 'Malang Ijen', role: 'sales' },
     { username: 'Hanna', password: '123', city: 'Malang', locationLabel: 'Malang Ijen', role: 'sales' },
     { username: 'Nadia (MI)', password: '123', city: 'Malang', locationLabel: 'Malang Ijen', role: 'sales' },
     { username: 'Kiki', password: '123', city: 'Malang', locationLabel: 'Malang Ijen', role: 'sales' },
