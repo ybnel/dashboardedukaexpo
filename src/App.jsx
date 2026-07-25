@@ -18,7 +18,7 @@ import Success from './pages/Success'
 import LeadsList from './pages/LeadsList'
 import GroupAssignment from './pages/GroupAssignment'
 import GroupDetails from './pages/GroupDetails'
-import Navbar from './components/Navbar'
+import { syncLiveClassesFromGoogleSheets } from './data/mockData'
 
 // Layout for protected pages
 const ProtectedLayout = () => {
@@ -95,6 +95,10 @@ function App() {
       events.forEach(event => document.removeEventListener(event, resetTimer));
     };
   }, [salesRep, logout]);
+
+  useEffect(() => {
+    syncLiveClassesFromGoogleSheets();
+  }, []);
 
   useEffect(() => {
     const handleBeforeUnload = (e) => {

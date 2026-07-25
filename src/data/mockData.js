@@ -456,6 +456,89 @@ function parseCSV(csvText) {
 
 export const MOCK_AVAILABLE_CLASSES = parseCSV(csvContent);
 
+// Function to fetch live classes dynamically from Google Sheets or Apps Script Web App
+export async function syncLiveClassesFromGoogleSheets() {
+    const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/1pXi2vfnrD8l1_wto0z_hZOpQUBdERaOY_lJlWaV6Oyg/gviz/tq?tqx=out:csv&sheet=Expo%202026';
+
+    try {
+        let textData = null;
+
+        // Fetch direct Google Sheets CSV URL first
+        const sheetRes = await fetch(GOOGLE_SHEET_CSV_URL).catch(() => null);
+        if (sheetRes && sheetRes.ok) {
+            textData = await sheetRes.text();
+        }
+
+        if (textData && !textData.includes('<!DOCTYPE html>')) {
+            let newClasses = [];
+            if (textData.trim().startsWith('[')) {
+                // Apps Script returned JSON array
+                const rows = JSON.parse(textData);
+                newClasses = parseJsonRows(rows);
+            } else {
+                // CSV Text
+                newClasses = parseCSV(textData);
+            }
+
+            if (newClasses && newClasses.length > 0) {
+                MOCK_AVAILABLE_CLASSES.length = 0;
+                MOCK_AVAILABLE_CLASSES.push(...newClasses);
+                console.log(`Successfully synced ${newClasses.length} live classes from Google Sheets.`);
+                return newClasses.length;
+            }
+        }
+    } catch (err) {
+        console.warn('Failed to sync live classes from Google Sheets, using fallback CSV data:', err);
+    }
+    return MOCK_AVAILABLE_CLASSES.length;
+}
+
+// Convert JSON rows from Apps Script to Class Objects
+function parseJsonRows(rows) {
+    if (!Array.isArray(rows)) return [];
+    const classes = [];
+    rows.forEach(row => {
+        const center = normalizeCenter(row['Center'] || row['school'] || '');
+        let rawProgram = row['Program'] ? String(row['Program']).trim() : '';
+        const program = normalizeProgram(rawProgram);
+        let timeSession = row['Time Session'] || row['Time'] || row['jam'] || '';
+        let dayOfWeek = row['Session Days'] || row['hari'] || '';
+        let groupName = row['Group: Group Name'] || row['groupName'] || '';
+        let groupCode = row['Group Code'] || row['groupCode'] || '';
+        let status = row['Status'] || row['status'] || 'Activated';
+        let member = parseInt(row['Active Students'] || row['member'] || '0', 10);
+        let startDate = row['Start Date'] || row['startDate'] || '';
+        let startWeek = row['Start Week'] || row['startWeek'] || '';
+        let level = row['Level Program'] || row['level'] || getLevelFromGroupCode(groupCode) || getLevelFromGroupName(groupName, program);
+
+        if (level) {
+            level = String(level).replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+            if (level.includes('FOUNDATION') || level.includes('FOUND') || level === '0') {
+                level = '0';
+            }
+        }
+
+        if (center && program && timeSession) {
+            classes.push({
+                school: center,
+                program: program,
+                rawProgram: rawProgram || program,
+                hari: dayOfWeek,
+                jam: timeSession,
+                groupName: groupName,
+                groupCode: groupCode,
+                status: status,
+                kapasitas: getCapacity(program, level),
+                member: member,
+                level: level,
+                startDate: startDate,
+                startWeek: startWeek
+            });
+        }
+    });
+    return classes;
+}
+
 // Get unique centers and programs
 const centersSet = new Set();
 const programsSet = new Set();
