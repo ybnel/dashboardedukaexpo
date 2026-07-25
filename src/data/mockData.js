@@ -93,7 +93,7 @@ export const MOCK_SALES = [
     { username: 'Putri (Lombok)', password: '123' },
     { username: 'Arnay', password: '123' },
     { username: 'Sito', password: '123' },
-    { username: 'Lilik', password: '123' },
+    { username: 'Lilik (Lombok)', password: '123' },
     { username: 'Farah (Lombok)', password: '123' },
     { username: 'Indri', password: '123' },
     { username: 'Riska', password: '123' },
@@ -101,6 +101,19 @@ export const MOCK_SALES = [
     { username: 'Zael', password: '123' },
     { username: 'Ferdi', password: '123' },
     { username: 'Jessica (Lombok)', password: '123' },
+
+    // Madiun
+    { username: 'Lilik (Madiun)', password: '123' },
+    { username: 'Nia', password: '123' },
+    { username: 'Zsallsa', password: '123' },
+    { username: 'Adhitya', password: '123' },
+    { username: 'Ardhya', password: '123' },
+    { username: 'Alda', password: '123' },
+    { username: 'Riandita', password: '123' },
+    { username: 'Santi', password: '123' },
+    { username: 'Agnes', password: '123' },
+    { username: 'Marsha', password: '123' },
+    { username: 'Egan', password: '123' },
 
     // Admin & Supervisor Accounts
     { username: 'Anna', password: '123' },
