@@ -3,31 +3,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useStore } from '../store/useStore';
 import { db } from '../lib/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
-import { CENTERS, PROGRAMS, MOCK_AVAILABLE_CLASSES, PACKAGE_PRICE, getSalesUser, getCityFromCenter } from '../data/mockData';
+import { CENTERS, PROGRAMS, MOCK_AVAILABLE_CLASSES, PACKAGE_PRICE, getSalesUser, getCityFromCenter, getPricingForSelection, getRegionFromCenter } from '../data/mockData';
 import { ArrowLeft, UserCheck, Calendar, MapPin, ChevronRight, Loader2, AlertCircle, Clock, CheckSquare, Square, Search, ChevronDown, Check, BookOpen, Award } from 'lucide-react';
-
-const PRICING_TABLE = {
-    'HF_TB_FR_Standard': {
-        1: { original: 6800000, discount: 680000, net: 6120000 },
-        2: { original: 13600000, discount: 1972000, net: 11628000 },
-        3: { original: 20400000, discount: 3325200, net: 17074800 }
-    },
-    'SS_Standard': {
-        1: { original: 10900000, discount: 990000, net: 9910000 },
-        2: { original: 21800000, discount: 2871000, net: 18929000 },
-        3: { original: 32700000, discount: 4841100, net: 27858900 }
-    },
-    'HF_TB_FR_Peak': {
-        1: { original: 7400000, discount: 740000, net: 6660000 },
-        2: { original: 14800000, discount: 2146000, net: 12654000 },
-        3: { original: 22200000, discount: 3618600, net: 18581400 }
-    },
-    'SS_Peak': {
-        1: { original: 11400000, discount: 1070000, net: 10330000 },
-        2: { original: 22800000, discount: 3103000, net: 19697000 },
-        3: { original: 34200000, discount: 5232300, net: 28967700 }
-    }
-};
 
 export default function SelectClass() {
     const location = useLocation();
@@ -207,9 +184,7 @@ export default function SelectClass() {
     const handleProceed = () => {
         if (!isFormValid()) return;
 
-        const isSS = selectedProgram.toLowerCase().includes('small stars');
-        const pricingKey = `${isSS ? 'SS' : 'HF_TB_FR'}_${selectedCourseType}`;
-        const pricing = PRICING_TABLE[pricingKey][selectedCourseLength];
+        const pricing = getPricingForSelection(selectedCenter, selectedProgram, selectedCourseType, selectedCourseLength);
         
         const selectedSchedule = matchingSchedules.length > 0 && selectedScheduleIndex !== null
             ? matchingSchedules[selectedScheduleIndex]
@@ -629,9 +604,7 @@ export default function SelectClass() {
                             </label>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 {[1, 2, 3].map(length => {
-                                    const isSS = selectedProgram.toLowerCase().includes('small stars');
-                                    const pricingKey = `${isSS ? 'SS' : 'HF_TB_FR'}_${selectedCourseType}`;
-                                    const pricing = PRICING_TABLE[pricingKey][length];
+                                    const pricing = getPricingForSelection(selectedCenter, selectedProgram, selectedCourseType, length);
 
                                     return (
                                         <button
@@ -670,9 +643,7 @@ export default function SelectClass() {
 
             {/* Action Button */}
             {isFormValid() && (() => {
-                const isSS = selectedProgram.toLowerCase().includes('small stars');
-                const pricingKey = `${isSS ? 'SS' : 'HF_TB_FR'}_${selectedCourseType}`;
-                const pricing = PRICING_TABLE[pricingKey][selectedCourseLength];
+                const pricing = getPricingForSelection(selectedCenter, selectedProgram, selectedCourseType, selectedCourseLength);
                 return (
                     <div className="pt-2 animate-slide-up pb-8 mt-6">
                         <div className="glass-card p-4 flex flex-col sm:flex-row gap-4 items-center justify-between border-brand/20 bg-brand/5">

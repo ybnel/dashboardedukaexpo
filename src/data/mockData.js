@@ -594,3 +594,169 @@ MOCK_AVAILABLE_CLASSES.forEach(c => {
 export const CENTERS = Array.from(centersSet).sort();
 export const PROGRAMS = Array.from(programsSet).sort();
 
+// Pricing BTS 2026 - Phase 1 (10%) per Region / Center
+export const REGIONAL_PRICING_TABLE = {
+    'Surabaya': {
+        'HF_TB_FR_Standard': {
+            1: { original: 6800000, discount: 680000, net: 6120000 },
+            2: { original: 13600000, discount: 1972000, net: 11628000 },
+            3: { original: 20400000, discount: 3325200, net: 17074800 }
+        },
+        'SS_Standard': {
+            1: { original: 10900000, discount: 990000, net: 9910000 },
+            2: { original: 21800000, discount: 2871000, net: 18929000 },
+            3: { original: 32700000, discount: 4841100, net: 27858900 }
+        },
+        'HF_TB_FR_Peak': {
+            1: { original: 7400000, discount: 740000, net: 6660000 },
+            2: { original: 14800000, discount: 2146000, net: 12654000 },
+            3: { original: 22200000, discount: 3618600, net: 18581400 }
+        },
+        'SS_Peak': {
+            1: { original: 11400000, discount: 1070000, net: 10330000 },
+            2: { original: 22800000, discount: 3103000, net: 19697000 },
+            3: { original: 34200000, discount: 5232300, net: 28967700 }
+        }
+    },
+    'Sidoarjo_Gresik': {
+        'HF_TB_FR_Standard': {
+            1: { original: 6000000, discount: 600000, net: 5400000 },
+            2: { original: 12000000, discount: 1740000, net: 10260000 },
+            3: { original: 18000000, discount: 2934000, net: 15066000 }
+        },
+        'SS_Standard': {
+            1: { original: 8600000, discount: 880000, net: 7720000 },
+            2: { original: 17200000, discount: 2552000, net: 14648000 },
+            3: { original: 25800000, discount: 4303200, net: 21496800 }
+        },
+        'HF_TB_FR_Peak': {
+            1: { original: 6500000, discount: 650000, net: 5850000 },
+            2: { original: 13000000, discount: 1885000, net: 11115000 },
+            3: { original: 19500000, discount: 3178500, net: 16321500 }
+        },
+        'SS_Peak': {
+            1: { original: 9400000, discount: 960000, net: 8440000 },
+            2: { original: 18800000, discount: 2784000, net: 16016000 },
+            3: { original: 28200000, discount: 4694400, net: 23505600 }
+        }
+    },
+    'Malang_Lombok_Bali': {
+        'HF_TB_FR_Standard': {
+            1: { original: 6000000, discount: 600000, net: 5400000 },
+            2: { original: 12000000, discount: 1740000, net: 10260000 },
+            3: { original: 18000000, discount: 2934000, net: 15066000 }
+        },
+        'SS_Standard': {
+            1: { original: 8600000, discount: 880000, net: 7720000 },
+            2: { original: 17200000, discount: 2552000, net: 14648000 },
+            3: { original: 25800000, discount: 4303200, net: 21496800 }
+        }
+    },
+    'Gianyar': {
+        'HF_TB_FR_Standard': {
+            1: { original: 5500000, discount: 550000, net: 4950000 },
+            2: { original: 11000000, discount: 1595000, net: 9405000 },
+            3: { original: 16500000, discount: 2689500, net: 13810500 }
+        },
+        'SS_Standard': {
+            1: { original: 8000000, discount: 840000, net: 7160000 },
+            2: { original: 16000000, discount: 2436000, net: 13564000 },
+            3: { original: 24000000, discount: 4107600, net: 19892400 }
+        }
+    },
+    'Jember_Kediri_Madiun': {
+        'HF_TB_FR_Standard': {
+            1: { original: 5100000, discount: 510000, net: 4590000 },
+            2: { original: 10200000, discount: 1479000, net: 8721000 },
+            3: { original: 15300000, discount: 2493900, net: 12806100 }
+        },
+        'SS_Standard': {
+            1: { original: 8100000, discount: 810000, net: 7290000 },
+            2: { original: 16200000, discount: 2349000, net: 13851000 },
+            3: { original: 24300000, discount: 3960900, net: 20339100 }
+        }
+    },
+    'Bandung': {
+        'HF_TB_FR_Standard': {
+            1: { original: 6800000, discount: 680000, net: 6120000 },
+            2: { original: 13600000, discount: 1972000, net: 11628000 },
+            3: { original: 20400000, discount: 3325200, net: 17074800 }
+        },
+        'SS_Standard': {
+            1: { original: 9900000, discount: 990000, net: 8910000 },
+            2: { original: 19800000, discount: 2871000, net: 16929000 },
+            3: { original: 29700000, discount: 4841100, net: 24858900 }
+        },
+        'HF_TB_FR_Peak': {
+            1: { original: 7400000, discount: 740000, net: 6660000 },
+            2: { original: 14800000, discount: 2146000, net: 12654000 },
+            3: { original: 22200000, discount: 3618600, net: 18581400 }
+        },
+        'SS_Peak': {
+            1: { original: 10700000, discount: 1070000, net: 9630000 },
+            2: { original: 21400000, discount: 3103000, net: 18297000 },
+            3: { original: 32100000, discount: 5232300, net: 26867700 }
+        }
+    },
+    'Kopo': {
+        'HF_TB_FR_Standard': {
+            1: { original: 6400000, discount: 640000, net: 5760000 },
+            2: { original: 12800000, discount: 1856000, net: 10944000 },
+            3: { original: 19200000, discount: 3129600, net: 16070400 }
+        },
+        'SS_Standard': {
+            1: { original: 9500000, discount: 950000, net: 8550000 },
+            2: { original: 19000000, discount: 2755000, net: 16245000 },
+            3: { original: 28500000, discount: 4645500, net: 23854500 }
+        },
+        'HF_TB_FR_Peak': {
+            1: { original: 7000000, discount: 700000, net: 6300000 },
+            2: { original: 14000000, discount: 2030000, net: 11970000 },
+            3: { original: 21000000, discount: 3423000, net: 17577000 }
+        },
+        'SS_Peak': {
+            1: { original: 10300000, discount: 1030000, net: 9270000 },
+            2: { original: 20600000, discount: 2987000, net: 17613000 },
+            3: { original: 30900000, discount: 5036700, net: 25863300 }
+        }
+    }
+};
+
+export function getRegionFromCenter(center) {
+    if (!center) return 'Surabaya';
+    const lower = center.toLowerCase().trim();
+
+    if (lower.includes('kopo')) {
+        return 'Kopo';
+    }
+    if (lower.includes('bandung')) {
+        return 'Bandung';
+    }
+    if (lower.includes('sidoarjo') || lower.includes('gresik')) {
+        return 'Sidoarjo_Gresik';
+    }
+    if (lower.includes('malang') || lower.includes('lombok') || (lower.includes('bali') && !lower.includes('gianyar'))) {
+        return 'Malang_Lombok_Bali';
+    }
+    if (lower.includes('gianyar')) {
+        return 'Gianyar';
+    }
+    if (lower.includes('jember') || lower.includes('kediri') || lower.includes('madiun')) {
+        return 'Jember_Kediri_Madiun';
+    }
+    return 'Surabaya';
+}
+
+export function getPricingForSelection(center, program, courseType, courseLength) {
+    const region = getRegionFromCenter(center);
+    const regionPricing = REGIONAL_PRICING_TABLE[region] || REGIONAL_PRICING_TABLE['Surabaya'];
+    const isSS = (program || '').toLowerCase().includes('small stars');
+    const productKey = isSS ? 'SS' : 'HF_TB_FR';
+    
+    let key = `${productKey}_${courseType}`;
+    if (!regionPricing[key]) {
+        key = `${productKey}_Standard`;
+    }
+    return regionPricing[key][courseLength] || regionPricing[`${productKey}_Standard`][courseLength];
+}
+
