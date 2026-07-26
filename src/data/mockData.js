@@ -207,16 +207,43 @@ function getDayOfWeek(dateStr) {
     return daysEnglish[date.getDay()];
 }
 
+const monthNamesMap = {
+    'jan': 1, 'january': 1, 'januari': 1,
+    'feb': 2, 'february': 2, 'februari': 2,
+    'mar': 3, 'march': 3, 'maret': 3,
+    'apr': 4, 'april': 4,
+    'may': 5, 'mei': 5,
+    'jun': 6, 'june': 6, 'juni': 6,
+    'jul': 7, 'july': 7, 'juli': 7,
+    'aug': 8, 'august': 8, 'agustus': 8, 'agu': 8,
+    'sep': 9, 'september': 9,
+    'oct': 10, 'october': 10, 'okt': 10, 'oktober': 10,
+    'nov': 11, 'november': 11,
+    'dec': 12, 'december': 12, 'des': 12, 'desember': 12
+};
+
+function parseMonthToken(token) {
+    if (!token) return NaN;
+    const num = parseInt(token, 10);
+    if (!isNaN(num)) return num;
+    const key = token.trim().toLowerCase();
+    return monthNamesMap[key] || NaN;
+}
+
 function resolveDate(rawDate, sessionDays) {
     if (!rawDate) return '';
-    const clean = rawDate.replace(/-/g, '/').trim();
+    const clean = String(rawDate).replace(/-/g, '/').trim();
     const parts = clean.split('/');
     if (parts.length !== 3) return rawDate;
 
-    let A = parseInt(parts[0], 10);
-    let B = parseInt(parts[1], 10);
+    let A = parseMonthToken(parts[0]);
+    let B = parseMonthToken(parts[1]);
     let yearPart = parts[2].trim();
     let year = yearPart.length === 2 ? '20' + yearPart : yearPart;
+
+    if (isNaN(A) || isNaN(B) || isNaN(parseInt(year, 10))) {
+        return rawDate;
+    }
 
     let day = A;
     let month = B;
@@ -258,6 +285,8 @@ function resolveDate(rawDate, sessionDays) {
             }
         }
     }
+
+    if (isNaN(day) || isNaN(month)) return rawDate;
 
     return `${String(day).padStart(2, '0')}-${String(month).padStart(2, '0')}-${year}`;
 }
@@ -352,11 +381,11 @@ function getLevelFromGroupName(groupName, program) {
     }
 
     if (progLower.includes('frontrunner')) {
-        const match = nameUpper.match(/(?:FR|FG)\s*(?:BOOK\s*)?([1-9]|1[0-6])/);
+        const match = nameUpper.match(/(?:FR|FG)\s*(?:BOOK\s*)?(1[0-6]|[1-9])/);
         if (match) return match[1];
-        const standalone = nameUpper.match(/\b([1-9]|1[0-6])\b/);
+        const standalone = nameUpper.match(/\b(1[0-6]|[1-9])\b/);
         if (standalone) return standalone[1];
-        const firstDigit = nameUpper.match(/([1-9]|1[0-6])/);
+        const firstDigit = nameUpper.match(/(1[0-6]|[1-9])/);
         if (firstDigit) return firstDigit[1];
     }
 
