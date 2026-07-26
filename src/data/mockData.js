@@ -121,7 +121,7 @@ export const MOCK_SALES = [
     { username: 'Anna', password: '123', city: 'All', locationLabel: 'All Cities (Admin)', role: 'admin' },
     { username: 'Wulan', password: '123', city: 'All', locationLabel: 'All Cities (Admin)', role: 'admin' },
     { username: 'Ria', password: '123', city: 'All', locationLabel: 'All Cities (Admin)', role: 'admin' },
-    { username: 'sales1', password: '123', city: 'Surabaya', locationLabel: 'Surabaya', role: 'sales' },
+    { username: 'sales1', password: '123', city: 'All', locationLabel: 'All Cities (Admin)', role: 'admin' },
     { username: 'admin', password: 'admin', city: 'All', locationLabel: 'All Cities (Admin)', role: 'admin' }
 ];
 
@@ -147,8 +147,20 @@ export function getCityFromCenter(center) {
 }
 
 export function getSalesUser(username) {
-    if (!username) return { username: '', city: 'Surabaya', locationLabel: 'Surabaya', role: 'sales' };
-    const user = MOCK_SALES.find(u => u.username.toLowerCase() === username.trim().toLowerCase());
+    if (!username) return { username: '', city: 'All', locationLabel: 'All Cities (Admin)', role: 'admin' };
+    const clean = username.trim().toLowerCase();
+    
+    // Check if admin/supervisor username
+    if (['admin', 'anna', 'wulan', 'ria', 'sales1'].includes(clean) || clean.startsWith('admin')) {
+        return {
+            username: username,
+            city: 'All',
+            locationLabel: 'All Cities (Admin)',
+            role: 'admin'
+        };
+    }
+
+    const user = MOCK_SALES.find(u => u.username.toLowerCase() === clean);
     if (user) {
         return {
             username: user.username,
@@ -305,10 +317,13 @@ function translateDays(rawDays) {
 function getLevelFromGroupName(groupName, program) {
     if (!groupName) return '';
     const nameUpper = groupName.toUpperCase().trim();
-    const progLower = program.toLowerCase();
+    const progLower = (program || '').toLowerCase();
 
     if (progLower.includes('small stars')) {
-        const match = nameUpper.match(/SS\s*([1-4])/);
+        if (nameUpper.includes('FOUNDATION') || nameUpper.includes('FOUND') || nameUpper.includes('SG 0') || nameUpper.includes('SS 0')) {
+            return '0';
+        }
+        const match = nameUpper.match(/(?:SS|SG)\s*([1-4])/);
         if (match) return match[1];
         const standalone = nameUpper.match(/\b([1-4])\b/);
         if (standalone) return standalone[1];
@@ -317,16 +332,18 @@ function getLevelFromGroupName(groupName, program) {
     }
 
     if (progLower.includes('high flyers')) {
-        if (nameUpper.includes('FOUNDATION') || nameUpper.includes('FOUND') || nameUpper.includes('FND')) {
+        if (nameUpper.includes('FOUNDATION') || nameUpper.includes('FOUND') || nameUpper.includes('FND') || nameUpper.includes('HG 0') || nameUpper.includes('HF 0')) {
             return '0';
         }
-        const levelPattern = /(?:1A|1B|2A|2B|3A|3B|4A|4B|G|H|I|J)\b/i;
-        const match = nameUpper.match(levelPattern);
+        // Match 1A, 1B, 2A, 2B, 3A, 3B, 4A, 4B or single letter levels A-J
+        const match = nameUpper.match(/(?:1A|1B|2A|2B|3A|3B|4A|4B|[1-4][A-B]|\b[A-J]\b)/i);
         if (match) return match[0].toUpperCase();
+        const numMatch = nameUpper.match(/(?:HF|HG|HIGH\s*FLYERS)\s*([1-4])/i);
+        if (numMatch) return numMatch[1];
     }
 
     if (progLower.includes('trailblazer')) {
-        const match = nameUpper.match(/TB\s*([1-8])/);
+        const match = nameUpper.match(/(?:TB|TG)\s*([1-8])/);
         if (match) return match[1];
         const standalone = nameUpper.match(/\b([1-8])\b/);
         if (standalone) return standalone[1];
@@ -335,7 +352,7 @@ function getLevelFromGroupName(groupName, program) {
     }
 
     if (progLower.includes('frontrunner')) {
-        const match = nameUpper.match(/FR\s*([1-9]|1[0-6])/);
+        const match = nameUpper.match(/(?:FR|FG)\s*(?:BOOK\s*)?([1-9]|1[0-6])/);
         if (match) return match[1];
         const standalone = nameUpper.match(/\b([1-9]|1[0-6])\b/);
         if (standalone) return standalone[1];
@@ -463,12 +480,12 @@ function parseCSV(csvText) {
         }
         
         if (center && program && timeSession) {
-            let level = row['Level Program'] ? row['Level Program'].trim() : '';
+            let level = getLevelFromGroupName(groupName, program);
             if (!level) {
-                level = getLevelFromGroupCode(groupCode);
+                level = row['Level Program'] ? row['Level Program'].trim() : '';
             }
             if (!level) {
-                level = getLevelFromGroupName(groupName, program);
+                level = getLevelFromGroupCode(groupCode);
             }
             if (level) {
                 level = level.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
@@ -476,6 +493,15 @@ function parseCSV(csvText) {
                     level = '0';
                 }
             }
+
+            let displayGroupCode = groupCode;
+            const isForming = groupName.toLowerCase().includes('forming') || 
+                              status.toLowerCase().includes('create') || 
+                              status.toLowerCase().includes('pending');
+            if (!displayGroupCode && isForming) {
+                displayGroupCode = 'FORMING';
+            }
+
             classes.push({
                 school: center,
                 city: getCityFromCenter(center),
@@ -484,7 +510,7 @@ function parseCSV(csvText) {
                 hari: dayOfWeek,
                 jam: timeSession,
                 groupName: groupName,
-                groupCode: groupCode,
+                groupCode: displayGroupCode,
                 status: status,
                 kapasitas: getCapacity(program, level),
                 member: activeStudents,
@@ -552,13 +578,21 @@ function parseJsonRows(rows) {
         let member = parseInt(row['Active Students'] || row['member'] || '0', 10);
         let startDate = row['Start Date'] || row['startDate'] || '';
         let startWeek = row['Start Week'] || row['startWeek'] || '';
-        let level = row['Level Program'] || row['level'] || getLevelFromGroupCode(groupCode) || getLevelFromGroupName(groupName, program);
+        let level = getLevelFromGroupName(groupName, program) || row['Level Program'] || row['level'] || getLevelFromGroupCode(groupCode);
 
         if (level) {
             level = String(level).replace(/[^A-Za-z0-9]/g, '').toUpperCase();
             if (level.includes('FOUNDATION') || level.includes('FOUND') || level === '0') {
                 level = '0';
             }
+        }
+
+        let displayGroupCode = groupCode;
+        const isForming = groupName.toLowerCase().includes('forming') || 
+                          String(status).toLowerCase().includes('create') || 
+                          String(status).toLowerCase().includes('pending');
+        if (!displayGroupCode && isForming) {
+            displayGroupCode = 'FORMING';
         }
 
         if (center && program && timeSession) {
@@ -570,7 +604,7 @@ function parseJsonRows(rows) {
                 hari: dayOfWeek,
                 jam: timeSession,
                 groupName: groupName,
-                groupCode: groupCode,
+                groupCode: displayGroupCode,
                 status: status,
                 kapasitas: getCapacity(program, level),
                 member: member,
