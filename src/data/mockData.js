@@ -600,12 +600,38 @@ function parseJsonRows(rows) {
         let rawProgram = row['Program'] ? String(row['Program']).trim() : '';
         const program = normalizeProgram(rawProgram);
         let timeSession = row['Time Session'] || row['Time'] || row['jam'] || '';
+        if (timeSession) {
+            if (String(timeSession).includes('T')) {
+                const timeMatch = String(timeSession).match(/T(\d{2}):(\d{2})/);
+                if (timeMatch) {
+                    timeSession = `${timeMatch[1]}:${timeMatch[2]}`;
+                }
+            } else {
+                const isPM = String(timeSession).toLowerCase().includes('pm');
+                const isAM = String(timeSession).toLowerCase().includes('am');
+                let cleanTime = String(timeSession).replace(/\s*[aApP][mM]\s*/g, '').trim();
+                const timeParts = cleanTime.split(':');
+                if (timeParts.length >= 2) {
+                    let hour = parseInt(timeParts[0], 10);
+                    const minute = timeParts[1].padStart(2, '0');
+                    if (isPM && hour < 12) hour += 12;
+                    if (isAM && hour === 12) hour = 0;
+                    timeSession = `${String(hour).padStart(2, '0')}:${minute}`;
+                }
+            }
+        }
+
         let dayOfWeek = row['Session Days'] || row['hari'] || '';
+        if (dayOfWeek) {
+            dayOfWeek = translateDays(dayOfWeek);
+        }
+
         let groupName = row['Group: Group Name'] || row['groupName'] || '';
         let groupCode = row['Group Code'] || row['groupCode'] || '';
         let status = row['Status'] || row['status'] || 'Activated';
         let member = parseInt(row['Active Students'] || row['member'] || '0', 10);
-        let startDate = row['Start Date'] || row['startDate'] || '';
+        let rawStartDate = row['Start Date'] || row['startDate'] || row['First Session Start Date'] || '';
+        let startDate = resolveDate(rawStartDate, dayOfWeek);
         let startWeek = row['Start Week'] || row['startWeek'] || '';
         let level = getLevelFromGroupName(groupName, program) || row['Level Program'] || row['level'] || getLevelFromGroupCode(groupCode);
 
@@ -661,24 +687,24 @@ export const PROGRAMS = Array.from(programsSet).sort();
 export const REGIONAL_PRICING_TABLE = {
     'Surabaya': {
         'HF_TB_FR_Standard': {
-            1: { original: 6800000, discount: 680000, net: 6120000 },
-            2: { original: 13600000, discount: 1972000, net: 11628000 },
-            3: { original: 20400000, discount: 3325200, net: 17074800 }
+            1: { original: 6800000, discount: 476000, net: 6324000 },
+            2: { original: 13600000, discount: 1584400, net: 12015600 },
+            3: { original: 20400000, discount: 2756040, net: 17643960 }
         },
         'SS_Standard': {
-            1: { original: 10900000, discount: 990000, net: 9910000 },
-            2: { original: 21800000, discount: 2871000, net: 18929000 },
-            3: { original: 32700000, discount: 4841100, net: 27858900 }
+            1: { original: 10900000, discount: 693000, net: 10207000 },
+            2: { original: 21800000, discount: 2306700, net: 19493300 },
+            3: { original: 32700000, discount: 4012470, net: 28687530 }
         },
         'HF_TB_FR_Peak': {
-            1: { original: 7400000, discount: 740000, net: 6660000 },
-            2: { original: 14800000, discount: 2146000, net: 12654000 },
-            3: { original: 22200000, discount: 3618600, net: 18581400 }
+            1: { original: 7400000, discount: 518000, net: 6882000 },
+            2: { original: 14800000, discount: 1724200, net: 13075800 },
+            3: { original: 22200000, discount: 2999220, net: 19200780 }
         },
         'SS_Peak': {
-            1: { original: 11400000, discount: 1070000, net: 10330000 },
-            2: { original: 22800000, discount: 3103000, net: 19697000 },
-            3: { original: 34200000, discount: 5232300, net: 28967700 }
+            1: { original: 11400000, discount: 749000, net: 10651000 },
+            2: { original: 22800000, discount: 2493100, net: 20306900 },
+            3: { original: 34200000, discount: 4336710, net: 29863290 }
         }
     },
     'Sidoarjo_Gresik': {

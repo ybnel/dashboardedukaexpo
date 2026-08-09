@@ -67,7 +67,7 @@ export default function Dashboard() {
             allLeads.sort((a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0));
 
             // Deployed Web App URL
-            const webAppUrl = "https://script.google.com/macros/s/AKfycbyv430T3TgV26JOooDENYqfrjAJ2uOkHBHlmRzehPEkEBDpf7qFSGJngBTuc7DzI5JTDg/exec";
+            const webAppUrl = "https://script.google.com/macros/s/AKfycbwVGcLCEfLJOz7YeGE11i024XOykNt2eOfdmPlzlwUoSQsOzzeQd5pOxsAIGuF_JDdp3A/exec";
 
             // POST data to Google Sheets Apps Script
             await fetch(webAppUrl, {
